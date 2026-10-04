@@ -1,0 +1,11 @@
+{
+  "prompts_sha256": "c3b0c0f38eacba4fbc4211c10af9d70bbc4b769b10257f739673d21ee9ec8cc4",
+  "capture_records_sha256": "7de8897612f8014ae3e351647009f3e8db1109bfaa9941661fe36cc35986ddaa",
+  "capture_tensors_sha256": "c20a83917363b480c6cb672e61b641aadce17249666558a675e9367334c29aa0",
+  "samples_sha256": "faf7653de53c1edabcd363a74a7c7d9452bdc868ac3e333c6300d8f34841e4f3",
+  "real_cells_sha256": "1686fa68beafac9e10e0230283db3707e64d2d0114202fac84642ef3c811cbf0",
+  "excluded_fields": [
+    "timings_ms",
+    "system"
+  ]
+}

@@ -50,6 +50,23 @@ REFERENCE_FORBIDDEN_IMPORTS = re.compile(
 )
 
 
+ORACLE_IMPORT = re.compile(r"^\s*(from|import)\s+awpmi\.oracle\b|^\s*from\s+awpmi\s+import\s+.*\boracle\b", re.MULTILINE)
+ORACLE_FORBIDDEN_IMPORTS = re.compile(
+    r"^\s*(from|import)\s+awpmi\.(storage|streaming|materialization|stores|models|refinement_head|suffix_runtime|streaming_reference)\b",
+    re.MULTILINE,
+)
+
+
+def test_no_runtime_path_uses_the_oracles():
+    """Phases 1B and 5A (decisions 0003, 0009): the oracles are diagnostic simulators; nothing outside `awpmi.oracle`
+    imports them, and they read no storage and run no runtime path (the expert oracle holds every weight itself)."""
+    for path in sorted(SRC.rglob("*.py")):
+        if "oracle" in path.relative_to(SRC).parts:
+            assert not ORACLE_FORBIDDEN_IMPORTS.search(path.read_text(encoding="utf-8")), path.name
+        else:
+            assert not ORACLE_IMPORT.search(path.read_text(encoding="utf-8")), path.name
+
+
 def test_the_streaming_reference_shares_nothing_with_shardraws_path():
     text = (SRC / "streaming_reference.py").read_text(encoding="utf-8")
     assert not REFERENCE_FORBIDDEN_IMPORTS.search(text)

@@ -61,6 +61,19 @@ compared with an independent streaming reference, transformers' own model and lo
 experts layer materialized at a time, itself checked against `from_pretrained` where that fits.
 Every step equals the reference bit for bit, in two runs with identical digests.
 
+**Phase 5A — AWPMI inside routed experts, an oracle study** asks whether, once the router has chosen
+Moonlight's experts, Shardraw must read all of them to keep the final token. For the last MoE layer at
+decode, upstream exact, an oracle reads the routed experts progressively in several decompositions
+(neuron pages, down-projection row pages, neuron-major pages, precision levels), bounds every
+intermediate of the experts call, the MoE block, the residual and the final norm through the reference's
+own operations, and certifies the token against the whole vocabulary with a pairwise certificate
+generalized to a mixture of experts. Under the certified (faithful) rounding model the answer is no
+saving (gate: FAIL): the reference's own BF16 roundings leave about three logits of uncertainty on the
+closest pair, so even with every routed byte read only 8.1% of 768 tokens certify, and the realistic
+bounds on unread parts are too loose to certify any token earlier, even in real arithmetic. Labelled
+round-to-nearest-even what-ifs and a real-arithmetic diagnostic are reported beside it; no expert-AWPMI
+runtime is built.
+
 ## Setup
 
 ```bash
@@ -98,6 +111,9 @@ uv run python benchmarks/moonlight_runtime.py --output experiments/phase4b/my-ru
 uv run python benchmarks/moonlight_profile.py --run experiments/phase4b/my-run --configuration stream --trace \
     --output experiments/phase4b/my-run/profile-stream.json
 uv run python benchmarks/moonlight_report.py experiments/phase4b/my-run [--compare experiments/phase4b/other-run]
+uv run python benchmarks/expert_oracle.py --output experiments/phase5a/my-run --stage prepare   # Phase 5A, then each stage:
+uv run python benchmarks/expert_oracle.py --output experiments/phase5a/my-run --stage capture   # capture | oracle --shard i | oracle-real | digest
+uv run python benchmarks/expert_oracle_report.py experiments/phase5a/my-run [--compare experiments/phase5a/other-run]
 ```
 
 `run.py` writes raw per-input records, validation records, the prompts, the
@@ -132,7 +148,11 @@ the Phase 4B benchmark: the streaming reference, then the streamed model under a
 bounded expert calls, every configuration compared with the reference and audited;
 `moonlight_profile.py` times one configuration per process, and `moonlight_report.py` evaluates
 correctness and gates A–F (`configs/phase4b-moonlight.yaml`). The Moonlight tokenizer is the
-official remote code (tiktoken), run at the pinned revision.
+official remote code (tiktoken), run at the pinned revision. `expert_oracle.py` runs the Phase 5A
+oracle: a capture of the last MoE layer's tensors at every decode step on the Phase 4B streamed path,
+then, per sample, the reference recomputed bitwise, every arithmetic tier's ceiling and every strategy's
+cells; `expert_oracle_report.py` evaluates correctness and the decision gate
+(`configs/phase5a-expert-oracle.yaml`).
 
 ## Layout
 
@@ -143,21 +163,24 @@ src/awpmi/      reference, paging, bounds, state, certificate, schedulers, execu
                 bounds/{rounding,enclosure,operators,pairwise} and suffix_runtime (Phase 2),
                 storage, streaming, materialization, models/moe and cli (Phase 3),
                 profiles, models/checkpoint and models/olmoe (Phase 4A),
-                streaming_reference, models/moonlight and models/streamed (Phase 4B)
+                streaming_reference, models/moonlight and models/streamed (Phase 4B),
+                oracle/experts (Phase 5A expert oracle)
 tests/          bound soundness, pages, certificate and ties, reference parity, fallback parity,
                 decomposition exactness, refinement oracle, packing, coarse bounds, runtime,
                 rounding models, operator bounds, enclosure LM head, adaptive suffix,
                 storage (no hidden reads), streaming and caches, runtime on storage, MoE experts, layering,
                 composed segments and compact expert calls (Phase 4A), chunked expert calls,
-                the streaming reference, the Moonlight adapter and streamed parameters (Phase 4B)
+                the streaming reference, the Moonlight adapter and streamed parameters (Phase 4B),
+                the expert oracle (Phase 5A)
 benchmarks/     run.py, report.py, prompts.py, oracle.py, refinement_oracle.py, refinement_report.py,
                 refinement_runtime.py, refinement_runtime_report.py, fallback_study.py,
                 suffix_runtime.py, suffix_report.py, storage_runtime.py, storage_report.py,
                 moe_runtime.py, moe_report.py, olmoe_runtime.py, olmoe_profile.py, olmoe_report.py,
-                moonlight_runtime.py, moonlight_reference_check.py, moonlight_profile.py, moonlight_report.py
+                moonlight_runtime.py, moonlight_reference_check.py, moonlight_profile.py, moonlight_report.py,
+                expert_oracle.py, expert_oracle_report.py
 configs/        smollm2-135m.yaml (pinned model and dataset revisions), phase1b-refinement.yaml,
                 phase1c-runtime.yaml, phase2-suffix.yaml, phase3-storage.yaml, phase3-moe.yaml,
-                phase4a-olmoe.yaml, phase4b-moonlight.yaml
+                phase4a-olmoe.yaml, phase4b-moonlight.yaml, phase5a-expert-oracle.yaml
 experiments/    raw results per phase and run
 packs/          packs and expert indexes (gitignored; rebuilt by `awpmi pack`)
 ```

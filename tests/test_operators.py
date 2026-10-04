@@ -112,9 +112,9 @@ def test_silu_encloses_the_reference_kernel(device, model):
     assert_inside(F.silu(x.to(BF16).to(device)), silu(wide, BF16, model), owners)
 
 
-def rms_norm_reference(x: torch.Tensor, weight: torch.Tensor, eps: float):
-    """LlamaRMSNorm.forward, plus its internal q and n, by the same operations on the same tensors."""
-    module = LlamaRMSNorm(weight.numel(), eps=eps).to(device=x.device, dtype=weight.dtype)
+def rms_norm_reference(x: torch.Tensor, weight: torch.Tensor, eps: float, module_class=LlamaRMSNorm):
+    """LlamaRMSNorm.forward (or DeepseekV3RMSNorm's), plus its internal q and n, by the same operations on the same tensors."""
+    module = module_class(weight.numel(), eps=eps).to(device=x.device, dtype=weight.dtype)
     module.weight.data.copy_(weight)
     with torch.inference_mode():
         output = module(x)
@@ -135,13 +135,22 @@ def sample_rows(enclosure: Enclosure, generator, count: int) -> torch.Tensor:
     return torch.stack(rows)
 
 
+def deepseek_v3_rms_norm():
+    from transformers.models.deepseek_v3.modeling_deepseek_v3 import DeepseekV3RMSNorm
+
+    return DeepseekV3RMSNorm
+
+
 @pytest.mark.parametrize("device", DEVICES)
 @pytest.mark.parametrize("model", MODELS)
-def test_rms_norm_encloses_the_reference_module(device, model):
+@pytest.mark.parametrize("module", ["llama", "deepseek_v3"])
+def test_rms_norm_encloses_the_reference_module(device, model, module):
+    """Phase 5A: DeepseekV3RMSNorm (Moonlight's final norm) runs LlamaRMSNorm's operations; both are checked."""
+    module_class = LlamaRMSNorm if module == "llama" else deepseek_v3_rms_norm()
     generator = torch.Generator().manual_seed(2)
     eps = 1e-5
-    # Exhaustive on a tiny hidden size, sampled on the real one.
-    for width, scale, exhaustive in ((5, 2.0, True), (6, 0.01, True), (576, 20.0, False), (576, 1e-3, False)):
+    # Exhaustive on a tiny hidden size, sampled on the real ones (SmolLM2's 576, Moonlight's 2048).
+    for width, scale, exhaustive in ((5, 2.0, True), (6, 0.01, True), (576, 20.0, False), (576, 1e-3, False), (2048, 6.0, False)):
         inputs = grid_enclosure(generator, width, scale, max_steps=2, device=device)
         weight = (torch.randn(width, generator=generator) * 0.8 + 0.2).to(BF16).to(device)
         bounds = rms_norm(inputs, weight, eps, model, FP32_ACCUMULATION_UNIT_ROUNDOFF)
@@ -150,7 +159,7 @@ def test_rms_norm_encloses_the_reference_module(device, model):
             rows = torch.tensor(list(itertools.product(*choices)), dtype=torch.float64)
         else:
             rows = sample_rows(inputs, generator, 200)
-        output, scale_values, normalized = rms_norm_reference(rows.to(BF16).to(device)[:, None, :], weight, eps)
+        output, scale_values, normalized = rms_norm_reference(rows.to(BF16).to(device)[:, None, :], weight, eps, module_class)
         for row in range(rows.shape[0]):
             assert_inside(output[row, 0], bounds.output)
             assert_inside(normalized[row, 0], bounds.normalized)
@@ -178,6 +187,90 @@ def test_linear_encloses_the_reference_gemm(device, model):
             assert_inside(row, full)
             assert_inside(row, partial)
         assert bool((partial.width >= full.width).all())
+
+
+@pytest.mark.parametrize("device", DEVICES)
+@pytest.mark.parametrize("model", MODELS)
+def test_routing_weights_and_the_combine_enclose_grouped_mm_semantics(device, model):
+    """Phase 5A: BF16 expert outputs × float32 routing weights (→ float32), summed over the top-k in float32, cast to BF16,
+    as transformers' grouped_mm combine computes them, on every grid point of small enclosures."""
+    generator = torch.Generator().manual_seed(9)
+    for scale in (1e-3, 0.5, 40.0):
+        terms = [grid_enclosure(generator, 32, scale, max_steps=2) for _ in range(3)]
+        weights = (torch.rand(3, generator=generator) * 2.4 + 0.01).to(torch.float32)
+        scaled = [multiply(term, Enclosure.exact(weights[k].double().expand(32)), torch.float32, model) for k, term in enumerate(terms)]
+        combined = operators.reduce_sum(scaled, FP32_ACCUMULATION_UNIT_ROUNDOFF, BF16, model)
+        values, owners = elementwise_cases(*terms)
+        outputs = torch.stack(values).to(BF16).to(device)  # [k, cases]: the cases play the hidden dimension
+        weighted = outputs * weights.to(device)[:, None]  # BF16 × float32 → float32, as `proj_out * sample_weights`
+        for k in range(3):
+            assert_inside(weighted[k], scaled[k], owners)
+        # `weighted_out.view(num_tokens, num_top_k, hidden_dim).sum(dim=1)`, then `.to(bfloat16)`.
+        assert_inside(weighted.view(1, 3, -1).sum(dim=1).to(BF16).reshape(-1), combined, owners)
+        # Another order, by explicit additions.
+        reversed_sum = (weighted[2] + weighted[1]) + weighted[0]
+        assert_inside(reversed_sum.to(BF16), combined, owners)
+
+
+def test_reduce_sum_encloses_adversarial_realizations():
+    """Any fp32 summation order with every rounding up or down, then a faithful BF16 conversion."""
+    import random
+
+    rng = random.Random(10)
+    generator = torch.Generator().manual_seed(10)
+    for count in (2, 6, 8):
+        terms = [Enclosure.exact((torch.randn(64, generator=generator) * 10.0 ** rng.uniform(-3, 2)).to(torch.float32).double()) for _ in range(count)]
+        combined = operators.reduce_sum(terms, FP32_ACCUMULATION_UNIT_ROUNDOFF, BF16, RoundingModel.FAITHFUL)
+        for _ in range(20):
+            order = list(range(count))
+            rng.shuffle(order)
+            values = []
+            for element in range(64):
+                total = 0.0
+                for k in order:
+                    total = faithful_round(total + float(terms[k].lower[element]), torch.float32, rng.random() < 0.5)
+                values.append(faithful_round(total, BF16, rng.random() < 0.5))
+            assert_inside(torch.tensor(values), combined)
+        # The exact real sum (Fraction) is inside too.
+        exact = [float(sum(Fraction(float(t.lower[element])) for t in terms)) for element in range(64)]
+        assert bool(((torch.tensor(exact).double() >= combined.lower) & (torch.tensor(exact).double() <= combined.upper)).all())
+
+
+def test_reduce_sum_without_its_error_term_is_caught(monkeypatch):
+    """Guard check: with no fp32 reduction error, an adversarial summation escapes (cancellation makes it visible)."""
+    import random
+
+    monkeypatch.setattr(operators, "gamma", lambda n, u: 0.0)
+    rng = random.Random(11)
+    escaped = 0
+    for _ in range(200):
+        big = rng.uniform(1.0, 2.0) * 2.0**20
+        values = [big, 1.0 + rng.random() * 2.0**-10, -big]
+        terms = [Enclosure.exact(torch.tensor([float(torch.tensor(v, dtype=torch.float32))]).double()) for v in values]
+        combined = operators.reduce_sum(terms, FP32_ACCUMULATION_UNIT_ROUNDOFF, torch.float32, RoundingModel.FAITHFUL)
+        total = faithful_round(faithful_round(values[0] + values[1], torch.float32, rng.random() < 0.5) + values[2], torch.float32, True)
+        escaped += int(not float(combined.lower[0]) <= total <= float(combined.upper[0]))
+    assert escaped > 0
+
+
+@pytest.mark.parametrize("device", DEVICES)
+@pytest.mark.parametrize("model", MODELS)
+def test_a_batch_of_linear_operations_equals_each_one(device, model):
+    """Phase 5A: `linear` on a batch of weights [B, N, K] (one experts call's routed experts) gives, bitwise, each weight's
+    own enclosure, with one shared input or one input per weight."""
+    generator = torch.Generator().manual_seed(12)
+    numerics = ReferenceNumerics(BF16, FP32_ACCUMULATION_UNIT_ROUNDOFF, 96)
+    weights = (torch.randn(3, 40, 96, generator=generator) * 0.05).to(BF16).to(torch.float64).to(device)
+    unread = torch.rand(3, 40, generator=generator, dtype=torch.float64).to(device) * 0.01
+    shared = grid_enclosure(generator, 96, 2.0, max_steps=2, device=device)
+    own = [grid_enclosure(generator, 96, 1.0, max_steps=2, device=device) for _ in range(3)]
+    batched_shared = linear(shared, weights, numerics, model, unread)
+    batched_own = linear(Enclosure(torch.stack([e.lower for e in own]), torch.stack([e.upper for e in own])), weights, numerics, model, unread)
+    for b in range(3):
+        alone = linear(shared, weights[b], numerics, model, unread[b])
+        assert torch.equal(batched_shared.lower[b], alone.lower) and torch.equal(batched_shared.upper[b], alone.upper)
+        alone = linear(own[b], weights[b], numerics, model, unread[b])
+        assert torch.equal(batched_own.lower[b], alone.lower) and torch.equal(batched_own.upper[b], alone.upper)
 
 
 # Adversarial faithful realizations

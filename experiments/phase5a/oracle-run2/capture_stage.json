@@ -1,0 +1,36 @@
+{
+  "timings_ms": {
+    "verify_files": 79856.8748999387,
+    "load": 5341.664100065827,
+    "capture": 1450740.171900019
+  },
+  "memory": {
+    "start": {
+      "resident_bytes": 631603200,
+      "peak_resident_bytes": 631603200,
+      "private_bytes": 1193074688
+    },
+    "peak": {
+      "resident_bytes": 2722766848,
+      "peak_resident_bytes": 2722836480,
+      "private_bytes": 7706996736
+    }
+  },
+  "gpu_total_bytes": 8585084928,
+  "gpu_budget_bytes": 6000000000,
+  "verification": {
+    "pack_files": "against the Hub's sha256",
+    "other_files": {
+      "model-1-of-27.safetensors": true
+    },
+    "manifest_equals_phase4b": true
+  },
+  "load": {
+    "loaded_bytes": 3130517760,
+    "tensors": 325
+  },
+  "target_layer": "model.layers.26",
+  "samples": 768,
+  "phase4b_compared_steps": 144,
+  "peak_device_bytes": 3915995648
+}

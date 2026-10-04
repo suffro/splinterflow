@@ -1,0 +1,218 @@
+{
+  "timings_ms": {
+    "load": 1397.7417999412864,
+    "real": 2852097.521299962
+  },
+  "weights_equal_reference_rows": true,
+  "strategies": {
+    "A": {
+      "family": "neuron_pages",
+      "page_rows": 0,
+      "spec": null,
+      "storage_multiplier": 1.0,
+      "fallback_bytes": 104076288,
+      "metadata_bytes": 267264,
+      "fallback_physical": {
+        "checkpoint": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25350,
+          "physical_bytes": 103833600,
+          "extents": 6
+        }
+      }
+    },
+    "B1": {
+      "family": "down_rows",
+      "page_rows": 1,
+      "spec": null,
+      "storage_multiplier": 1.0,
+      "fallback_bytes": 104076288,
+      "metadata_bytes": 267264,
+      "fallback_physical": {
+        "checkpoint": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25350,
+          "physical_bytes": 103833600,
+          "extents": 6
+        }
+      }
+    },
+    "B16": {
+      "family": "down_rows",
+      "page_rows": 16,
+      "spec": null,
+      "storage_multiplier": 1.0,
+      "fallback_bytes": 104076288,
+      "metadata_bytes": 267264,
+      "fallback_physical": {
+        "checkpoint": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25350,
+          "physical_bytes": 103833600,
+          "extents": 6
+        }
+      }
+    },
+    "B128": {
+      "family": "down_rows",
+      "page_rows": 128,
+      "spec": null,
+      "storage_multiplier": 1.0,
+      "fallback_bytes": 104076288,
+      "metadata_bytes": 267264,
+      "fallback_physical": {
+        "checkpoint": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25350,
+          "physical_bytes": 103833600,
+          "extents": 6
+        }
+      }
+    },
+    "C": {
+      "family": "neuron_major",
+      "page_rows": 0,
+      "spec": null,
+      "storage_multiplier": 1.3333333333333333,
+      "fallback_bytes": 104076288,
+      "metadata_bytes": 267264,
+      "fallback_physical": {
+        "checkpoint": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25350,
+          "physical_bytes": 103833600,
+          "extents": 6
+        },
+        "neuron_major_copy": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25344,
+          "physical_bytes": 103809024,
+          "extents": 6
+        }
+      }
+    },
+    "D-q8": {
+      "family": "refinement",
+      "page_rows": 0,
+      "spec": "q8",
+      "storage_multiplier": 1.5033735795454546,
+      "fallback_bytes": 156331008,
+      "metadata_bytes": 500736,
+      "fallback_physical": {
+        "checkpoint": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25350,
+          "physical_bytes": 103833600,
+          "extents": 6
+        },
+        "levels": {
+          "logical_bytes": 52021248,
+          "blocks_4k": 12708,
+          "physical_bytes": 52051968,
+          "extents": 18
+        }
+      }
+    },
+    "D-q6+q4": {
+      "family": "refinement",
+      "page_rows": 0,
+      "spec": "q6+q4",
+      "storage_multiplier": 1.6317471590909092,
+      "fallback_bytes": 169657344,
+      "metadata_bytes": 734208,
+      "fallback_physical": {
+        "checkpoint": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25350,
+          "physical_bytes": 103833600,
+          "extents": 6
+        },
+        "levels": {
+          "logical_bytes": 65114112,
+          "blocks_4k": 15912,
+          "physical_bytes": 65175552,
+          "extents": 36
+        }
+      }
+    },
+    "D-q4+q4": {
+      "family": "refinement",
+      "page_rows": 0,
+      "spec": "q4+q4",
+      "storage_multiplier": 1.5067471590909092,
+      "fallback_bytes": 156681216,
+      "metadata_bytes": 734208,
+      "fallback_physical": {
+        "checkpoint": {
+          "logical_bytes": 103809024,
+          "blocks_4k": 25350,
+          "physical_bytes": 103833600,
+          "extents": 6
+        },
+        "levels": {
+          "logical_bytes": 52137984,
+          "blocks_4k": 12744,
+          "physical_bytes": 52199424,
+          "extents": 36
+        }
+      }
+    }
+  },
+  "expert_bytes": 17301504,
+  "routed_bytes": 103809024,
+  "shard": {
+    "index": 0,
+    "of": 1,
+    "prompts": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ]
+  },
+  "peak_device_bytes": 5410118656
+}

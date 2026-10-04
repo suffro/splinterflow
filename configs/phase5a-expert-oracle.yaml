@@ -1,0 +1,103 @@
+# AWPMI Phase 5A: AWPMI inside routed experts, an oracle study (decision 0009).
+
+model:
+  # The Phase 4B model and reference profile (BF16, grouped_mm experts, SDPA): moonshotai/Moonlight-16B-A3B.
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  adapter: moonlight
+  tokenizer_revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  trust_remote_code_tokenizer: true
+
+prompts:
+  # wikitext-2 test paragraphs, as Phase 4B. The same seed and the same first 16 lengths give Phase 4B's 16 prompts (their
+  # steps are compared with Phase 4B's reference records); the draw then continues with 32 more prompts.
+  dataset:
+    repository: Salesforce/wikitext
+    revision: b08601e04326c79dfdd32d625aee71d232d685c3
+    file: wikitext-2-raw-v1/test-00000-of-00001.parquet
+    text_column: text
+  seed: 4
+  lengths: [16, 32, 64, 128, 256, 512, 768, 1024, 16, 32, 64, 128, 256, 512, 768, 1024,
+            16, 32, 64, 128, 256, 512, 768, 1024, 16, 32, 64, 128, 256, 512, 768, 1024,
+            16, 32, 64, 128, 256, 512, 768, 1024, 16, 32, 64, 128, 256, 512, 768, 1024]
+  decode_steps: 16            # greedy tokens after the prompt; every decode step is an oracle sample
+
+# Phase 4B's reference records: the capture's steps of Phase 4B's prompts must equal them in every digest.
+phase4b_reference: experiments/phase4b/moonlight-run1
+
+index:
+  directory: packs/moonlight-16b-a3b-expert-index
+
+storage:
+  alignment: 4096
+  max_gap: 0
+  workers: 8
+  max_read_bytes: 1048576
+  max_extent_bytes: 8388608
+  slot_bytes: 33554432
+  slots: 2
+
+# The capture runs Phase 4B's streamed configuration "stream": no cache, the 256 MiB call budget, under the 6 GB cap.
+gpu_budget_bytes: 6000000000
+call_budget_bytes: 268435456
+
+# The adaptive region: the routed experts of this MoE layer ("last": the last one, model.layers.26) at the last position.
+target_layer: last
+
+timing:
+  settle_seconds: 3
+
+oracle:
+  # Strategies (awpmi.oracle.experts): A (neuron pages, the whole down projection first), B (neuron pages and down
+  # output-row pages of these sizes: 2,816 B, 45 KB, 360 KB), C (neuron-major pages: gate row, up row, down column),
+  # D (per-row precision refinement of gate, up and down: these level hierarchies, then the BF16 rows).
+  page_rows: [1, 16, 128]
+  specs: [q8, q6+q4, q4+q4]
+  # Budgets: multiples of 1/64 of the routed experts' BF16 bytes (6 × 17.3 MB), after a strategy's first reads.
+  budget_step: 0.015625
+  near_rows: 64               # the certificate's first check (an efficiency filter: the whole vocabulary is checked after)
+  partial_columns: 192        # the full check's middle stage (columns per expert kept exact; a valid relaxation)
+  chunk_rows: 4096            # contenders per block of the full check (device memory)
+  # Ceilings (every routed weight read) per arithmetic tier, on every sample. Only "certified" may certify; the others
+  # are labelled what-ifs: an IEEE binary32 accumulator (u = 2⁻²⁴, against decision 0001's 2⁻²²), round-to-nearest-even
+  # in elementwise kernels only, round-to-nearest-even everywhere, and exact real arithmetic (no rounding floor).
+  ceilings: [certified, certified_u24, rn_elementwise, rn_even, real]
+  # Cells per arithmetic tier: [bound tier, ordering]. A cell runs on the samples whose ceiling (every weight read)
+  # certifies in its tier: with realistic bounds partial knowledge never certifies what full knowledge does not.
+  cells:
+    certified: [[realistic, realistic], [realistic, ideal], [ideal, ideal]]
+    rn_even: [[realistic, realistic]]                # EXPERIMENTAL / NOT CERTIFIED what-if
+    real: [[realistic, realistic], [ideal, ideal]]   # DIAGNOSTIC / NOT CERTIFIED: no rounding floor
+  # The what-if and diagnostic tiers' cells run on these decode steps of every prompt (rn_even: 192 samples, real: 96),
+  # to keep each stage under two hours; the certified tier's run on every sample.
+  cell_steps:
+    rn_even: [1, 5, 9, 13]
+    real: [1, 9]
+  # Each oracle stage runs in shards of prompts, one process each, to stay within two hours per command.
+  shards:
+    main: 2
+    real: 1
+
+# Gates, fixed before the full runs (benchmarks/expert_oracle_report.py evaluates them).
+gate:
+  # Correctness (every sample): the capture equals Phase 4B's reference records on every shared step; the target layer's
+  # weights equal the reference's row digests; the reference's own operations reproduce R, m, y, h, the logits (sha256),
+  # the token and the shared experts from the captured inputs, bitwise (the exact fallback); zero enclosure violations in
+  # the certified tier (every intermediate, every evaluation with realistic bounds); zero certified tokens that differ
+  # from the reference's; two runs with different PYTHONHASHSEED give identical digests.
+  #
+  # Decision (the brief's bands), on the primary configuration: certified tier, realistic bounds, realistic ordering.
+  # A strategy's fraction is its bytes (metadata included) over the routed experts' BF16 bytes; a token it does not
+  # certify costs its whole schedule (fallback). Its coverage is the share of samples it certifies.
+  #   STRONG PASS  the best strategy's mean ≤ 0.50 and coverage ≥ 0.80
+  #   PASS         mean ≤ 0.70 and coverage ≥ 0.60; or the ideal oracle (certified tier, ideal bounds and ordering) of
+  #                some strategy has mean ≤ 0.70 while the realistic best is above 0.70 (headroom: change the decomposition)
+  #   WEAK         mean ≤ 0.90
+  #   FAIL         mean > 0.90, or coverage < 0.10 (certification almost always needs every byte)
+  strong_pass_mean: 0.50
+  strong_pass_coverage: 0.80
+  pass_mean: 0.70
+  pass_coverage: 0.60
+  weak_mean: 0.90
+  fail_coverage: 0.10

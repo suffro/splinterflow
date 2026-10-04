@@ -2,110 +2,102 @@
 
 ## Current focus
 
-**Phase 4B (Moonlight-16B-A3B out of VRAM and out of host RAM) is complete (2026-10-03).
-Correctness and gates A–F pass.** The full report is `history/2026-10-03-awpmi-phase4b-report.md`;
-the decisions are in decision 0008.
+**Phase 5A (AWPMI inside routed experts: an oracle study) is complete (2026-10-04). Correctness passes;
+the gate FAILs.** The full report is `history/2026-10-04-awpmi-phase5a-report.md`; the decisions are in
+decision 0009.
 
-- **Answer to the phase's question: yes.** Shardraw runs Moonlight-16B-A3B, DeepSeek-V3's
-  architecture at 16 B parameters, on this machine:
-  - its 28.8 GB of routed experts are 4.8× the 6 GB device cap and 3.4× the GPU;
-  - its 31.9 GB checkpoint does not fit the 32 GB of RAM next to the OS.
+- **Answer to the phase's question: no, not economically.** On Moonlight-16B-A3B's last MoE layer
+  (decode, last position, upstream exact), under the certified rounding model, no token certifies
+  with any routed-expert byte unread, in any decomposition. Even with every routed byte read, the
+  certificate holds on only 8.1% of tokens. A physical expert-AWPMI runtime (Phase 5B) is not
+  justified.
+- **What was built** (decision 0009):
+  - the oracle (`awpmi.oracle.experts`): transformers' experts call recomputed step by step
+    (bitwise equal to the capture on every token); enclosures of every intermediate through the
+    experts, the routing weights, the combine, the residual and the final norm; Phase 2's pairwise
+    certificate generalized to a mixture of experts and checked against all 163,840 vocabulary
+    rows; eight decompositions (A, B1, B16, B128, C, D-q8, D-q6+q4, D-q4+q4); realistic and ideal
+    bounds and orderings; arithmetic tiers (certified, and labelled what-ifs and diagnostics);
+    byte accounting and a physical model of 4 KiB blocks and extents;
+  - new bound operators: `reduce_sum` (the combine), `multiply` into float32 (routing weights),
+    `linear` on a batch of weights; each validated against the reference's kernels, adversarial
+    realizations and exact arithmetic;
+  - a capture of the target layer's tensors on the Phase 4B streamed path, equal to Phase 4B's
+    reference on every shared step.
+- **Results** (768 decode tokens: 48 prompts × 16 steps):
 
-  Every step reproduces an independent, fully materialized reference bit for bit: tokens,
-  logits, the whole KV cache, and per layer attention, router logits/scores/indices/weights,
-  every (token, expert) output where checked, the shared experts' and the MoE block's outputs.
-  That holds for 726 of 726 streamed steps per run, in two runs with different hash seeds and
-  identical digests.
-- **What was built** (decision 0008):
-  - bounded experts calls (`StreamedExperts(max_call_bytes=…)`): a call that would exceed the
-    budget runs in chunks of experts. Each expert matrix is a `ChunkedExpertWeight` stand-in
-    reachable only by `weight[slot]` or `torch._grouped_mm`; transformers' own combine runs once
-    per call;
-  - the independent streaming reference (`awpmi.streaming_reference`): transformers' model and
-    loader, one experts layer at a time from the checkpoint, no Shardraw import. Checked against
-    `from_pretrained` on Moonlight truncated to 4 layers: all equal;
-  - the Moonlight adapter (layout, routers with float32 bias, shared experts, routing
-    configuration, profile);
-  - `StreamedParameters`: dense parameters served from storage at every call (the shared-experts
-    measurement).
-- **Results** (run1):
+  | Configuration | Coverage | Routed bytes needed (mean) |
+  | --- | --- | --- |
+  | Certified tier, realistic bounds and ordering (the gate's) | 8.1% | A, B, C 1.003; D 1.50–1.62 |
+  | Certified tier, ideal bounds (diagnostic) | 8.1% | 0.65–0.90 when certified; 0.99 at best overall |
+  | Real arithmetic, realistic bounds (diagnostic, 96 tokens) | 100% | A, B, C 1.003; D 1.27–1.46 |
+  | Real arithmetic, ideal bounds (diagnostic, 96 tokens) | 100% | D-q6+q4 0.47, A and B 0.71, C 0.85 |
 
-  | | No cache | Hotness, 80 experts | Shared experts streamed |
-  | --- | --- | --- | --- |
-  | Drive per decode token (of all experts) | 0.0938 (2.70 GB) | 0.0796 | 0.0938 + 0.90 GB |
-  | Decode step, profile | 1.27 s | 1.19 s | +0.44 s |
-  | Prefill expert buffers (max) | 173 MB (budget 256 MiB) | 173 MB | 173 MB |
-
-  - Without the budget, a prefill holds a whole layer (1,107 MB); chunks of 15 experts cost 8.5%
-    of a prefill's host time.
-  - Host memory peaks at a 3.25 GB working set (streamed) and 2.1 GB per step (reference).
-  - LRU caches of 40 and 80 experts never hit: a decode token loads 156 experts. A replay of the
-    routing, checked against the measured hits, predicts 67–83% fewer decode reads with an
-    11–17 GB host-RAM tier.
-  - Time: the drive is 66.5% of decode and 78.6% of prefill; the transformer's Python and launches
-    22%; per-request transfer overhead 11%; GEMM about 2%.
+  - Ceilings with every byte read: 8.1% certified; what-ifs 16.5% (binary32 accumulator), 17.8%
+    (RN-even in elementwise kernels), 24.7% (RN-even everywhere).
+  - Correctness: 0 enclosure violations; 0 wrong certified tokens; the reference recomputed bitwise on
+    every token.
+  - Reproducible: two runs (`PYTHONHASHSEED` 1 and 2, same source tree) with identical digests.
+- **Why** (two obstacles, each decisive alone):
+  - the rounding floor: with every weight read, 3.2 logits of named error terms on the tightest
+    pair (the final norm 1.37, y 0.49, m 0.36, o 0.35, R 0.28, the down accumulation 0.26), plus
+    the experts' internal roundings, against a median top-2 gap of 1.1 logits;
+  - the bounds on unread parts: norm-based bounds need every byte even in real arithmetic.
 - **Findings:**
-  - under Windows' WDDM driver model, device memory is charged to a process's private bytes (the
-    host-memory gate uses the working set and the host commit);
-  - the cache pool's fragmentation caps the device cache at about 80 experts under the cap;
-  - LRU is useless below one token's working set;
-  - transformers' loader reads at 1.06 GB/s, so the reference takes 29 s per step.
+  - the per-logit interval pass eliminates no vocabulary row on an MoE layer's enclosures; the
+    pairwise certificate is needed;
+  - reading all of down (A) and paging down by output rows (B) end at the same fraction: nearly
+    every down row matters;
+  - a neuron-major down (C) reads cleanly (12 KiB records) but needs more neurons;
+  - heavier routing weights need more of their expert.
 
-Phases 1A, 1B, 1C, 2, 3 and 4A are complete. Their reports are in `history/`.
+Phases 1A, 1B, 1C, 2, 3, 4A and 4B are complete. Their reports are in `history/`. Phase 4B (decision
+0008) runs Moonlight out of VRAM and host RAM, bit for bit equal to an independent reference.
 
 ## Recent relevant changes
 
-- New modules:
-  - `src/awpmi/streaming_reference.py`;
-  - `src/awpmi/models/moonlight.py`;
-  - `src/awpmi/models/streamed.py`.
+- New module: `src/awpmi/oracle/experts.py` (imported by nothing outside `awpmi.oracle`; it imports no
+  storage, transfer or materialization module: `tests/test_layering.py`).
 - Changed modules:
-  - `models/moe.py` (chunked calls: `max_call_bytes`, `ChunkedExpertWeight`, `_ChunkedCall`,
-    `ExpertCall.chunks` and `per_assignment_outputs(weights=…)`);
-  - `models/checkpoint.py` (`checked_expert_sources`, `neighbours`, `parameter_segments`);
-  - `models/olmoe.py` (uses the shared layout check; behavior unchanged);
-  - `materialization/weights.py` (`assemble` of some parameters);
-  - `materialization/backend.py` (`largest_request_bytes`).
-- Dependency: `tiktoken` 0.14.0, for Moonlight's official tokenizer (remote code, read before use,
-  pinned revision).
+  - `bounds/operators.py` (`reduce_sum`, `linear` on batched weights);
+  - `bounds/linear.py` (`matvec`);
+  - `bounds/pairwise.py` (`ExpertMixture`, `MixtureTerm`, `mixture_bound`, `relax_mixture`; the
+    certificate takes `mixture=`; the Phase 2 `DownProjection` path is unchanged and its benchmark
+    reproduces `suffix-run1`);
+  - `models/moonlight.py` (names of the residual norm, final norm and LM head).
+- The Phase 4B runtime, `StreamedExperts` and the checkpoint formats are unchanged.
 - Benchmarks:
-  - `benchmarks/moonlight_runtime.py` (stages prepare, reference, stream, digest);
-  - `moonlight_reference_check.py`, `moonlight_profile.py`, `moonlight_report.py`;
-  - `configs/phase4b-moonlight.yaml`, with gates fixed before the full runs;
-  - raw results in `experiments/phase4b/moonlight-run{1,2}` and `experiments/phase4b/reference-check`;
-  - the expert index under `packs/` (gitignored, `awpmi pack expert-index --config configs/phase4b-moonlight.yaml`).
-- Decision 0008 is new.
-- 510 tests, 58 of them new:
-  - chunked calls on 7 architectures × CPU/CUDA × `grouped_mm`/eager, the adversarial
-    accumulation test, misuse, budget and allocator guards, caches, hash seeds;
-  - the streaming reference against `from_pretrained`;
-  - the Moonlight adapter, streamed shared experts, layering.
+  - `benchmarks/expert_oracle.py` (stages prepare, capture, oracle, oracle-real, digest);
+  - `benchmarks/expert_oracle_report.py`;
+  - `configs/phase5a-expert-oracle.yaml`, with the gate fixed before the full runs;
+  - raw results in `experiments/phase5a/oracle-run{1,2}` (the captured tensors are regenerated,
+    not committed).
+- Decision 0009 is new.
+- 551 tests, 41 of them new: the new operators, the experts oracle on a test-size DeepSeek-V3 model
+  (recomputation, enclosures in every tier, the mixture bound, the certificate, monotonicity, byte
+  accounting, orderings that see no values, sabotage), layering.
 
 ## Next
 
-The next phase is **not started**. It needs the user's go-ahead. The report (§19) recommends, from
-the measured bottleneck (bytes from the drive):
+The next phase is **not started**. It needs the user's go-ahead. The report (§9) recommends:
 
-1. **AWPMI inside routed experts, first as an oracle measurement**: how many neuron pages of the
-   last MoE layer's routed experts a certificate needs, before any runtime.
-   - The hook is the chunked call (`_ChunkedCall.materialize`, `_chunked_grouped_mm`).
-   - The down projection's layout must be decided first: down columns are strided in the
-     checkpoint.
-2. **Native runtime and a host-RAM expert tier**, if usable speed on this machine comes first:
+1. **Native runtime and a host-RAM expert tier** (the Phase 4B report's engineering path): it attacks
+   the measured bottleneck (drive reads, two thirds of decode) with no change to exactness:
    - an 11–17 GB host tier cuts 67–83% of decode reads (replay);
    - Rust for planning, submission and cache bookkeeping (11% of decode, 18% of prefill);
    - CUDA graphs for the launch-bound decode path (22%).
-3. **DeepSeek-V3-class scaling last.** Its architecture is ready, but it needs:
-   - the FP8 native reference decision and FP8 layouts;
-   - a host for the reference's 11 GB layers;
-   - about 700 GB of storage;
-   - fewer bytes per token.
+2. **No expert-AWPMI runtime (Phase 5B).** It would need both obstacles lifted, not one:
+   - the rounding model (RN-even would raise the ceiling to 17.8–24.7%, which still caps savings);
+   - sharper sound bounds on unread parts (richer resident metadata).
+3. **DeepSeek-V3-class scaling last**: it needs the FP8 reference decision, a host for 11 GB reference
+   layers, about 700 GB of storage and fewer bytes per token.
 
 Open decisions for the user:
 
-- the order above;
+- the next milestone;
+- the rounding model for certificates (RN-even, still open from Phase 2; Phase 5A adds its MoE what-ifs);
 - the reference for FP8 experts;
-- still open from Phase 2: RN-even for elementwise kernels, and Phase 2 on a larger model.
+- Phase 2 on a larger model.
 
 ## Blockers
 

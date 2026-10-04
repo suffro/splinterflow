@@ -49,13 +49,21 @@ def l1_norm_upper(values: torch.Tensor) -> torch.Tensor:
     return next_up(block.sum(dim=-1) * (1.0 + gamma(block.shape[-1] + 1, FLOAT64_UNIT_ROUNDOFF)))
 
 
+def matvec(matrix: torch.Tensor, vector: torch.Tensor) -> torch.Tensor:
+    """matrix @ vector, also for a batch: [B, N, K] matrices with one [K] vector or a [B, K] vector each (Phase 5A)."""
+    if matrix.dim() == 3 and vector.dim() == 2:
+        return torch.bmm(matrix, vector.unsqueeze(-1)).squeeze(-1)
+    return matrix @ vector
+
+
 def absolute_mass_upper(left: torch.Tensor, right: torch.Tensor) -> torch.Tensor:
     """Upper bound on |left| @ |right| (entrywise absolute values), e.g. Σ_k |W_jk|·|h_k| per row.
 
     Both operands must be float64. Each product rounds once and the K-term sum of
     non-negative terms errs by at most γ_K relative, whatever the evaluation order.
+    A batch of matrices [B, N, K] takes one [K] or one [B, K] vector per matrix (`matvec`).
     """
     if left.dtype != torch.float64 or right.dtype != torch.float64:
         raise TypeError("absolute_mass_upper expects float64 operands")
-    products = left.abs() @ right.abs()
+    products = matvec(left.abs(), right.abs())
     return next_up(products * (1.0 + gamma(left.shape[-1] + 2, FLOAT64_UNIT_ROUNDOFF)))

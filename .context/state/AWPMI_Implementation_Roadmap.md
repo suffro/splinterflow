@@ -1405,6 +1405,11 @@ diagram, without the AWPMI refinement inside experts:
   the implementation's own combine) and an independent streaming reference. Decision 0008 names
   the hook where AWPMI refinement inside selected experts would go.
 
+**Status (2026-10-04).** Phase 5A (decision 0009), added by the user, measured the "AWPMI
+refinement inside selected experts" box as an oracle, on Moonlight's last MoE layer: under the
+certified rounding model no token certifies with any routed byte unread (8.1% certify even with
+every byte read), so the box is not built. See `history/2026-10-04-awpmi-phase5a-report.md`.
+
 The scheduling, optimization and evaluation items of this Phase 4 are not started.
 
 ---

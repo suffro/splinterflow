@@ -1,0 +1,134 @@
+model:
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  adapter: moonlight
+  tokenizer_revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  trust_remote_code_tokenizer: true
+prompts:
+  dataset:
+    repository: Salesforce/wikitext
+    revision: b08601e04326c79dfdd32d625aee71d232d685c3
+    file: wikitext-2-raw-v1/test-00000-of-00001.parquet
+    text_column: text
+  seed: 4
+  lengths:
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  decode_steps: 16
+phase4b_reference: experiments/phase4b/moonlight-run1
+index:
+  directory: packs/moonlight-16b-a3b-expert-index
+storage:
+  alignment: 4096
+  max_gap: 0
+  workers: 8
+  max_read_bytes: 1048576
+  max_extent_bytes: 8388608
+  slot_bytes: 33554432
+  slots: 2
+gpu_budget_bytes: 6000000000
+call_budget_bytes: 268435456
+target_layer: last
+timing:
+  settle_seconds: 3
+oracle:
+  page_rows:
+  - 1
+  - 16
+  - 128
+  specs:
+  - q8
+  - q6+q4
+  - q4+q4
+  budget_step: 0.015625
+  near_rows: 64
+  partial_columns: 192
+  chunk_rows: 4096
+  ceilings:
+  - certified
+  - certified_u24
+  - rn_elementwise
+  - rn_even
+  - real
+  cells:
+    certified:
+    - - realistic
+      - realistic
+    - - realistic
+      - ideal
+    - - ideal
+      - ideal
+    rn_even:
+    - - realistic
+      - realistic
+    real:
+    - - realistic
+      - realistic
+    - - ideal
+      - ideal
+  cell_steps:
+    rn_even:
+    - 1
+    - 5
+    - 9
+    - 13
+    real:
+    - 1
+    - 9
+  shards:
+    main: 2
+    real: 1
+gate:
+  strong_pass_mean: 0.5
+  strong_pass_coverage: 0.8
+  pass_mean: 0.7
+  pass_coverage: 0.6
+  weak_mean: 0.9
+  fail_coverage: 0.1

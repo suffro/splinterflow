@@ -131,6 +131,9 @@ Full report: `history/2026-10-02-awpmi-phase2-report.md` (1000 prompts, two iden
 - **Decision: NOT BENEFICIAL at either depth.** The best mean saving is −0.0002 of the
   region against reading the suffix in full and running Phase 1C. The reference's own
   roundings are 88% of the uncertainty with every page read.
+- *Later (Phase 5A, decision 0009):* the same floor on Moonlight's last MoE layer. With every
+  routed weight read the faithful certificate holds on 8.1% of tokens; RN-even in elementwise
+  kernels would give 17.8%, RN-even everywhere 24.7%.
 
 ## Rejected
 

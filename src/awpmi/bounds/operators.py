@@ -1,13 +1,16 @@
-"""Verified propagation through the reference operations of SmolLM2's last MLP and final norm.
+"""Verified propagation through the reference operations of a last MLP (or MoE block) and the final norm.
 
 Each function maps enclosures of an operation's inputs to an enclosure of its output,
 for the operation exactly as the reference executes it on BF16 tensors (`transformers`
 5.18 LlamaMLP and LlamaRMSNorm, the decoder's residual addition, the numerics of
-`awpmi.runtime`):
+`awpmi.runtime`; Phase 5A: the same operations in DeepseekV3's experts, grouped_mm, and
+DeepseekV3RMSNorm, which is LlamaRMSNorm's code):
 
   linear        F.linear: fp32 accumulation (`ReferenceNumerics`, any order), output rounded
   residual_add  a + b: the exact sum, rounded (fp32 opmath, then the output dtype)
-  multiply      a * b: the exact product, rounded
+  multiply      a * b: the exact product, rounded (BF16 × BF16 → BF16; BF16 × float32 → float32,
+                the routing weights)
+  reduce_sum    Σ_k t_k in fp32, then converted (the experts call's combine over its top-k)
   silu          F.silu: x / (1 + exp(−x)) evaluated in fp32, rounded
   rms_norm      LlamaRMSNorm: x in fp32, v = mean(x²), q = rsqrt(v + eps), n = rnd(x·q),
                 output rnd(weight · n)
@@ -36,7 +39,7 @@ import torch
 
 from awpmi.bounds.enclosure import Enclosure, UnboundedValue
 from awpmi.bounds.floating import FLOAT64_BOUND_SLACK, FLOAT64_UNIT_ROUNDOFF, gamma, next_down, next_up
-from awpmi.bounds.linear import absolute_mass_upper
+from awpmi.bounds.linear import absolute_mass_upper, matvec
 from awpmi.bounds.residual import ReferenceNumerics
 from awpmi.bounds.rounding import RoundingModel, round_enclosure
 
@@ -98,13 +101,16 @@ def linear(
     contribution and its share of the accumulation error. With centre c and radius ρ:
 
         centre  W·c        radius  |W|·ρ + unread + (γ_acc + γ₆₄)·(|W|·(|c| + ρ) + unread)
+
+    Phase 5A: a batch of independent operations, weight [B, N, K] with inputs [K] or [B, K]
+    (one experts call's routed experts), unread_mass [B, N].
     """
     _check(inputs)
-    if weight.dtype != torch.float64 or weight.shape[1] != numerics.reduction_length:
-        raise ValueError("weight must be float64 [N, reduction_length]")
+    if weight.dtype != torch.float64 or weight.shape[-1] != numerics.reduction_length or weight.dim() not in (2, 3):
+        raise ValueError("weight must be float64 [N, reduction_length] (or a batch of them)")
     center = inputs.center
     rho = inputs.radius_about(center)
-    out_center = weight @ center
+    out_center = matvec(weight, center)
     mass = absolute_mass_upper(weight, next_up(center.abs() + rho))
     radius = absolute_mass_upper(weight, rho)
     if unread_mass is not None:
@@ -125,6 +131,42 @@ def multiply(left: Enclosure, right: Enclosure, dtype: torch.dtype, model: Round
     _check(left, right)
     lower, upper = _flushable(*_products(left.lower, left.upper, right.lower, right.upper))
     return _rounded(lower, upper, dtype, model, left.provenance | right.provenance, label)
+
+
+def reduce_sum(
+    terms: list[Enclosure] | Enclosure,
+    reduction_unit_roundoff: float,
+    dtype: torch.dtype,
+    model: RoundingModel,
+    label: str = "sum",
+) -> Enclosure:
+    """Σ_k terms[k] reduced in fp32 (any order), then converted to `dtype` (Phase 5A: an experts call's combine).
+
+    transformers' grouped_mm combine: `weighted.view(T, K, H).sum(dim=1)` in float32, then
+    `.to(bfloat16)`. The fp32 reduction of n terms errs by at most γ_{n+2}(u)·Σ|terms| (decision
+    0001's accumulation model, as the norm's reduction); the conversion is one rounding to `dtype`.
+    `terms` is a list, or one enclosure whose first dimension is summed.
+    """
+    if isinstance(terms, Enclosure):
+        _check(terms)
+        count = terms.lower.shape[0]
+        lower, upper, magnitude = terms.lower.sum(dim=0), terms.upper.sum(dim=0), terms.magnitude.sum(dim=0)
+        provenance = terms.provenance
+    else:
+        _check(*terms)
+        if not terms:
+            raise ValueError("nothing to sum")
+        count = len(terms)
+        lower = torch.stack([term.lower for term in terms]).sum(dim=0)
+        upper = torch.stack([term.upper for term in terms]).sum(dim=0)
+        magnitude = torch.stack([term.magnitude for term in terms]).sum(dim=0)
+        provenance = frozenset().union(*(term.provenance for term in terms))
+    if count < 1:
+        raise ValueError("nothing to sum")
+    # The float64 sums above (n terms each) err by at most γ_n(2⁻⁵³) relative to the magnitude.
+    error = magnitude * (gamma(count + 2, reduction_unit_roundoff) + gamma(count + 2, FLOAT64_UNIT_ROUNDOFF))
+    lower, upper = _outward(lower - error, upper + error, FLOAT64_BOUND_SLACK)
+    return _rounded(lower, upper, dtype, model, provenance, label)
 
 
 def _silu64(x: torch.Tensor) -> torch.Tensor:

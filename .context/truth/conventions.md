@@ -63,6 +63,11 @@
   minutes; `--num-prompts`, `--decode-steps`, `--configurations` and `--skip-audit` are for development runs only), `python -m uv run python benchmarks/moonlight_profile.py --run <run> --configuration <name> --output <run>/profile-<name>.json [--trace]`
   (one configuration per process), and `python -m uv run python benchmarks/moonlight_report.py <run> --compare <second run>`.
   The tokenizer is the official one (`trust_remote_code`, tiktoken) at the pinned revision; its code was read before use.
+- Phase 5A expert oracle: `PYTHONHASHSEED=<n> python -m uv run python benchmarks/expert_oracle.py --output experiments/phase5a/<name> --stage prepare`,
+  then `--stage capture` (about 25 minutes: Moonlight streamed, the target layer's tensors at every decode step), `--stage oracle --shard 0`
+  and `--shard 1` (about 60 and 35 minutes), `--stage oracle-real --shard 0` (about 50 minutes), `--stage digest` (config `configs/phase5a-expert-oracle.yaml`;
+  each stage under two hours, launched one by one), and `python -m uv run python benchmarks/expert_oracle_report.py <run> --compare <second run>`.
+  The captured tensors (`capture.safetensors`) are not committed: the capture stage regenerates them (their sha256 is in the digest).
 - Timing fields (`timings_ms`, `reference_ms`, `wall_ms`, `system`, `profile.json`) are recorded but
   excluded from digests. Runs that are compared for reproducibility must use the same source
   tree (`src`, `benchmarks`, `configs`; tests are not part of it).
@@ -126,3 +131,9 @@
 - A bounded experts call keeps the experts implementation's own combine, once per call; never
   combine per chunk. A new experts implementation or GPU needs the chunked-equals-unchunked tests
   (per-group GEMM independence is a property of the kernel, not of the algorithm).
+- An oracle may hold every weight, but keeps realistic and ideal apart: a realistic bound or ordering
+  uses only what a runtime could have read (values read, resident metadata); an ideal one is labelled
+  and reported beside it, never instead. A what-if rounding or accumulation model is a separate tier
+  whose results are `would_certify`, never `certified`.
+- A certificate against an LM head checks every vocabulary row. A filter on the nearest rows may
+  only reject early (a necessary condition), never accept.

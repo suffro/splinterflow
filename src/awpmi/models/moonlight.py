@@ -21,6 +21,8 @@ experts calls are the generic MoE path (`awpmi.models.moe`, `awpmi.models.checkp
   * Layer 0 is a dense MLP (first_k_dense_replace = 1); layers 1-26 are MoE layers.
   * Reference profile. BF16 (the checkpoint is stored in BF16, router bias included),
     grouped_mm experts and SDPA attention, transformers' defaults.
+  * Phase 5A's oracle names the modules around the last MoE block: the post-attention norm
+    (its input is the residual), the final norm and the LM head.
 """
 
 from __future__ import annotations
@@ -39,6 +41,11 @@ EXPERTS_SUFFIX = "mlp.experts"
 ROUTER_SUFFIX = "mlp.gate"
 SHARED_SUFFIX = "mlp.shared_experts"
 BLOCK_SUFFIX = "mlp"
+# Phase 5A (the expert oracle): the norm whose input is the residual the MoE block's output is added to, the final
+# norm and the LM head (DeepseekV3DecoderLayer, DeepseekV3Model, DeepseekV3ForCausalLM).
+RESIDUAL_NORM_SUFFIX = "post_attention_layernorm"
+FINAL_NORM = "model.norm"
+LM_HEAD = "lm_head"
 REFERENCE_PROFILE = BF16_REFERENCE.with_kernels(experts="grouped_mm", attention="sdpa")
 ROUTING = {
     "scoring_func": "sigmoid",

@@ -219,6 +219,8 @@ The user's Phase 4B brief:
       against the zero-copy rule). That layout choice comes first.
     - First target: the last MoE layer's routed experts on the last position, upstream exact (Mode A,
       as Phase 2's suffix), where the existing pairwise certificate applies directly.
+    - *Measured in Phase 5A (decision 0009), as an oracle:* under the certified rounding model no
+      token certifies with any routed byte unread, in any of these layouts; the executor is not built.
 15. **Native runtime: classification from the profile** (decode 1,273 ms and prefill 8,364 ms
     without a cache, un-instrumented). No native code was written in this phase.
     - *Already native through PyTorch*:
