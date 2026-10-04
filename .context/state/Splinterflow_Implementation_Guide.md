@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Splinterflow is a research and systems project for running large language models on constrained hardware by treating model weights as a selectively materializable external-memory object.
+Splinterflow is an open source research and systems project for running large language models on constrained hardware by treating model weights as a selectively materializable external-memory object.
 
 The project should support three complementary ideas:
 
