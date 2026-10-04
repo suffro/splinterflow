@@ -49,7 +49,9 @@ decision 0009.
   - reading all of down (A) and paging down by output rows (B) end at the same fraction: nearly
     every down row matters;
   - a neuron-major down (C) reads cleanly (12 KiB records) but needs more neurons;
-  - heavier routing weights need more of their expert.
+  - heavier routing weights need more of their expert;
+  - under WDDM, device allocations beyond the card do not fail but page to the host: a development
+    run at 8.03 GB on the 8 GB card ran several times slower (the full runs peak at 5.6 GB).
 
 Phases 1A, 1B, 1C, 2, 3, 4A and 4B are complete. Their reports are in `history/`. Phase 4B (decision
 0008) runs Moonlight out of VRAM and host RAM, bit for bit equal to an independent reference.

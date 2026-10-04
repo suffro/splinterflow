@@ -61,6 +61,7 @@ saving; it predicts what a runtime could save, and whether one is worth building
 | Cells | certified tier, every token whose ceiling holds: realistic bounds and ordering (the gate's), realistic bounds with ideal ordering, ideal bounds and ordering; rn_even: realistic (steps 1, 5, 9, 13); real: realistic and ideal (steps 1 and 9: 96 tokens) |
 | Budgets | multiples of 1/64 of the routed bytes (1.6 MB) |
 | Hardware | RTX 4060 Ti 8 GB, Windows 11, 32 GB RAM |
+| Device memory | peak 5.6 GB. The first development runs reached 8.03 GB and ran several times slower: under WDDM the driver pages device memory to the host instead of failing. The LM head is therefore never copied to float32 (centres in chunks of 4,096 rows), and no float64 copy of the layer is cached |
 
 ## 3. Method
 

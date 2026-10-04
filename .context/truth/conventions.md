@@ -68,6 +68,10 @@
   and `--shard 1` (about 60 and 35 minutes), `--stage oracle-real --shard 0` (about 50 minutes), `--stage digest` (config `configs/phase5a-expert-oracle.yaml`;
   each stage under two hours, launched one by one), and `python -m uv run python benchmarks/expert_oracle_report.py <run> --compare <second run>`.
   The captured tensors (`capture.safetensors`) are not committed: the capture stage regenerates them (their sha256 is in the digest).
+- Keep a benchmark's peak device memory well under the card, and record it (`peak_device_bytes`). Under
+  Windows' WDDM, allocations beyond the GPU's memory do not fail: the driver pages device memory to the host
+  and kernels slow down. Phase 5A's first development runs peaked at 8.03 GB on the 8 GB card and ran
+  several times slower; the full runs keep 5.6 GB.
 - Timing fields (`timings_ms`, `reference_ms`, `wall_ms`, `system`, `profile.json`) are recorded but
   excluded from digests. Runs that are compared for reproducibility must use the same source
   tree (`src`, `benchmarks`, `configs`; tests are not part of it).
