@@ -1,0 +1,41 @@
+# Phase 5A2: the isolated verifier environment of the CROWN expert oracle (decision 0010).
+#
+# It is not the Splinterflow runtime environment (repository root: torch 2.14, Python 3.13) and shares no package with
+# it: auto_LiRPA declares Python 3.11 and torch < 2.12, so it gets its own interpreter and lockfile. The two environments
+# exchange only serialized artifacts (safetensors, JSON); see README.md.
+[project]
+name = "crown-expert-oracle"
+version = "0.1.0"
+description = "Phase 5A2: CROWN / auto_LiRPA bounds on partially materialized routed experts (research oracle, not a runtime)"
+requires-python = "==3.11.*"
+dependencies = [
+    # auto_LiRPA (BSD-3-Clause), master at its June 2026 release, version 0.7.2. Pinned by commit.
+    "auto-lirpa @ git+https://github.com/Verified-Intelligence/auto_LiRPA@5a098e8f9fb5786a428a024981d833d303921f2d",
+    # The torch auto_LiRPA's own lockfile uses (its declared range is >=2.0.0,<2.12.0), CUDA 13.0 build.
+    "torch==2.11.0",
+    "numpy==2.4.6",
+    "safetensors",
+    "pyyaml",
+    "psutil",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
+
+[tool.uv]
+package = false
+environments = ["sys_platform == 'win32'", "sys_platform == 'linux'"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu130" }
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

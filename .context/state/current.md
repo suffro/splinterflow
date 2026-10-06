@@ -1,6 +1,35 @@
 # Current State
 
-## Current focus
+## In progress: Phase 5A2 (CROWN / auto_LiRPA expert oracle), started 2026-10-04
+
+A research oracle, not a runtime. Does auto_LiRPA's CROWN family tighten Phase 5A's bounds on unread routed-expert
+weights enough for expert AWPMI to pay? No decision record or report yet; the gate is fixed in
+`configs/phase5a2-crown-oracle.yaml`, before any CROWN run on real data.
+
+- **Isolated verifier environment.** `research/crown_expert_oracle`: Python 3.11.16, torch 2.11.0+cu130, numpy 2.4.6,
+  auto_LiRPA 0.7.2 @ `5a098e8f` (BSD-3-Clause), its own `uv.lock`. The root environment is unchanged and does not import
+  auto_LiRPA (`tests/test_crown_boundary.py`). The two environments exchange only the artifact `export.py` writes. No
+  CROWN, LiRPA or branch-and-bound code is written; see the directory's README.
+- **Capture.** Regenerated into `experiments/phase5a2/capture`; it equals Phase 5A run1 bit for bit.
+- **Stage 1 probe: PASS** (`experiments/phase5a2/probe`).
+  - Weight perturbations propagate through Linear → SiLU (written g·σ(g)) → multiply → Linear.
+  - The bounds held against 2¹⁸ vertices, 200,000 random points and 3⁹ discrete realizations.
+  - Zero-width boxes give the exact value.
+  - Two upstream integration notes: a perturbed `F.linear` needs a (zero) bias to take auto_LiRPA's Gemm path, and a
+    parameter's box must be given as `eps` about its midpoint.
+- **One development sample** (`experiments/phase5a2/dev`, prompt 12 step 7, an exact BF16 tie; not representative).
+  - The validation passes: wrapper, set containment and monotonicity, anti-cheating poisoning, and the certificate
+    assembly against Phase 5A's margins.
+  - Certified tier: CROWN ≈ Phase 5A; α-CROWN reaches its set's exact optimum, only 0.1–0.2 logits better.
+  - Real tier at the q6 state: the exact optimum of auto_LiRPA's box sets (−865) is below Phase 5A's realistic bound
+    (−694). The boxes cannot express the L2 remainder norms Phase 5A uses, so no verifier on these sets can do better.
+  - Full-graph CROWN and α-CROWN do not fit the 8 GB card. CROWN-IBP takes 0.4 s and is much looser.
+  - The comparison's JSON report contains no failures (sample 0, 770 s, peak device memory 6.50 GB), but its launcher
+    log ends with `exit 127`. The reason for that exit code is unresolved; the log is kept with the raw results.
+- **Checkpoint verification (2026-10-06):** 28 isolated verifier tests and 8 root boundary/layering tests pass.
+- **Next:** stage 2 (12 samples across gaps), or a stop under the brief's condition 3. This is the user's choice.
+
+## Previous focus
 
 **Phase 5A (AWPMI inside routed experts: an oracle study) is complete (2026-10-04). Correctness passes;
 the gate FAILs.** The full report is `history/2026-10-04-awpmi-phase5a-report.md`; the decisions are in

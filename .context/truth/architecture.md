@@ -6,7 +6,7 @@ This repository hosts **AWPMI — Adaptive Weight-Page Materialization for Infer
 research prototype (Python package `awpmi`, at the repository root). AWPMI materializes
 independently fetchable weight pages one at a time. It stops only when a conservative,
 deterministic certificate proves that the next-token argmax equals that of the fully
-materialized reference model. The plan is in `state/AWPMI_Implementation_Roadmap.md`.
+materialized reference model. The guide is `state/Splinterflow_Implementation_Guide.md` (it replaced the AWPMI roadmap).
 
 Implemented so far:
 

@@ -1,0 +1,260 @@
+{
+ "shapes": {
+  "experts": 6,
+  "hidden": 2048,
+  "intermediate": 1408
+ },
+ "perturbed_weights": 51904512,
+ "runs": [
+  {
+   "graph": "reduced",
+   "method": "crown-ibp",
+   "specifications": 1,
+   "lower": [
+    -42657.47891205314
+   ],
+   "truth": [
+    -22.254720990780612
+   ],
+   "sound": true,
+   "cost": {
+    "setup_ms": 115.55139999836683,
+    "bound_ms": 211.76510001532733,
+    "calls": 1,
+    "specifications": 1,
+    "peak_device_bytes": 2504812544,
+    "peak_rss_bytes": 1303302144,
+    "by_method": {
+     "crown-ibp": {
+      "ms": 211.76510001532733,
+      "calls": 1,
+      "specifications": 1
+     }
+    }
+   }
+  },
+  {
+   "graph": "reduced",
+   "method": "crown-ibp",
+   "specifications": 4,
+   "lower": [
+    -42657.47891205314,
+    -44163.091565216266,
+    -43362.63223719332,
+    -43061.287390237165
+   ],
+   "truth": [
+    -22.254720990780612,
+    11.425349594866145,
+    14.416942755575207,
+    -9.639899057030213
+   ],
+   "sound": true,
+   "cost": {
+    "setup_ms": 97.00529999099672,
+    "bound_ms": 138.1871998310089,
+    "calls": 1,
+    "specifications": 4,
+    "peak_device_bytes": 2989752320,
+    "peak_rss_bytes": 1304256512,
+    "by_method": {
+     "crown-ibp": {
+      "ms": 138.1871998310089,
+      "calls": 1,
+      "specifications": 4
+     }
+    }
+   }
+  },
+  {
+   "graph": "reduced",
+   "method": "crown-ibp",
+   "specifications": 8,
+   "lower": [
+    -42657.47891205314,
+    -44163.091565216266,
+    -43362.63223719332,
+    -43061.287390237165,
+    -43388.429671752056,
+    -44781.87257220717,
+    -43485.07269693841,
+    -42691.910889168044
+   ],
+   "truth": [
+    -22.254720990780612,
+    11.425349594866145,
+    14.416942755575207,
+    -9.639899057030213,
+    21.81148219619645,
+    -52.858051845848024,
+    -1.190673982770698,
+    18.988763822485087
+   ],
+   "sound": true,
+   "cost": {
+    "setup_ms": 95.46949993818998,
+    "bound_ms": 112.21949988976121,
+    "calls": 1,
+    "specifications": 8,
+    "peak_device_bytes": 3636338688,
+    "peak_rss_bytes": 1304256512,
+    "by_method": {
+     "crown-ibp": {
+      "ms": 112.21949988976121,
+      "calls": 1,
+      "specifications": 8
+     }
+    }
+   }
+  },
+  {
+   "graph": "reduced",
+   "method": "alpha-crown",
+   "specifications": 1,
+   "lower": [
+    -22418.62758358641
+   ],
+   "truth": [
+    -22.254720990780612
+   ],
+   "sound": true,
+   "cost": {
+    "setup_ms": 96.33049997501075,
+    "bound_ms": 4813.9778999611735,
+    "calls": 1,
+    "specifications": 1,
+    "peak_device_bytes": 6714002944,
+    "peak_rss_bytes": 1555890176,
+    "by_method": {
+     "alpha-crown": {
+      "ms": 4813.9778999611735,
+      "calls": 1,
+      "specifications": 1
+     }
+    }
+   }
+  },
+  {
+   "graph": "full",
+   "method": "crown-ibp",
+   "specifications": 1,
+   "lower": [
+    -79005.57327521864
+   ],
+   "truth": [
+    -22.254720990780612
+   ],
+   "sound": true,
+   "cost": {
+    "setup_ms": 900.3002000972629,
+    "bound_ms": 403.37960002943873,
+    "calls": 1,
+    "specifications": 1,
+    "peak_device_bytes": 5177166336,
+    "peak_rss_bytes": 1907806208,
+    "by_method": {
+     "crown-ibp": {
+      "ms": 403.37960002943873,
+      "calls": 1,
+      "specifications": 1
+     }
+    }
+   }
+  },
+  {
+   "graph": "full",
+   "method": "crown-ibp",
+   "specifications": 4,
+   "lower": [
+    -79005.57327521866,
+    -81906.38724431707,
+    -80462.62102999215,
+    -79706.70297635751
+   ],
+   "truth": [
+    -22.254720990780612,
+    11.425349594866145,
+    14.416942755575207,
+    -9.639899057030213
+   ],
+   "sound": true,
+   "cost": {
+    "setup_ms": 908.9850999880582,
+    "bound_ms": 444.4722000043839,
+    "calls": 1,
+    "specifications": 4,
+    "peak_device_bytes": 6493487616,
+    "peak_rss_bytes": 1918058496,
+    "by_method": {
+     "crown-ibp": {
+      "ms": 444.4722000043839,
+      "calls": 1,
+      "specifications": 4
+     }
+    }
+   }
+  },
+  {
+   "graph": "full",
+   "method": "alpha-crown",
+   "specifications": 1,
+   "error": "RuntimeError: The following operation failed in the TorchScript interpreter.",
+   "traceback": "^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\linear.py\", line 519, in propagate_A_xy\n    A_y, _ = multiply_by_A_signs(last_A.unsqueeze(-1), beta_pos, beta_neg, None, None)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\clampmult.py\", line 161, in multiply_by_A_signs\n    return ClampedMultiplication.apply(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\torch\\autograd\\function.py\", line 596, in apply\n    return super().apply(*args, **kwargs)  # type: ignore[misc]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\clampmult.py\", line 136, in forward\n    return ClampedMultiplication.clamp_mutiply_forward(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\torch\\utils\\_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: The following operation failed in the TorchScript interpreter.\nTraceback of TorchScript (most recent call last):\nRuntimeError: CUDA out of memory. Tried to allocate 30.25 GiB. GPU 0 has a total capacity of 8.00 GiB of which 3.40 GiB is free. Of the allocated memory 3.36 GiB is allocated by PyTorch, and 65.07 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)\n\n",
+   "cost": {
+    "setup_ms": 903.6677000112832,
+    "bound_ms": 0.0,
+    "calls": 0,
+    "specifications": 0,
+    "peak_device_bytes": 4227304448,
+    "peak_rss_bytes": 0,
+    "by_method": {}
+   }
+  },
+  {
+   "graph": "full",
+   "method": "crown",
+   "specifications": 1,
+   "error": "RuntimeError: The following operation failed in the TorchScript interpreter.",
+   "traceback": "^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\linear.py\", line 519, in propagate_A_xy\n    A_y, _ = multiply_by_A_signs(last_A.unsqueeze(-1), beta_pos, beta_neg, None, None)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\clampmult.py\", line 161, in multiply_by_A_signs\n    return ClampedMultiplication.apply(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\torch\\autograd\\function.py\", line 596, in apply\n    return super().apply(*args, **kwargs)  # type: ignore[misc]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\clampmult.py\", line 136, in forward\n    return ClampedMultiplication.clamp_mutiply_forward(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\loren\\Documents\\GitHub\\shardraw\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\torch\\utils\\_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: The following operation failed in the TorchScript interpreter.\nTraceback of TorchScript (most recent call last):\nRuntimeError: CUDA out of memory. Tried to allocate 30.25 GiB. GPU 0 has a total capacity of 8.00 GiB of which 1.85 GiB is free. Of the allocated memory 4.90 GiB is allocated by PyTorch, and 70.93 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)\n\n",
+   "cost": {
+    "setup_ms": 913.4267000481486,
+    "bound_ms": 0.0,
+    "calls": 0,
+    "specifications": 0,
+    "peak_device_bytes": 4685923840,
+    "peak_rss_bytes": 0,
+    "by_method": {}
+   }
+  }
+ ],
+ "reduced_optimum": [
+  -21665.03685272591,
+  -22299.93288373046,
+  -22033.58276435891,
+  -21899.87244060631,
+  -21849.086228781507,
+  -22554.891532431895,
+  -22045.71692789288,
+  -21475.404833660712
+ ],
+ "pgd": {
+  "property": 0,
+  "value": -14219.49701781017,
+  "truth": -22.254720990780612,
+  "ms": 1215.586300007999
+ },
+ "peak_rss_bytes": 5338394624,
+ "gate": {
+  "sound": true
+ },
+ "environment": {
+  "python": "3.11.16",
+  "torch": "2.11.0+cu130",
+  "cuda": "13.0",
+  "auto_LiRPA": "0.7.2",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "gpu": "NVIDIA GeForce RTX 4060 Ti",
+  "python_hash_seed": "1"
+ },
+ "wall_ms": 26747.04509996809
+}

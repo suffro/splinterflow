@@ -1,0 +1,79 @@
+phase5a_run: experiments/phase5a/oracle-run1
+capture: experiments/phase5a2/capture
+samples:
+  gap_bins:
+  - 0.0
+  - 0.5
+  - 1.0
+  - 2.0
+  - 4.0
+  - 8.0
+  - .inf
+  per_bin: 2
+  prefer_certifiable_from: 2.0
+strategies:
+  primary: D-q6+q4
+  spatial: A
+oracle:
+  budget_step: 0.015625
+  near_rows: 64
+  chunk_rows: 4096
+  comparison_rows: 64
+verifier:
+  dtype: float64
+  alpha_iterations: 20
+  spec_chunk:
+    reduced: 32
+    full: 8
+  full_check_cap: 4096
+  computation_slack: 1.4901161193847656e-08
+  certified:
+    graph: reduced
+    compare:
+    - crown
+    - alpha-crown
+    search:
+    - crown
+    - crown+alpha
+  structural:
+    compare:
+      reduced:
+      - crown
+      - alpha-crown
+      full:
+      - crown-ibp
+    search:
+      reduced:
+      - crown
+      - crown+alpha
+      full:
+      - crown-ibp
+  focus_pairs: 3
+  comparison_points:
+  - 0.0
+  - 0.25
+  - 0.5
+  - 0.75
+  - 0.9
+  - 1.0
+  attack_steps: 60
+escalation:
+  gap_closed: 0.25
+  fewer_bytes_samples: 2
+  stage3_samples: 96
+  stage4_samples: 768
+gate:
+  strong_pass:
+    mean: 0.5
+    coverage: 0.6
+  pass:
+    mean: 0.7
+    coverage: 0.4
+  research_promising:
+    mean: 0.6
+    coverage: 0.8
+    ideal_distance: 0.15
+  fail:
+    mean: 0.9
+    improvement: 0.1
+    seconds_per_token: 3.25
