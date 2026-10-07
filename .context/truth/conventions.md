@@ -14,6 +14,9 @@
 
 ## Development workflow
 
+- CLI: `weightsift`, with `wsift` as an equivalent alias (for example,
+  `python -m uv run wsift pack expert-index`). The Python package remains `awpmi`.
+
 - Tests: `python -m uv run pytest`. Tests marked `model` load the pinned SmolLM2
   (downloaded on first use).
 - Benchmark: `python -m uv run python benchmarks/run.py --output experiments/phase1/<name>`.
@@ -36,7 +39,7 @@
   `python -m uv run python benchmarks/suffix_runtime.py --output experiments/phase2/<name>`
   (config `configs/phase2-suffix.yaml`, prompts of its `source_run`). Then
   `python -m uv run python benchmarks/suffix_report.py <run> --compare <second run>`.
-- Phase 3 packs: `python -m uv run awpmi pack lm-head` and `python -m uv run awpmi pack experts`
+- Phase 3 packs: `python -m uv run weightsift pack lm-head` and `python -m uv run weightsift pack experts`
   write them under `packs/` (gitignored; deterministic, so they are rebuilt rather than
   committed). Build them in their own process before a benchmark that times direct reads.
 - Phase 3 storage benchmark (the Phase 1C LM head on a tier):
@@ -46,7 +49,7 @@
 - Phase 3 MoE benchmark: `python -m uv run python benchmarks/moe_runtime.py --output experiments/phase3/<name>`
   (config `configs/phase3-moe.yaml`), then
   `python -m uv run python benchmarks/moe_report.py <run> --compare <second run>`.
-- Phase 4A out-of-VRAM MoE: `python -m uv run awpmi pack expert-index` (the OLMoE expert index,
+- Phase 4A out-of-VRAM MoE: `python -m uv run weightsift pack expert-index` (the OLMoE expert index,
   from headers only; needs the checkpoint in the Hugging Face cache and the Hub's file
   digests), then `PYTHONHASHSEED=<n> python -m uv run python benchmarks/olmoe_runtime.py --output experiments/phase4a/<name>`
   (config `configs/phase4a-olmoe.yaml`; it starts the reference and the stream stage in
@@ -54,7 +57,7 @@
   (un-instrumented timing), and
   `python -m uv run python benchmarks/olmoe_report.py <run> --compare <second run>`. The two runs
   of a pair use different `PYTHONHASHSEED` values.
-- Phase 4B Moonlight (out of VRAM and host RAM): `python -m uv run awpmi pack expert-index --config configs/phase4b-moonlight.yaml`
+- Phase 4B Moonlight (out of VRAM and host RAM): `python -m uv run weightsift pack expert-index --config configs/phase4b-moonlight.yaml`
   (headers only), `python -m uv run python benchmarks/moonlight_reference_check.py --output experiments/phase4b/reference-check`
   (the streaming reference against `from_pretrained` on the truncated model), then
   `PYTHONHASHSEED=<n> python -m uv run python benchmarks/moonlight_runtime.py --output experiments/phase4b/<name>`

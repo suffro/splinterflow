@@ -117,7 +117,7 @@ The user's Phase 3 brief:
      - the LM head's exact rows are SmolLM2's tied embedding;
      - Granite's stacked expert tensors are only renamed by the transformers loader.
    - `open_pack` re-hashes every segment, with direct reads.
-   - `awpmi pack lm-head` and `awpmi pack experts` write packs. Packs live in `packs/`: they are
+   - `weightsift pack lm-head` and `weightsift pack experts` write packs. Packs live in `packs/`: they are
      deterministic and gitignored.
 10. **The Phase 1C LM head on storage, mathematics unchanged.**
     - `PackedRefinementStore` reads through a backend.

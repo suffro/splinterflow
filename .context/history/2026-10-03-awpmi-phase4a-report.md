@@ -93,7 +93,7 @@ Decision 0007 has the details.
   - The storage core describes a row as byte spans of one or more files.
   - Plans read only those spans, sorted by file, aligned to 4 KiB, with explicit output
     offsets, and can scatter rows into a caller's buffer.
-  - Pack v2 manifests hold the index. An index is written from headers (`awpmi pack
+  - Pack v2 manifests hold the index. An index is written from headers (`weightsift pack
     expert-index`), with the layout derived from transformers' own conversion mapping and
     checked by the OLMoE adapter.
 - **Loading without experts.**
@@ -422,7 +422,7 @@ reproducing the reference model exactly? Yes.**
 ```bash
 uv sync
 uv run pytest                                                              # 452 tests
-uv run awpmi pack expert-index                                             # headers only; packs/ (gitignored)
+uv run weightsift pack expert-index                                             # headers only; packs/ (gitignored)
 PYTHONHASHSEED=1 uv run python benchmarks/olmoe_runtime.py --output experiments/phase4a/<name>   # about 46 min
 uv run python benchmarks/olmoe_profile.py --configurations stream lru-12 lru-25 hotness-25 --output experiments/phase4a/<name>/profile.json
 uv run python benchmarks/olmoe_report.py experiments/phase4a/<name> --compare experiments/phase4a/olmoe-run1

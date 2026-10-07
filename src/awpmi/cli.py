@@ -1,8 +1,10 @@
-"""Command line (roadmap §3.2): `awpmi pack`.
+"""Command line (roadmap §3.2): `weightsift pack`.
 
-    uv run awpmi pack lm-head [--config configs/phase3-storage.yaml] [--output DIR]
-    uv run awpmi pack experts [--config configs/phase3-moe.yaml] [--output DIR]
-    uv run awpmi pack expert-index [--config configs/phase4a-olmoe.yaml] [--output DIR]
+    uv run weightsift pack lm-head [--config configs/phase3-storage.yaml] [--output DIR]
+    uv run weightsift pack experts [--config configs/phase3-moe.yaml] [--output DIR]
+    uv run weightsift pack expert-index [--config configs/phase4a-olmoe.yaml] [--output DIR]
+
+`wsift` is an alias for `weightsift` and accepts the same commands and options.
 
 lm-head       the refinement pack of the configured decomposition of a model's LM head: level
               records and remainder norms in an AWPMI safetensors file, exact rows referring to
@@ -24,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import yaml
@@ -51,7 +54,7 @@ def pack_lm_head(config_path: Path, output: Path | None) -> dict:
         decomposition,
         output or REPO_ROOT / config["pack"]["directory"],
         source=(source, config["pack"]["source_tensor"]),
-        packing={"tool": "awpmi pack lm-head", "config": str(config_path)},
+        packing={"tool": "weightsift pack lm-head", "config": str(config_path)},
     )
     return pack.manifest
 
@@ -68,7 +71,7 @@ def pack_experts(config_path: Path, output: Path | None) -> dict:
     model = AutoModelForCausalLM.from_pretrained(config["repository"], revision=config["revision"], dtype=dtype)
     source = SourceFile(config["repository"], config["revision"], config["source_file"])
     directory = output or REPO_ROOT / yaml.safe_load(config_path.read_text(encoding="utf-8"))["pack"]["directory"]
-    pack = write_expert_pack(model, directory, sources={"checkpoint": (source, None)}, packing={"tool": "awpmi pack experts"})
+    pack = write_expert_pack(model, directory, sources={"checkpoint": (source, None)}, packing={"tool": "weightsift pack experts"})
     return pack.manifest
 
 
@@ -100,7 +103,7 @@ def pack_expert_index(config_path: Path, output: Path | None) -> dict:
         raise RuntimeError(f"the Hub declares no sha256 for {missing}: cannot record their identity")
     directory = output or REPO_ROOT / raw["index"]["directory"]
     pack = checkpoint.write_expert_index(
-        model, directory, files, packing={"tool": "awpmi pack expert-index", "config": config_path.name},
+        model, directory, files, packing={"tool": "weightsift pack expert-index", "config": config_path.name},
         metadata={"model": {k: model_config[k] for k in ("repository", "revision", "dtype")}, "adapter": model_config.get("adapter")},
         sources=sources,
     )
@@ -108,7 +111,11 @@ def pack_expert_index(config_path: Path, output: Path | None) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="awpmi", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    prog = Path(sys.argv[0]).stem
+    parser = argparse.ArgumentParser(
+        prog=prog if prog in {"weightsift", "wsift"} else "weightsift",
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     commands = parser.add_subparsers(dest="command", required=True)
     pack = commands.add_parser("pack", help="write a pack and its manifest")
     pack.add_argument("kind", choices=["lm-head", "experts", "expert-index"])

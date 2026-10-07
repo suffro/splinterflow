@@ -95,17 +95,17 @@ uv run python benchmarks/refinement_runtime_report.py experiments/phase1c/my-run
 uv run python benchmarks/fallback_study.py --output experiments/phase1c/my-study
 uv run python benchmarks/suffix_runtime.py --output experiments/phase2/my-run [--num-prompts 50]
 uv run python benchmarks/suffix_report.py experiments/phase2/my-run [--compare experiments/phase2/other-run]
-uv run awpmi pack lm-head                                       # Phase 3 packs, under packs/
-uv run awpmi pack experts
+uv run weightsift pack lm-head                                       # Phase 3 packs, under packs/
+uv run weightsift pack experts
 uv run python benchmarks/storage_runtime.py --output experiments/phase3/my-run [--num-prompts 50]
 uv run python benchmarks/storage_report.py experiments/phase3/my-run [--compare experiments/phase3/other-run]
 uv run python benchmarks/moe_runtime.py --output experiments/phase3/my-moe-run [--num-prompts 5]
 uv run python benchmarks/moe_report.py experiments/phase3/my-moe-run [--compare experiments/phase3/other-moe-run]
-uv run awpmi pack expert-index                                  # Phase 4A: OLMoE's expert index (headers only)
+uv run weightsift pack expert-index                                  # Phase 4A: OLMoE's expert index (headers only)
 uv run python benchmarks/olmoe_runtime.py --output experiments/phase4a/my-run [--num-prompts 2]
 uv run python benchmarks/olmoe_profile.py --output experiments/phase4a/my-run/profile.json
 uv run python benchmarks/olmoe_report.py experiments/phase4a/my-run [--compare experiments/phase4a/other-run]
-uv run awpmi pack expert-index --config configs/phase4b-moonlight.yaml  # Phase 4B: Moonlight's expert index
+uv run weightsift pack expert-index --config configs/phase4b-moonlight.yaml  # Phase 4B: Moonlight's expert index
 uv run python benchmarks/moonlight_reference_check.py --output experiments/phase4b/reference-check
 uv run python benchmarks/moonlight_runtime.py --output experiments/phase4b/my-run [--stage prepare|reference|stream|digest]
 uv run python benchmarks/moonlight_profile.py --run experiments/phase4b/my-run --configuration stream --trace \
@@ -130,14 +130,17 @@ validates it against the reference, and compares its bytes with the Phase 1B ora
 `suffix_runtime.py` runs the Phase 2 adaptive suffix for every stage, budget and rounding
 model, checks every intermediate against the reference, and `suffix_report.py` draws the
 materialization curves and evaluates the gate (`configs/phase2-suffix.yaml`).
-`awpmi pack` writes Phase 3 packs: safetensors files and a manifest with every segment's
+The CLI is `weightsift`; `wsift` is an alias with the same commands and options
+(for example, `uv run wsift pack expert-index`).
+
+`weightsift pack` writes Phase 3 packs: safetensors files and a manifest with every segment's
 location and hash, referring to the published checkpoint wherever it holds the bytes.
 `storage_runtime.py` runs the Phase 1C LM head against the full BF16 head on the drive and in
 host memory, resident, on the drive and with a cached base level, audits every byte, and
 `storage_report.py` evaluates gates A and B (`configs/phase3-storage.yaml`). `moe_runtime.py`
 serves a MoE model's experts from the drive under several cache budgets and policies, compares
 every decoding step with the resident model bit for bit, and `moe_report.py` evaluates gate C
-(`configs/phase3-moe.yaml`). `awpmi pack expert-index` indexes a checkpoint whose experts are
+(`configs/phase3-moe.yaml`). `weightsift pack expert-index` indexes a checkpoint whose experts are
 split into several tensors without copying them. `olmoe_runtime.py` runs the out-of-VRAM
 benchmark in two processes: the fully materialized reference, then the streamed model under a
 device-memory cap, compared with it in every recorded digest. `olmoe_profile.py` times the
@@ -182,5 +185,5 @@ configs/        smollm2-135m.yaml (pinned model and dataset revisions), phase1b-
                 phase1c-runtime.yaml, phase2-suffix.yaml, phase3-storage.yaml, phase3-moe.yaml,
                 phase4a-olmoe.yaml, phase4b-moonlight.yaml, phase5a-expert-oracle.yaml
 experiments/    raw results per phase and run
-packs/          packs and expert indexes (gitignored; rebuilt by `awpmi pack`)
+packs/          packs and expert indexes (gitignored; rebuilt by `weightsift pack`)
 ```

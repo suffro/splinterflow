@@ -579,7 +579,7 @@ Compute is about 2%.
 ```bash
 uv sync
 uv run pytest                                                              # 510 tests
-uv run awpmi pack expert-index --config configs/phase4b-moonlight.yaml     # headers only; packs/ (gitignored)
+uv run weightsift pack expert-index --config configs/phase4b-moonlight.yaml     # headers only; packs/ (gitignored)
 uv run python benchmarks/moonlight_reference_check.py --output experiments/phase4b/reference-check
 export PYTHONHASHSEED=1
 for stage in prepare reference stream digest; do                           # reference ~80 min, stream ~35 min

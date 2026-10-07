@@ -2,6 +2,9 @@
 
 **Project name: Weightsift.** Use this name consistently in documentation, code comments, and filenames.
 
+**CLI:** `weightsift` is the command; `wsift` is its equivalent shorthand. Both expose
+the `pack` command (`lm-head`, `experts`, `expert-index`). The Python package is `awpmi`.
+
 ## In progress: Phase 5A2 (CROWN / auto_LiRPA expert oracle), started 2026-10-04
 
 A research oracle, not a runtime. Does auto_LiRPA's CROWN family tighten Phase 5A's bounds on unread routed-expert

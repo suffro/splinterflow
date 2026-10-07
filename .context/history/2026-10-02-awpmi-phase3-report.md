@@ -101,7 +101,7 @@ Decision 0006 has the details. In short:
   - `InMemoryPageStore`;
   - `IOStats`, cross-checked against the OS;
   - `PageCache` (LRU or hotness, byte budget, pinning, admission freeze);
-  - packs with a hashed manifest; `awpmi pack`.
+  - packs with a hashed manifest; `weightsift pack`.
 - **Transfer** (`awpmi.streaming.PageStreamer`):
   - pinned, aligned, double-buffered staging;
   - a copy stream and events;
@@ -330,7 +330,7 @@ then the median, then the p95.
    I/O is limited by issuing (21 µs per read); 8 threads with positioned reads reach 14 µs per
    extent (71 k reads/s). The drive itself can do far more.
 3. **Freshly written files read slowly for a while.** This affected only setup in this phase:
-   packs are built by `awpmi pack` in their own process.
+   packs are built by `weightsift pack` in their own process.
 
 ## 9. Gates
 
@@ -414,8 +414,8 @@ to the user.
 ```bash
 uv sync
 uv run pytest                                                              # 399 tests
-uv run awpmi pack lm-head                                                  # packs/ (deterministic)
-uv run awpmi pack experts
+uv run weightsift pack lm-head                                                  # packs/ (deterministic)
+uv run weightsift pack experts
 uv run python benchmarks/storage_runtime.py --output experiments/phase3/<name>   # about 6 min (loop)
 uv run python benchmarks/storage_report.py experiments/phase3/<name> --compare experiments/phase3/storage-run1
 uv run python benchmarks/moe_runtime.py --output experiments/phase3/<moe name>   # about 30 min

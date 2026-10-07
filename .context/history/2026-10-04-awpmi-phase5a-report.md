@@ -421,7 +421,7 @@ brief's, the coverage thresholds were set with that knowledge.
 ```bash
 uv sync
 uv run pytest                                                                                   # 551 tests
-uv run awpmi pack expert-index --config configs/phase4b-moonlight.yaml                          # the Phase 4B index (headers only)
+uv run weightsift pack expert-index --config configs/phase4b-moonlight.yaml                          # the Phase 4B index (headers only)
 PYTHONHASHSEED=1 uv run python benchmarks/expert_oracle.py --output experiments/phase5a/<name> --stage prepare
 PYTHONHASHSEED=1 uv run python benchmarks/expert_oracle.py --output experiments/phase5a/<name> --stage capture       # ~25 min
 PYTHONHASHSEED=1 uv run python benchmarks/expert_oracle.py --output experiments/phase5a/<name> --stage oracle --shard 0   # ~1 h

@@ -125,7 +125,7 @@ The user's Phase 4A brief:
      tested on three files with random spans.
    - Packs: manifest version 2 adds composed segments; a pack without them is still written as
      version 1, byte for byte.
-     - An index is built from safetensors headers alone (`awpmi pack expert-index`: a 372 KB
+     - An index is built from safetensors headers alone (`weightsift pack expert-index`: a 372 KB
        manifest for 12.9 GB of experts; nothing copied).
      - A source file may carry the sha256 its publisher declares (the Hub's LFS digest) instead
        of one computed by reading it.

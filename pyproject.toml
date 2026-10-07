@@ -16,7 +16,8 @@ dependencies = [
 ]
 
 [project.scripts]
-awpmi = "awpmi.cli:main"
+weightsift = "awpmi.cli:main"
+wsift = "awpmi.cli:main"
 
 [dependency-groups]
 dev = [
