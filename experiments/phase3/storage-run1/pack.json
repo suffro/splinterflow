@@ -120,7 +120,7 @@
     },
     "packing": {
       "tool": "awpmi pack lm-head",
-      "config": "C:\\Users\\loren\\Documents\\GitHub\\shardraw\\configs\\phase3-storage.yaml"
+      "config": "C:\\Users\\loren\\Documents\\GitHub\\weightsift\\configs\\phase3-storage.yaml"
     }
   },
   "weight_bytes": 56623104,

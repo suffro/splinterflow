@@ -69,11 +69,11 @@ The user's Phase 4A brief:
      streaming). The experts of 5 layers stay resident to save time.
    - Residency must not change results. The first prompts also run with every layer offloaded
      and must agree on every step, in every digest.
-   - The reference is independent of Shardraw's I/O path:
+   - The reference is independent of Weightsift's I/O path:
      - its weights come from transformers' loader;
      - the source files are re-hashed with direct reads and compared with the sha256 the Hub
        declares;
-     - every row of Shardraw's expert index, read from the drive, is compared byte for byte with
+     - every row of Weightsift's expert index, read from the drive, is compared byte for byte with
        the loader's fused expert tensors.
    - `device_map` offloading was not used: it needs `accelerate`, and transformers' disk offload
      re-saves converted experts, which is a full copy.

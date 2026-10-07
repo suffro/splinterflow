@@ -115,4 +115,4 @@ gate:
   # reference on every step, like every other configuration.
   #
   # F (generic architecture): tests/test_layering.py passes (the core names no model, tensor layout, router or shared
-  # experts, and imports nothing above it; the streaming reference imports nothing of Shardraw's path).
+  # experts, and imports nothing above it; the streaming reference imports nothing of Weightsift's path).

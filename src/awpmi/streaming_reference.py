@@ -13,8 +13,8 @@ weight materialized when its layer runs. Only *when* an experts layer exists dif
     same function (the mapping's per-expert stacking and gate/up concatenation, on the device),
     and a hook that releases them once the module has run: one experts layer exists at a time.
     Between calls the experts' parameters are None, so any use outside a call raises.
-  * Nothing of Shardraw's own path is used: no awpmi storage, index, cache, compact or chunked
-    call, routed-only materialization, or expert layout derived by Shardraw
+  * Nothing of Weightsift's own path is used: no awpmi storage, index, cache, compact or chunked
+    call, routed-only materialization, or expert layout derived by Weightsift
     (`tests/test_layering.py` checks the imports). Which checkpoint tensor belongs to which
     experts module is transformers' own renaming of its key.
 

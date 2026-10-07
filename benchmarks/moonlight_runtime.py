@@ -9,9 +9,9 @@ stages, each in its own process, started by this script:
              transformers' own loader, each experts layer materialized whole from the published checkpoint when it runs
              and released after, so neither host nor device memory holds the experts. The first prompts also run with
              experts layers kept resident after their first load (residency check). It records the sha256 of every expert
-             row it loaded, for the index audit. Nothing of Shardraw's own expert path runs in this process.
+             row it loaded, for the index audit. Nothing of Weightsift's own expert path runs in this process.
   stream     a fresh process under the configured device-memory cap: the published files re-hashed with direct reads
-             against the Hub's sha256; every row of Shardraw's expert index read from the drive and compared with the
+             against the Hub's sha256; every row of Weightsift's expert index read from the drive and compared with the
              reference's row digests; every weight but the routed experts read from the checkpoint (direct I/O); then every
              configuration (cache, call budget), each step compared with the reference and audited.
 
@@ -457,7 +457,7 @@ def audit_step(report: dict, requested: int) -> list[str]:
 
 
 def index_audit(pack, rows: dict[str, list[str]]) -> dict:
-    """Every row of every index segment, read from the drive through Shardraw's store, against the reference's row digests."""
+    """Every row of every index segment, read from the drive through Weightsift's store, against the reference's row digests."""
     store = pack.store(direct=True)
     audit = {"segments": 0, "rows": 0, "bytes": 0, "differing": [], "missing": sorted(set(pack.segments) ^ set(rows))}
     try:

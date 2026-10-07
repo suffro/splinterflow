@@ -1,5 +1,5 @@
-"""The verifier environment's side of the boundary (decision 0010): it has no Splinterflow package, and reads the
-artifacts Splinterflow writes bit for bit (the root's tests/test_crown_boundary.py writes the same fixture)."""
+"""The verifier environment's side of the boundary (decision 0010): it has no Weightsift package, and reads the
+artifacts Weightsift writes bit for bit (the root's tests/test_crown_boundary.py writes the same fixture)."""
 
 from __future__ import annotations
 
@@ -14,15 +14,15 @@ from safetensors.torch import load_file
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 
-def test_the_verifier_environment_has_no_splinterflow():
+def test_the_verifier_environment_has_no_weightsift():
     assert importlib.util.find_spec("awpmi") is None
     assert importlib.util.find_spec("auto_LiRPA") is not None
 
 
-VERIFIER_SCRIPTS = ("probe.py", "run.py", "report.py", "full_crown_cost.py")  # export.py runs in the Splinterflow environment, by design
+VERIFIER_SCRIPTS = ("probe.py", "run.py", "report.py", "full_crown_cost.py")  # export.py runs in the Weightsift environment, by design
 
 
-def test_the_verifier_imports_no_splinterflow_module():
+def test_the_verifier_imports_no_weightsift_module():
     root = Path(__file__).resolve().parents[1]
     paths = [*(root / name for name in VERIFIER_SCRIPTS if (root / name).exists()), *(root / "crown_oracle").glob("*.py")]
     assert len(paths) >= 7
@@ -46,7 +46,7 @@ def roundtrip_tensors() -> dict[str, torch.Tensor]:
     }
 
 
-def test_artifacts_from_the_splinterflow_environment_read_back_exactly():
+def test_artifacts_from_the_weightsift_environment_read_back_exactly():
     loaded = load_file(str(FIXTURES / "roundtrip.safetensors"))
     expected = json.loads((FIXTURES / "roundtrip.json").read_text(encoding="utf-8"))
     mine = roundtrip_tensors()

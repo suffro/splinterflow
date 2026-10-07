@@ -1,6 +1,6 @@
 # Phase 5A2: the isolated verifier environment of the CROWN expert oracle (decision 0010).
 #
-# It is not the Splinterflow runtime environment (repository root: torch 2.14, Python 3.13) and shares no package with
+# It is not the Weightsift runtime environment (repository root: torch 2.14, Python 3.13) and shares no package with
 # it: auto_LiRPA declares Python 3.11 and torch < 2.12, so it gets its own interpreter and lockfile. The two environments
 # exchange only serialized artifacts (safetensors, JSON); see README.md.
 [project]

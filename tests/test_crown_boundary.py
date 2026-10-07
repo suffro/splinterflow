@@ -1,5 +1,5 @@
 """Phase 5A2 (decision 0010): auto_LiRPA lives in the isolated verifier environment (`research/crown_expert_oracle`) only.
-Splinterflow neither depends on it nor imports the verifier; the two environments exchange serialized artifacts, which
+Weightsift neither depends on it nor imports the verifier; the two environments exchange serialized artifacts, which
 survive the trip bit for bit (the verifier environment checks the same fixture: its tests/test_boundary.py)."""
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ def test_the_runtime_environment_has_no_auto_lirpa():
     assert "auto-lirpa" not in (ROOT / "uv.lock").read_text(encoding="utf-8").lower()
 
 
-def test_no_splinterflow_module_imports_the_verifier():
+def test_no_weightsift_module_imports_the_verifier():
     paths = [*sorted(SRC.rglob("*.py")), *sorted((ROOT / "benchmarks").glob("*.py"))]
     assert len(paths) > 40
     for path in paths:

@@ -1,6 +1,6 @@
 # Repository Context
 
-This directory contains the canonical shared context for this repository.
+The project is named **Weightsift**. This directory contains its canonical shared context.
 
 ## Always relevant
 
@@ -10,7 +10,7 @@ This directory contains the canonical shared context for this repository.
 ## When relevant
 
 - `truth/conventions.md` — repository conventions.
-- `state/Splinterflow_Implementation_Guide.md` — principles, architecture and research method (replaced the AWPMI roadmap).
+- `state/Weightsift_Implementation_Guide.md` — principles, architecture and research method (replaced the AWPMI roadmap).
 - `decisions/` — significant technical and architectural decisions.
 
 ## Historical

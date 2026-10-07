@@ -10,7 +10,7 @@ read from storage.
 
 The user's Phase 3 brief:
 
-- Move Shardraw/AWPMI from a resident-memory research runtime to a real selective-materialization
+- Move Weightsift/AWPMI from a resident-memory research runtime to a real selective-materialization
   system. The long-term target is running models larger than accelerator memory, materializing
   only the weight data needed to certify the same discrete decision as the full model.
 - Build a generic storage layer (`PageStore`: in memory and file-backed) and a separate

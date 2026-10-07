@@ -1,11 +1,11 @@
 """Reference profiles: what "exact" is exact relative to (decision 0007).
 
-Shardraw reproduces the discrete decisions of a *declared, fully materialized reference
+Weightsift reproduces the discrete decisions of a *declared, fully materialized reference
 execution*. Until Phase 4A that declaration was implicit: the model in BF16, transformers'
 default kernels, the declared numerical environment (decision 0001). A profile states it:
 
   kind           BF16_REFERENCE, FP16_REFERENCE or NATIVE_QUANTIZED_REFERENCE
-  weight dtype   the dtype of the stored weight bytes the reference computes with. Shardraw
+  weight dtype   the dtype of the stored weight bytes the reference computes with. Weightsift
                  streams exactly those bytes, so a checkpoint stored in another dtype is
                  refused, not converted on the fly
   compute dtype  the dtype of the model's activations

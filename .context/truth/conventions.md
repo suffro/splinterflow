@@ -122,15 +122,15 @@
   weights are never converted on the fly.
 - A reference too large for the device runs in its own process, loaded by transformers as
   published, each experts layer materialized whole in turn (`FullLayerOffload`); some prompts
-  run with different residency and must agree. Its weights must not come through Shardraw's
-  own I/O path; the index Shardraw streams from is audited against them row by row.
+  run with different residency and must agree. Its weights must not come through Weightsift's
+  own I/O path; the index Weightsift streams from is audited against them row by row.
 - Compact expert buffers keep ascending expert order (the eager implementation accumulates in
   loop order), and expert parameters are `None` between calls, never `meta` (a CUDA grouped
   GEMM given a meta weight returned garbage instead of failing).
 - A checkpoint index records the publisher's file digests and is built from headers only;
   nothing proportional to the model is read or written to make it.
 - A model too large for host memory is compared with `StreamingReference` (decision 0008), which
-  imports nothing of Shardraw's storage, transfer, materialization or expert adapters
+  imports nothing of Weightsift's storage, transfer, materialization or expert adapters
   (`tests/test_layering.py`), and is itself checked against `from_pretrained` where that fits.
 - A bounded experts call keeps the experts implementation's own combine, once per call; never
   combine per chunk. A new experts implementation or GPU needs the chunked-equals-unchunked tests

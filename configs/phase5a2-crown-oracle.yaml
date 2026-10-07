@@ -1,7 +1,7 @@
 # AWPMI Phase 5A2: a CROWN / auto_LiRPA oracle of AWPMI inside routed experts (decision 0010).
 #
 # Two environments, joined only by the artifact `export` writes:
-#   export   (Splinterflow environment, research/crown_expert_oracle/export.py): the Phase 5A capture, checked against
+#   export   (Weightsift environment, research/crown_expert_oracle/export.py): the Phase 5A capture, checked against
 #            Phase 5A's digests; the selected samples' reference recomputed bitwise; the routed experts' weights and their
 #            q6+q4 levels (decision 0003); Phase 5A's schedules, states, byte accounting, enclosures and bounds per state;
 #            Phase 5A's own cells on the same samples (the baseline).

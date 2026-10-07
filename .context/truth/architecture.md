@@ -2,11 +2,11 @@
 
 ## Overview
 
-This repository hosts **AWPMI — Adaptive Weight-Page Materialization for Inference**, a
+This repository hosts **Weightsift**, implementing **AWPMI — Adaptive Weight-Page Materialization for Inference**, a
 research prototype (Python package `awpmi`, at the repository root). AWPMI materializes
 independently fetchable weight pages one at a time. It stops only when a conservative,
 deterministic certificate proves that the next-token argmax equals that of the fully
-materialized reference model. The guide is `state/Splinterflow_Implementation_Guide.md` (it replaced the AWPMI roadmap).
+materialized reference model. The guide is `state/Weightsift_Implementation_Guide.md` (it replaced the AWPMI roadmap).
 
 Implemented so far:
 
@@ -85,7 +85,7 @@ Implemented so far:
 | `models/olmoe.py` | Phase 4A OLMoE adapter: `EXPERT_LAYOUT` checked against transformers' mapping, `routers`, `REFERENCE_PROFILE` (BF16, `grouped_mm`, SDPA). |
 | `models/moonlight.py` | Phase 4B Moonlight adapter (DeepSeek-V3 architecture): `EXPERT_LAYOUT` (checked), `routers` (with their float32 correction bias), `shared_experts`, `moe_blocks`, `ROUTING` and `check_config` (sigmoid `noaux_tc`, one group, top 6, renormalized × 2.446: what transformers' router computes), `REFERENCE_PROFILE` (BF16, `grouped_mm`, SDPA). Phase 5A: the names around the last MoE block (`RESIDUAL_NORM_SUFFIX`, `FINAL_NORM`, `LM_HEAD`). |
 | `models/streamed.py` | Phase 4B `StreamedParameters`: chosen dense parameters (e.g. shared experts) served whole from a `WeightStore` at every call of their module, `None` between calls; `remove(restore=True)` makes them resident again. |
-| `streaming_reference.py` | Phase 4B independent reference, `StreamingReference`: transformers' model built on `meta` with the declared kernels; every non-expert weight loaded by transformers' own `convert_and_load_state_dict_in_model` (safetensors slices opened as `from_pretrained` opens them, its dtype plan and mapping, its finalization); each experts layer loaded by the same function in a pre-hook and released after the module ran (`None` between calls); `resident` and `set_resident` for the residency check; `ReferenceCall.per_assignment_outputs`. Imports nothing of Shardraw's path (layering test). |
+| `streaming_reference.py` | Phase 4B independent reference, `StreamingReference`: transformers' model built on `meta` with the declared kernels; every non-expert weight loaded by transformers' own `convert_and_load_state_dict_in_model` (safetensors slices opened as `from_pretrained` opens them, its dtype plan and mapping, its finalization); each experts layer loaded by the same function in a pre-hook and released after the module ran (`None` between calls); `resident` and `set_resident` for the residency check; `ReferenceCall.per_assignment_outputs`. Imports nothing of Weightsift's path (layering test). |
 | `profiles.py` | Phase 4A reference profiles: `ReferenceProfile` (kind, stored weight dtype, compute dtype, kernels, numerics, quantization), `BF16_REFERENCE`, `FP16_REFERENCE`, `native_quantized_reference` (declared, refused by `check_model`); `check_model`, `check_weights`. |
 | `cli.py` | `awpmi pack lm-head`, `awpmi pack experts` (roadmap §3.2) and `awpmi pack expert-index` (Phase 4A: the composed-segment index of a split checkpoint, from headers only). |
 | `stores/suffix.py` | Phase 2: `MLPStore`, neuron-major pages of the last MLP (gate row, up row, down column of each neuron, one contiguous run each), served only for the stage's adaptive roles, every read logged; resident metadata: down column norms, down row norms (L2, L∞), up row norms. |
@@ -301,7 +301,7 @@ Phase 5A, the expert oracle (`awpmi.oracle.experts`), for one decode token:
   model with each experts layer materialized whole in turn, in a separate process; residency is
   checked not to change any result. A model that does not fit in host memory either is compared
   with `StreamingReference` (decision 0008): transformers' own loader, one experts layer at a
-  time from the checkpoint, sharing no code with Shardraw's expert path (layering test), and
+  time from the checkpoint, sharing no code with Weightsift's expert path (layering test), and
   itself checked against `from_pretrained` where that fits.
 - The oracles (`awpmi.oracle`: Phase 1B, Phase 5A) are diagnostic simulators: no other module
   imports them, and they import no storage, streaming, materialization, store or runtime module

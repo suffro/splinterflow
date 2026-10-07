@@ -8,14 +8,14 @@ complete. Stage 2, the final decision and the phase report are pending; current 
 
 ## Two environments
 
-| | Splinterflow (repository root) | Verifier (this directory) |
+| | Weightsift (repository root) | Verifier (this directory) |
 | --- | --- | --- |
 | Python, torch | 3.13, 2.14.1+cu130 | 3.11.16, 2.11.0+cu130 |
 | Packages | awpmi, transformers 5.18 | auto_LiRPA 0.7.2 @ `5a098e8f9fb5786a428a024981d833d303921f2d` (BSD-3-Clause), numpy 2.4.6, safetensors, pyyaml, psutil |
 | Lockfile | `uv.lock` (root) | `uv.lock` (here) |
 | Runs | `export.py` | `probe.py`, `run.py`, `report.py`, `full_crown_cost.py` |
 
-auto_LiRPA declares Python 3.11 and torch < 2.12, so it gets its own interpreter and lockfile; the Splinterflow
+auto_LiRPA declares Python 3.11 and torch < 2.12, so it gets its own interpreter and lockfile; the Weightsift
 environment is not touched (it cannot import auto_LiRPA: `tests/test_crown_boundary.py`). The two exchange only the
 artifact `export.py` writes (safetensors and a JSON manifest with the sha256 of every file); the verifier imports no
 `awpmi` (`tests/test_boundary.py` here).
@@ -28,10 +28,10 @@ python -m uv run --project research/crown_expert_oracle pytest research/crown_ex
 ## Pipeline
 
 ```bash
-# Splinterflow environment: the Phase 5A capture (benchmarks/expert_oracle.py, ~25 min), checked against Phase 5A run1's digests
+# Weightsift environment: the Phase 5A capture (benchmarks/expert_oracle.py, ~25 min), checked against Phase 5A run1's digests
 PYTHONHASHSEED=1 python -m uv run python benchmarks/expert_oracle.py --output experiments/phase5a2/capture --stage prepare
 PYTHONHASHSEED=1 python -m uv run python benchmarks/expert_oracle.py --output experiments/phase5a2/capture --stage capture
-# Splinterflow environment: the artifact (the selected samples, Phase 5A's schedules, states, enclosures, bounds, cells)
+# Weightsift environment: the artifact (the selected samples, Phase 5A's schedules, states, enclosures, bounds, cells)
 PYTHONHASHSEED=1 python -m uv run python research/crown_expert_oracle/export.py --output experiments/phase5a2/<run>
 # Verifier environment
 V="python -m uv run --project research/crown_expert_oracle python research/crown_expert_oracle"
@@ -44,7 +44,7 @@ $V/report.py experiments/phase5a2/<run> [--compare experiments/phase5a2/<run2>]
 
 The captured tensors and the artifact are regenerated, not committed (`.gitignore`); their sha256 are in the records.
 
-## What auto_LiRPA provides, what Splinterflow adds
+## What auto_LiRPA provides, what Weightsift adds
 
 auto_LiRPA (used as published, unmodified):
 
@@ -55,7 +55,7 @@ auto_LiRPA (used as published, unmodified):
 - the relaxations: weight-perturbed linear layers and products (McCormick, `BoundLinear`, `BoundMul`), sigmoid
   (`BoundSigmoid`); batched intermediate bounds (`crown_batch_size`).
 
-Splinterflow (this directory, `export.py`):
+Weightsift (this directory, `export.py`):
 
 - the verification graphs as forward PyTorch modules (`crown_oracle/graph.py`): the experts, the routing-weighted
   combine, the shared experts and residual as exact constants; SiLU written g·σ(g) (auto_LiRPA has no SiLU operator;

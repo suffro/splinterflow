@@ -1,5 +1,5 @@
 """Layering (decisions 0006-0008): the storage core knows no model and no certificate; certification knows no storage;
-the streaming reference shares nothing with Shardraw's own expert path."""
+the streaming reference shares nothing with Weightsift's own expert path."""
 
 from __future__ import annotations
 
@@ -43,8 +43,8 @@ def test_certification_does_not_depend_on_storage():
         assert not CERTIFICATION_FORBIDDEN_IMPORTS.search(path.read_text(encoding="utf-8")), path.name
 
 
-# The independent reference (decision 0008) imports nothing of Shardraw's path: no storage, transfer, materialization,
-# expert adapter (compact or chunked calls) or checkpoint index of Shardraw's.
+# The independent reference (decision 0008) imports nothing of Weightsift's path: no storage, transfer, materialization,
+# expert adapter (compact or chunked calls) or checkpoint index of Weightsift's.
 REFERENCE_FORBIDDEN_IMPORTS = re.compile(
     r"^\s*(from|import)\s+awpmi\.(storage|streaming|materialization|models|stores)\b|^\s*from\s+awpmi\s+import", re.MULTILINE
 )
@@ -67,7 +67,7 @@ def test_no_runtime_path_uses_the_oracles():
             assert not ORACLE_IMPORT.search(path.read_text(encoding="utf-8")), path.name
 
 
-def test_the_streaming_reference_shares_nothing_with_shardraws_path():
+def test_the_streaming_reference_shares_nothing_with_weightsifts_path():
     text = (SRC / "streaming_reference.py").read_text(encoding="utf-8")
     assert not REFERENCE_FORBIDDEN_IMPORTS.search(text)
     assert not re.search(r"\bawpmi\b", text.split('"""', 2)[2])  # beyond its docstring it names no awpmi module at all

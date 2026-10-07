@@ -10,7 +10,7 @@ measuring first, as an oracle, whether AWPMI could avoid reading most of the exp
 
 The user's Phase 5A brief:
 
-- The question: once the router has selected an expert, must Shardraw materialize all of it to keep the final
+- The question: once the router has selected an expert, must Weightsift materialize all of it to keep the final
   discrete decision? What fraction of the routed bytes must be read before AWPMI can certify the reference's token?
 - Scope: Moonlight, the last MoE layer, the last position, decode only, upstream exact (Mode A). The target stays the
   Phase 4B BF16 reference; the certificate stays conservative and is never set by a heuristic.
@@ -38,7 +38,7 @@ band; it did not change the bands themselves, which are the brief's.
 ## Decision
 
 1. **Samples.** 48 wikitext-2 prompts (16–1,024 tokens; the first 16 are Phase 4B's), 16 greedy decode steps each:
-   768 decode samples. A capture stage runs Moonlight on Shardraw's Phase 4B streamed path (no cache, the 256 MiB call
+   768 decode samples. A capture stage runs Moonlight on Weightsift's Phase 4B streamed path (no cache, the 256 MiB call
    budget, the 6 GB cap; the files verified against the Hub's sha256) and records, at the last MoE layer's last
    position, the experts' input x, the router's choice and weights, the residual r, the shared experts' output S, and
    the reference's R, m, y, h and logits. Every step of Phase 4B's prompts is compared with Phase 4B's reference

@@ -5,7 +5,7 @@ model:
   # which 12.9 GB of BF16 experts, more than this 8 GB GPU. The 0924 checkpoint is stored in BF16,
   # the reference dtype, so its expert bytes are streamed as published (the 0125 base checkpoint
   # is stored in FP32). Every expert is three separate tensors in the checkpoint; transformers fuses
-  # gate and up, and Shardraw reads them in place through a composed-segment index.
+  # gate and up, and Weightsift reads them in place through a composed-segment index.
   repository: allenai/OLMoE-1B-7B-0924
   revision: 6d84c48581ece794365f2b8e9cfb043c68ade9c5
   dtype: bfloat16

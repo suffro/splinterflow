@@ -5,7 +5,7 @@
 Stages (each in its own process; `all` runs them in turn):
 
   prepare  config, prompts (wikitext-2 as Phase 4B; its 16 prompts come first), environment
-  capture  Moonlight on Shardraw's Phase 4B streamed path (configuration "stream": no cache, the call budget, under the
+  capture  Moonlight on Weightsift's Phase 4B streamed path (configuration "stream": no cache, the call budget, under the
            device cap), after the published files are verified against the Hub's sha256. Per step it records every digest
            Phase 4B records (the steps of Phase 4B's prompts must equal Phase 4B's reference records), and at the target
            MoE layer's last position the oracle's inputs and the reference's values: x (the experts' input), the router's

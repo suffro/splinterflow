@@ -1,4 +1,4 @@
-C:\Users\loren\Documents\GitHub\shardraw\research\crown_expert_oracle\.venv\Lib\site-packages\torch\jit\_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+C:\Users\loren\Documents\GitHub\weightsift\research\crown_expert_oracle\.venv\Lib\site-packages\torch\jit\_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
   warnings.warn(
 Early stop at 12th iter due to 10 iterations no improvement!
 Early stop at 12th iter due to 10 iterations no improvement!

@@ -1,6 +1,6 @@
 # AWPMI Phase 1 report — Minimal certified materialization
 
-Date: 2026-10-01 · Roadmap: the AWPMI implementation roadmap (Phase 1; since replaced by `state/Splinterflow_Implementation_Guide.md`) ·
+Date: 2026-10-01 · Roadmap: the AWPMI implementation roadmap (Phase 1; since replaced by `state/Weightsift_Implementation_Guide.md`) ·
 Status: **complete. The correctness gate passes; the scientific hypothesis is not
 supported by this bound and decomposition. Phase 2 and Phase 3 are blocked.**
 

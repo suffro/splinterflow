@@ -1,6 +1,6 @@
 """Phase 5A2: the CROWN oracle's inputs, exported from the Phase 5A capture (decision 0010).
 
-Runs in the SPLINTERFLOW environment (the repository root's: torch 2.14, awpmi), not in the verifier's:
+Runs in the WEIGHTSIFT environment (the repository root's: torch 2.14, awpmi), not in the verifier's:
 
     PYTHONHASHSEED=1 uv run python research/crown_expert_oracle/export.py --output experiments/phase5a2/<name>
 

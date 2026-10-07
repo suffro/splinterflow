@@ -1,4 +1,4 @@
-# AWPMI — Adaptive Weight-Page Materialization for Inference
+# Weightsift — Adaptive Weight-Page Materialization for Inference
 
 Research prototype. AWPMI progressively materializes independently fetchable weight
 pages. It stops only when a conservative certificate proves that the discrete
@@ -6,7 +6,7 @@ next-token decision is identical to that of the fully materialized reference mod
 Confidence is never a certificate. If certification fails, AWPMI materializes
 everything and reproduces the reference computation exactly.
 
-The full plan is in [`.context/state/AWPMI_Implementation_Roadmap.md`](.context/state/AWPMI_Implementation_Roadmap.md).
+The full plan is in [`.context/state/Weightsift_Implementation_Guide.md`](.context/state/Weightsift_Implementation_Guide.md).
 The current status and results are in [`.context/state/current.md`](.context/state/current.md).
 
 ## Status
@@ -62,7 +62,7 @@ experts layer materialized at a time, itself checked against `from_pretrained` w
 Every step equals the reference bit for bit, in two runs with identical digests.
 
 **Phase 5A — AWPMI inside routed experts, an oracle study** asks whether, once the router has chosen
-Moonlight's experts, Shardraw must read all of them to keep the final token. For the last MoE layer at
+Moonlight's experts, Weightsift must read all of them to keep the final token. For the last MoE layer at
 decode, upstream exact, an oracle reads the routed experts progressively in several decompositions
 (neuron pages, down-projection row pages, neuron-major pages, precision levels), bounds every
 intermediate of the experts call, the MoE block, the residual and the final norm through the reference's

@@ -49,7 +49,7 @@
   "storage": {
     "pack_files": {
       "pack": {
-        "path": "C:\\Users\\loren\\Documents\\GitHub\\shardraw\\packs\\smollm2-135m-instruct-lm-head-q6+q4\\pack.safetensors",
+        "path": "C:\\Users\\loren\\Documents\\GitHub\\weightsift\\packs\\smollm2-135m-instruct-lm-head-q6+q4\\pack.safetensors",
         "bytes": 36569640
       },
       "source": {

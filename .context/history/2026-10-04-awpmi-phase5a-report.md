@@ -7,7 +7,7 @@ certified with any routed-expert byte unread; a physical expert-AWPMI runtime (P
 
 ## Outcome in brief
 
-Phase 5A asks whether, once the router has chosen Moonlight's experts, Shardraw must read all of them to keep the final
+Phase 5A asks whether, once the router has chosen Moonlight's experts, Weightsift must read all of them to keep the final
 token. It answers with an oracle: for the last MoE layer at decode, upstream exact, it reads the six routed experts
 progressively in eight decompositions, bounds every intermediate of the experts call, the MoE block, the residual and
 the final norm through the reference's own operations, and certifies the token against all 163,840 vocabulary rows
@@ -38,7 +38,7 @@ Two obstacles block expert AWPMI, and removing either alone is not enough:
 
 ## 1. Question
 
-> Once the router has selected an expert, does Shardraw need to materialize the whole expert to keep the final discrete
+> Once the router has selected an expert, does Weightsift need to materialize the whole expert to keep the final discrete
 > decision? What fraction of the routed expert bytes must be read before AWPMI can certify the token of the fully
 > materialized reference?
 

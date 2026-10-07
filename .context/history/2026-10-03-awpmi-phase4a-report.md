@@ -6,7 +6,7 @@ Status: **complete. Correctness and gates A, B, C and D pass.**
 
 ## Outcome in brief
 
-**Yes: Shardraw now runs a real MoE whose expert weights exceed the available GPU memory, and
+**Yes: Weightsift now runs a real MoE whose expert weights exceed the available GPU memory, and
 reproduces the reference model exactly.**
 
 - **The setup.** OLMoE-1B-7B has 12.9 GB of BF16 experts: 1.50× this GPU (8.59 GB) and 2.15×
@@ -59,7 +59,7 @@ Per decode token (40 prompts × 12 decode steps, run1). Fractions are of all exp
 
 ## 1. Question
 
-> Can Shardraw run a real MoE model whose expert weights exceed the available GPU memory, with
+> Can Weightsift run a real MoE model whose expert weights exceed the available GPU memory, with
 > the generic streaming and cache backend, while reproducing the fully materialized reference
 > model's discrete decisions exactly?
 
@@ -347,7 +347,7 @@ custom kernels for the experts are not justified by this profile.
 
 No runtime dependency. Their patterns were reviewed again for this phase (sources below).
 
-| System | Pattern | In Shardraw |
+| System | Pattern | In Weightsift |
 | --- | --- | --- |
 | Soup | Model in RAM or NVMe, copied into pre-allocated VRAM buffers one layer at a time on a dedicated stream, page-locked memory | Reused conceptually: pinned staging, copy stream and events (Phase 3), and the layer-at-a-time reference executor here (`FullLayerOffload`). Not applicable: next-layer prefetch, since a MoE layer's experts are unknown until its router runs |
 | ds4 (PR #1082) | Hits first: run cached experts while miss reads are in flight, sum partials in slot order; a pool of 8 pread workers with pinned staging | The read pool (8 threads, positioned direct reads) since Phase 3. Hits first adopted at the copy level: cached experts are copied before the misses are read. Not adopted: computing hits before misses arrive, which needs an exact combine (section 13) |
@@ -362,7 +362,7 @@ Sources: [Soup layer streaming](https://trysoup.dev/docs/layer-streaming),
 
 ## 13. Answer, and the next target
 
-**Can Shardraw now run a real MoE model whose expert weights exceed available GPU memory while
+**Can Weightsift now run a real MoE model whose expert weights exceed available GPU memory while
 reproducing the reference model exactly? Yes.**
 
 - OLMoE-1B-7B's 12.9 GB of experts run on an 8 GB GPU, under a 6 GB cap.
@@ -387,7 +387,7 @@ reproducing the reference model exactly? Yes.**
 - **It forces the two capabilities DeepSeek-V3 will need, at a size where they can be checked:**
   1. *A reference that does not fit in host memory.* The model (31.9 GB) does not fit this
      machine's 32 GB of RAM next to the OS. The reference executor must stream each layer's
-     full experts from the checkpoint through an independent reader, not Shardraw's path. The
+     full experts from the checkpoint through an independent reader, not Weightsift's path. The
      residency check and the index audit carry over.
   2. *Bounded prefill buffers.* A layer is 1.1 GB, which still fits, but it is the first model
      where the prefill working set crowds the cap. Splitting an experts call over groups of

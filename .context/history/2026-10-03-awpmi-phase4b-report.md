@@ -6,7 +6,7 @@ Status: **complete. Correctness and gates A–F pass.**
 
 ## Outcome in brief
 
-**Yes: Shardraw runs Moonlight-16B-A3B, DeepSeek-V3's architecture at 16 B parameters, although
+**Yes: Weightsift runs Moonlight-16B-A3B, DeepSeek-V3's architecture at 16 B parameters, although
 the model fits neither this GPU nor this machine's host memory, and reproduces an independent
 fully materialized reference exactly.**
 
@@ -18,7 +18,7 @@ fully materialized reference exactly.**
   - They are read in place from the published files (an index built from headers, nothing
     copied).
 - **The reference.** transformers' own model, loaded by transformers' own loader, one experts layer
-  at a time from the checkpoint: a 2.1 GB working set. It shares no code with Shardraw's expert
+  at a time from the checkpoint: a 2.1 GB working set. It shares no code with Weightsift's expert
   path. It was itself checked against `from_pretrained` on Moonlight truncated to 4 layers: every
   weight and every recorded quantity equal.
 - **Bounded prefill.** An experts call that would need more than 256 MiB of expert buffers runs in
@@ -59,7 +59,7 @@ Per decode token (16 prompts × 8 decode steps, run1). Fractions are of all rout
 
 The brief's engineering questions, answered in section 18:
 
-1. Can Shardraw execute a DeepSeek-V3-like architecture without keeping all expert weights in RAM
+1. Can Weightsift execute a DeepSeek-V3-like architecture without keeping all expert weights in RAM
    or VRAM?
 2. Can the reference be evaluated without loading the whole model into RAM?
 3. Can expert execution be split into bounded chunks without changing the exact result?
@@ -98,7 +98,7 @@ Decision 0008 has the details.
 - **The independent streaming reference** (`awpmi.streaming_reference`, Blocker A).
   - transformers' model on `meta`; non-expert weights through transformers' own loading function;
     each experts layer loaded by the same function in a pre-hook and released after.
-  - No Shardraw import (layering test).
+  - No Weightsift import (layering test).
 - **The Moonlight adapter** (`awpmi.models.moonlight`): the checked layout, routers (float32 bias),
   shared experts, MoE blocks, the routing configuration it was validated for, the profile.
 - **`StreamedParameters`** (`awpmi.models.streamed`): any dense parameters served from storage at
@@ -129,7 +129,7 @@ Decision 0008 has the details.
   | Tests: save_pretrained checkpoints of DeepSeek-V3, Qwen3-MoE, Mixtral (renamed keys), CPU and CUDA | every weight and buffer, every attention output, experts call, per-assignment output, MoE block output, KV cache and logits: equal |
   | Moonlight truncated to 4 layers (dense layer + 3 MoE layers): `from_pretrained` resident vs streaming (`experiments/phase4b/reference-check`) | 57 weights (6 expert tensors) equal; 20 steps (4 prompts of 16–1,024 tokens, prefill + 4 decode) equal in 16 quantities; 60 per-layer expert-output checks |
   | Residency (benchmark, both runs) | 18 of 18 steps equal with an experts layer kept resident |
-  | Index audit (benchmark) | the reference's sha256 of every expert row it loaded = Shardraw's index rows read from the drive: 3,328 of 3,328 |
+  | Index audit (benchmark) | the reference's sha256 of every expert row it loaded = Weightsift's index rows read from the drive: 3,328 of 3,328 |
 
 - **Memory and time.**
   - The reference process peaks at a 2.1 GB working set during steps (2.84 GB lifetime, at load)
@@ -434,7 +434,7 @@ Design note (decision 0008, point 14).
 
 No runtime dependency; reviewed again for this phase (sources below).
 
-| System | Pattern | In Shardraw |
+| System | Pattern | In Weightsift |
 | --- | --- | --- |
 | ds4 (antirez's DwarfStar 4; `stefandsl/DwarfStar`, cited in decision 0007, is a fork of it) | Hits-first (PR #1082): cached experts computed while misses are read, partials summed in slot order from +0.0f to stay byte-identical; a pool of 8 pread workers with pinned staging | The read pool since Phase 3; hits first at the copy level since 4A. New here: in the chunked `grouped_mm` path nothing is summed until the call's end, so chunks can be computed in any order (compute-level hits-first) without a slot-order sum. Not built |
 | ds4 (issue #1119) | LRU thrash in prefill; admission freeze after the first batch | Reproduced at Moonlight's scale: LRU 40 and 80 never hit. The freeze exists (Phase 3) and was not a measured configuration |
@@ -450,7 +450,7 @@ Sources: [ds4 (DwarfStar 4)](https://github.com/antirez/ds4),
 
 ## 18. Answers
 
-1. **Can Shardraw execute Moonlight-16B-A3B despite the model exceeding both practical GPU
+1. **Can Weightsift execute Moonlight-16B-A3B despite the model exceeding both practical GPU
    residency and full-reference host-RAM residency? Yes.**
    - The routed experts are 28.8 GB: 4.8× the 6 GB cap and 3.4× the GPU.
    - The checkpoint is 31.9 GB, against 32 GB of RAM.

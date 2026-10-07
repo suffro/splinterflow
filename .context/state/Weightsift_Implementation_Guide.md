@@ -1,8 +1,8 @@
-# Splinterflow — Development Guide
+# Weightsift — Development Guide
 
 ## Purpose
 
-Splinterflow is an open source research and systems project for running large language models on constrained hardware by treating model weights as a selectively materializable external-memory object.
+Weightsift is an open source research and systems project for running large language models on constrained hardware by treating model weights as a selectively materializable external-memory object.
 
 The project should support three complementary ideas:
 
@@ -585,13 +585,13 @@ lossless compression libraries
 
 Reuse engineering patterns aggressively.
 
-Do not claim established SSD streaming, caching, quantization, or transfer techniques as Splinterflow novelty.
+Do not claim established SSD streaming, caching, quantization, or transfer techniques as Weightsift novelty.
 
 ---
 
 # 18. Distinction from conventional SSD inference
 
-Splinterflow may share infrastructure with other external-memory inference systems.
+Weightsift may share infrastructure with other external-memory inference systems.
 
 Its broader design space is:
 
@@ -618,7 +618,7 @@ Quantization defines a different reference when it changes the model representat
 Always compare:
 
 ```text
-quantized Splinterflow
+quantized Weightsift
 vs
 the same quantized reference
 ```
@@ -703,7 +703,7 @@ Do not implement the entire roadmap in one task.
 
 # 23. Long-term target
 
-The strongest form of Splinterflow would combine:
+The strongest form of Weightsift would combine:
 
 ```text
 external-memory runtime

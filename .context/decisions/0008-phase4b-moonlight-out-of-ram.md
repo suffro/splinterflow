@@ -18,7 +18,7 @@ The user's Phase 4B brief:
   exactly. Not DeepSeek-V3 itself.
 - Blocker A: an independent streaming reference. It reuses transformers' model implementation (no
   second transformer), materializes each layer's full operation and releases it, keeps host RAM
-  bounded, and shares nothing with Shardraw's selective path. It must itself be validated against
+  bounded, and shares nothing with Weightsift's selective path. It must itself be validated against
   `from_pretrained` where that fits: router, expert, attention outputs, KV cache, logits, bitwise.
 - Blocker B: bounded chunked expert execution under an explicit byte budget, with the reference's
   exact accumulation order (inspect transformers' combine first), shared experts, repeated
@@ -74,8 +74,8 @@ The user's Phase 4B brief:
      After the module ran, a hook releases them; between calls the parameters are `None`. Which
      checkpoint tensor belongs to which experts module is transformers' own renaming of its key.
    - Independence: no awpmi storage, index, cache, compact or chunked call, routed-only
-     materialization or Shardraw-derived layout; `tests/test_layering.py` forbids the imports. The
-     reference process records the sha256 of every expert row it loaded; Shardraw's index is
+     materialization or Weightsift-derived layout; `tests/test_layering.py` forbids the imports. The
+     reference process records the sha256 of every expert row it loaded; Weightsift's index is
      audited against those digests in the other process, so neither reads through the other's
      path.
    - Validation where `from_pretrained` fits:
@@ -170,7 +170,7 @@ The user's Phase 4B brief:
       sha256 of every expert row.
     - Stream stage, under the cap:
       - the 27 files re-hashed with direct reads against the Hub's sha256;
-      - all 3,328 index rows read through Shardraw and compared with the reference's digests;
+      - all 3,328 index rows read through Weightsift and compared with the reference's digests;
       - every configuration, every step compared and audited (requested = served experts; cache +
         fetched = requested; storage = fetched; device = storage; every block read holds a
         requested byte; OS counters = store; chunk buffers within the budget).
@@ -292,7 +292,7 @@ Full report: `history/2026-10-03-awpmi-phase4b-report.md`.
 
 - *Combining per chunk*: not the reference's association; the adversarial test shows the
   difference for both implementations.
-- *A Shardraw replica of the experts forward*: a second implementation of transformers' sort,
+- *A Weightsift replica of the experts forward*: a second implementation of transformers' sort,
   gating, weighting and combine. The stand-in keeps transformers' code and changes only when
   weights exist.
 - *Monkeypatching transformers' `_grouped_linear`*: the `__torch_function__` protocol is PyTorch's
