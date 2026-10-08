@@ -2,9 +2,8 @@
 
 A research oracle, not a runtime. It asks whether a mature bound-propagation verifier, auto_LiRPA's CROWN family, can
 tighten Phase 5A's bounds on routed-expert weights that have not been read, enough to make AWPMI inside Moonlight's
-routed experts pay. This is an in-progress development checkpoint: the Stage 1 probe and one development sample are
-complete. Stage 2, the final decision and the phase report are pending; current status is recorded in
-`.context/state/current.md`.
+routed experts pay. The phase stopped after stage 1.5, the L2 probe (Phase 5A's L2 remainder norms given to auto_LiRPA),
+without stage 2: decision 0010 and `.context/history/2026-10-07-awpmi-phase5a2-report.md`.
 
 ## Two environments
 
@@ -33,13 +32,23 @@ PYTHONHASHSEED=1 python -m uv run python benchmarks/expert_oracle.py --output ex
 PYTHONHASHSEED=1 python -m uv run python benchmarks/expert_oracle.py --output experiments/phase5a2/capture --stage capture
 # Weightsift environment: the artifact (the selected samples, Phase 5A's schedules, states, enclosures, bounds, cells)
 PYTHONHASHSEED=1 python -m uv run python research/crown_expert_oracle/export.py --output experiments/phase5a2/<run>
-# Verifier environment
+# Verifier environment (the scripts print UTF-8: on a Windows console, export PYTHONIOENCODING=utf-8)
 V="python -m uv run --project research/crown_expert_oracle python research/crown_expert_oracle"
 PYTHONHASHSEED=1 $V/probe.py --output experiments/phase5a2/probe                       # stage 1 (toy + cost calibration)
 PYTHONHASHSEED=1 $V/run.py --run experiments/phase5a2/<run> --part validate
 PYTHONHASHSEED=1 $V/run.py --run experiments/phase5a2/<run> --part compare [--shard i --shards n]
 PYTHONHASHSEED=1 $V/run.py --run experiments/phase5a2/<run> --part search  [--shard i --shards n]
 $V/report.py experiments/phase5a2/<run> [--compare experiments/phase5a2/<run2>]
+```
+
+Stage 1.5, the L2 probe (Phase 5A's L2 remainder norms given to auto_LiRPA):
+
+```bash
+PYTHONHASHSEED=1 $V/probe_l2.py --output experiments/phase5a2/probe_l2                          # toys (A) and cost at Moonlight's shape (B)
+PYTHONHASHSEED=1 python -m uv run python research/crown_expert_oracle/export.py --output experiments/phase5a2/l2 --select 0,6,11
+PYTHONHASHSEED=1 $V/run.py --run experiments/phase5a2/l2 --part validate
+PYTHONHASHSEED=1 $V/run.py --run experiments/phase5a2/l2 --part l2
+$V/report.py experiments/phase5a2/l2 --l2
 ```
 
 The captured tensors and the artifact are regenerated, not committed (`.gitignore`); their sha256 are in the records.
@@ -49,7 +58,8 @@ The captured tensors and the artifact are regenerated, not committed (`.gitignor
 auto_LiRPA (used as published, unmodified):
 
 - `BoundedModule` (graph tracing, bound propagation), `BoundedParameter` and `BoundedTensor` with `PerturbationLpNorm`
-  (L∞ boxes on weights and activations);
+  (L∞ boxes on weights and activations; L2 balls on weights in stage 1.5, one root per group of rows, and its
+  `AUTOLIRPA_L2_DEBUG` interval mode: `crown_oracle/l2.py` records what upstream does with them);
 - CROWN / backward LiRPA, CROWN-IBP, α-CROWN (optimized relaxations), IBP; output specifications `C` (one row per
   contender: the bound is on Δ·y directly);
 - the relaxations: weight-perturbed linear layers and products (McCormick, `BoundLinear`, `BoundMul`), sigmoid
@@ -66,6 +76,10 @@ Weightsift (this directory, `export.py`):
 - the finite-precision combination (`crown_oracle/certify.py`): Phase 5A's pairwise certificate (decision 0009), its
   named rounding terms and assembly, around auto_LiRPA's structural bound;
 - byte accounting and schedules (Phase 5A's, exported), sample selection, the search, validation, diagnostics
-  (`crown_oracle/attack.py`: adversarial realizations, the reduced set's exact optimum), the report.
+  (`crown_oracle/attack.py`: adversarial realizations, the reduced set's exact optimum), the report;
+- stage 1.5: the L2 balls from the same metadata (`sets.matrix_balls`), the L2 graphs (`crown_oracle/l2.py`: one
+  `F.linear` per group of rows, graph construction only), and the sets' exact optima and witnesses
+  (`crown_oracle/rowsets.py`: closed forms of one row at a time, activation boxes enumerated or searched by vertex,
+  weights inside a set; diagnostics, never a certificate).
 
 No CROWN, LiRPA, α-CROWN or branch-and-bound code is written here.

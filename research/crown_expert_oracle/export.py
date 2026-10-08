@@ -178,6 +178,7 @@ def main() -> int:
     parser.add_argument("--config", default=str(REPO_ROOT / "configs" / "phase5a2-crown-oracle.yaml"))
     parser.add_argument("--output", required=True)
     parser.add_argument("--samples", type=int, default=None, help="export only the first N selected samples (development)")
+    parser.add_argument("--select", default=None, help="export only these positions of the selection (comma-separated; stage 1.5)")
     args = parser.parse_args()
     output = Path(args.output)
     artifact = output / "artifact"
@@ -206,9 +207,11 @@ def main() -> int:
 
     # The samples, chosen from Phase 5A's records.
     records = phase5a.shard_records(phase5a_dir, "samples")
-    chosen = select_samples(records, config["samples"])
+    chosen = [{**choice, "selection_index": position} for position, choice in enumerate(select_samples(records, config["samples"]))]
     if args.samples is not None:
         chosen = chosen[: args.samples]
+    if args.select is not None:
+        chosen = [chosen[int(position)] for position in args.select.split(",")]
     raw = yaml.safe_load((capture_dir / "config.yaml").read_text(encoding="utf-8"))
     capture = load_file(str(capture_dir / "capture.safetensors"))
     captured = {(r["prompt_id"], r["step"]): r for r in read_jsonl(capture_dir / "capture.jsonl.gz")}
@@ -292,7 +295,8 @@ def main() -> int:
             "real_a": sample.real["a"].cpu(), "real_y": sample.real["y"].cpu(), "comparison_rows": comparison.cpu(),
         }
         entry: dict = {
-            "index": n_sample, "prompt_id": prompt_id, "step": step, "length": choice["length"], "gap": choice["gap"], "gap_bin": choice["gap_bin"],
+            "index": n_sample, "selection_index": choice["selection_index"], "prompt_id": prompt_id, "step": step, "length": choice["length"],
+            "gap": choice["gap"], "gap_bin": choice["gap_bin"],
             "token": sample.token, "runner_up": sample.runner_up, "experts": list(sample.experts), "routing": [float(w) for w in sample.weights],
             "bitwise": bitwise, "ceilings": {}, "strategies": {},
             "phase5a_record": {"ceilings": choice["ceilings"],

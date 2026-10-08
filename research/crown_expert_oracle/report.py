@@ -322,12 +322,258 @@ def markdown(summary: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+# Stage 1.5: the L2 probe (run.py --part l2)
+
+
+def _min(values, rows=None) -> float | None:
+    values = values if rows is None else [values[j] for j in rows]
+    values = clean(values)
+    return min(values) if values else None
+
+
+def _first(states: list[dict], test) -> float | None:
+    """The routed-byte fraction of the first state (schedule order) from which `test` holds at every later state."""
+    holds = [bool(test(s)) for s in states]
+    for position in range(len(states)):
+        if all(holds[position:]):
+            return states[position]["fraction"]
+    return None
+
+
+def _last(states: list[dict], test) -> float | None:
+    """The fraction of the last state at which `test` holds (None if never)."""
+    found = [s["fraction"] for s in states if test(s)]
+    return max(found) if found else None
+
+
+def _positive(values) -> bool:
+    values = clean(values)
+    return bool(values) and min(values) > 0
+
+
+def l2_state_row(s: dict) -> dict:
+    """One state: each quantity's minimum over the focus contenders (the runner-up, the tightest by Phase 5A's realistic
+    bound, the tightest truly), and over all comparison contenders where one exists for all of them."""
+    focus = s["focus"]
+    row = {"index": s["index"], "fraction": s["fraction"], "focus": focus,
+           "truth": _min(s["truth"], focus), "truth_all": _min(s["truth"]),
+           "phase5a_realistic": _min(s["phase5a"]["realistic"]["margin"], focus), "phase5a_realistic_all": _min(s["phase5a"]["realistic"]["margin"]),
+           "phase5a_ideal": _min(s["phase5a"]["ideal"]["margin"], focus), "phase5a_ideal_all": _min(s["phase5a"]["ideal"]["margin"]),
+           "box_reduced_optimum": _min(s["box_reduced"], focus), "box_reduced_optimum_all": _min(s["box_reduced"]),
+           "box_weight_optimum": _min(s["box_weight"], focus), "box_weight_optimum_all": _min(s["box_weight"]),
+           "l2_reduced_lower": _min(s["l2_reduced_lower"], focus), "l2_reduced_lower_all": _min(s["l2_reduced_lower"]),
+           "l2_reduced_attained": _min(s["l2_reduced_attained"], focus), "l2_reduced_attained_all": _min(s["l2_reduced_attained"]),
+           "l2_weight_lower": _min(s["l2_weight_lower"], focus), "l2_weight_lower_all": _min(s["l2_weight_lower"]),
+           "witness_box": _min(s["witness"]["box"]), "witness_l2": _min(s["witness"]["l2"]), "witness_resident": _min(s["witness"]["resident"]),
+           "witness_pulled_rows": s["witness_pulled_rows"], "down_balls_not_nested": s["down_balls_not_nested"]}
+    if "crown" in s:
+        row["box_crown"] = _min(s["crown"]["box_reduced"], focus)
+        row["box_crown_all"] = _min(s["crown"]["box_reduced"])
+        row["l2_crown"] = _min(s["crown"]["l2_reduced"])  # computed for the focus contenders only, in focus order
+        # Phase 5A's structural bound (its decomposed bound, no float slack): what a CROWN bound compares with.
+        row["phase5a_realistic_structural"] = _min(s["phase5a"]["realistic"]["decomposed"], focus)
+        cost = s["cost"]["l2_reduced"]
+        row["l2_crown_seconds"] = cost["wall_ms"] / 1e3
+        row["l2_crown_bound_seconds"] = cost["bound_ms"] / 1e3
+        row["l2_crown_setup_seconds"] = cost["setup_ms"] / 1e3
+        row["l2_crown_peak_device_bytes"] = cost["peak_device_bytes"]
+        row["l2_crown_peak_rss_bytes"] = cost["peak_rss_bytes"]
+        row["box_crown_seconds"] = s["cost"]["box_reduced"]["wall_ms"] / 1e3
+        # Share of Phase 5A's realistic→ideal distance closed, per focus contender (the structural bounds: Phase 5A's
+        # decomposed bound, as the escalation rule); and by the L2 set's attained optimum (what no verifier on the
+        # reduced L2 set can exceed) and the resident witness (what no verifier on all the metadata can exceed).
+        realistic, ideal = s["phase5a"]["realistic"]["decomposed"], s["phase5a"]["ideal"]["decomposed"]
+        closed, closed_set, closed_resident = [], [], []
+        for position, j in enumerate(focus):
+            r, i = realistic[j], ideal[j]
+            if None in (r, i) or i <= r:
+                continue
+            closed.append((s["crown"]["l2_reduced"][position] - r) / (i - r))
+            closed_set.append((s["l2_reduced_attained"][j] - r) / (i - r))
+            closed_resident.append((s["witness"]["resident"][position] - r) / (i - r))
+        row.update(gap_closed_l2_crown=median(closed), gap_closed_l2_set_at_most=median(closed_set), gap_closed_resident_at_most=median(closed_resident),
+                   gap_closed_l2_crown_all=closed, gap_closed_l2_set_all=closed_set)
+    return row
+
+
+def l2_summary(records: list[dict], config: dict, manifest: dict) -> dict:
+    settings = config["l2"]
+    by_sample: dict = {}
+    for record in records:
+        by_sample.setdefault(record["sample"], []).append(record)
+    samples = {}
+    for sample, states in sorted(by_sample.items()):
+        states = sorted(states, key=lambda s: s["index"])
+        rows = [l2_state_row(s) for s in states]
+        entry = manifest["samples"][sample]
+        cells = entry["strategies"][settings["strategy"]]["tiers"][settings["tier"]]["phase5a_cells"]
+        # Q6: from which routed-byte fraction each bound decides every comparison pair, and up to which fraction a set
+        # provably holds weights that flip a pair (a witness below zero).
+        decided = {
+            "phase5a_realistic": _first(states, lambda s: _positive(s["phase5a"]["realistic"]["margin"])),
+            "phase5a_ideal": _first(states, lambda s: _positive(s["phase5a"]["ideal"]["margin"])),
+            "box_set_optimum_reduced": _first(states, lambda s: _positive(s["box_reduced"])),
+            "box_set_optimum_weights": _first(states, lambda s: _positive(s["box_weight"])),
+            "l2_set_reduced_lower": _first(states, lambda s: _positive(s["l2_reduced_lower"])),
+            "l2_set_reduced_attained": _first(states, lambda s: _positive(s["l2_reduced_attained"])),
+            "l2_set_weights_lower": _first(states, lambda s: _positive(s["l2_weight_lower"])),
+        }
+        crown_states = [s for s in states if "crown" in s]
+        decided_at_points = {
+            "box_crown": _first(crown_states, lambda s: _positive(s["crown"]["box_reduced"])),
+            "l2_crown": _first(crown_states, lambda s: _positive(s["crown"]["l2_reduced"])),
+            "phase5a_realistic": _first(crown_states, lambda s: _positive(s["phase5a"]["realistic"]["margin"])),
+        }
+        flips = {kind: _last(states, lambda s, kind=kind: _min(s["witness"][kind]) is not None and _min(s["witness"][kind]) < 0) for kind in ("box", "l2", "resident")}
+        flips["l2_set_reduced_attained"] = _last(states, lambda s: _min(s["l2_reduced_attained"]) is not None and _min(s["l2_reduced_attained"]) < 0)
+        flips["box_set_reduced"] = _last(states, lambda s: _min(s["box_reduced"]) is not None and _min(s["box_reduced"]) < 0)
+        points = [r for r in rows if "l2_crown" in r]
+        closed = [v for r in points if r["fraction"] < states[-1]["fraction"] for v in r["gap_closed_l2_crown_all"]]
+        closed_set = [v for r in points if r["fraction"] < states[-1]["fraction"] for v in r["gap_closed_l2_set_all"]]
+        samples[sample] = {
+            "prompt_id": entry["prompt_id"], "step": entry["step"], "gap": entry["gap"], "selection_index": entry.get("selection_index"),
+            "states": len(states), "full_fraction": states[-1]["fraction"],
+            "phase5a_cells": {k: {"fraction": v["fraction"], "would_certify": v["would_certify"]} for k, v in cells.items()},
+            "decided_from": decided, "decided_from_at_points": decided_at_points, "flipping_weights_until": flips,
+            "points": points, "gap_closed_l2_crown_median": median(closed), "gap_closed_l2_set_median": median(closed_set),
+            "l2_crown_seconds_per_state": median([r["l2_crown_seconds"] for r in points]),
+            "l2_crown_seconds_per_state_max": max((r["l2_crown_seconds"] for r in points), default=None),
+            "l2_crown_peak_device_bytes": max((r["l2_crown_peak_device_bytes"] for r in points), default=None),
+            "l2_crown_peak_rss_bytes": max((r["l2_crown_peak_rss_bytes"] for r in points), default=None),
+            # Before full materialization only: with every row read both are the exact value (up to Phase 5A's slack).
+            "l2_crown_above_phase5a_realistic": sum(1 for r in points if r["fraction"] < states[-1]["fraction"]
+                                                    and None not in (r["l2_crown"], r["phase5a_realistic_structural"])
+                                                    and r["l2_crown"] > r["phase5a_realistic_structural"]),
+            "witness_pulled_rows": sum(sum(s["witness_pulled_rows"].values()) for s in states),
+            "down_balls_not_nested": sum(s["down_balls_not_nested"] for s in states),
+        }
+    return {"samples": samples, "stop": l2_stops(samples, settings)}
+
+
+def l2_stops(samples: dict, settings: dict) -> dict:
+    """The brief's stop conditions (config `l2.stop`) and its proceed rule (`l2.proceed`), from the stage 1.5 records.
+    STOP A (representation) is the probe's finding (probe_l2.json), recorded by hand in the decision; here B, C, D."""
+    stop, proceed = settings["stop"], settings["proceed"]
+    closed = [s["gap_closed_l2_crown_median"] for s in samples.values() if s["gap_closed_l2_crown_median"] is not None]
+    closed_median = median(closed)
+    near = stop["near_full_fraction"]
+    # B: even the L2 set's attained optimum (no verifier on it can do better) and the resident witness keep a pair
+    # flipped until about full materialization (a negative attained value at a fraction at or above `near`).
+    set_flips = {k: s["flipping_weights_until"]["l2_set_reduced_attained"] for k, s in samples.items()}
+    resident_flips = {k: s["flipping_weights_until"]["resident"] for k, s in samples.items()}
+    l2_flips = {k: s["flipping_weights_until"]["l2"] for k, s in samples.items()}
+    met_on = [k for k, v in l2_flips.items() if v is not None and v >= near]
+    stop_b = len(met_on) == len(l2_flips)
+    # C: L2 CROWN closes too little, decides only near full materialization, does not beat Phase 5A's realistic bound.
+    l2_decided = {k: s["decided_from_at_points"]["l2_crown"] for k, s in samples.items()}
+    beats = sum(s["l2_crown_above_phase5a_realistic"] for s in samples.values())
+    stop_c = ((closed_median is None or closed_median < stop["gap_closed"]) and beats == 0
+              and all(v is None or v >= near for v in l2_decided.values()))
+    seconds = [s["l2_crown_seconds_per_state_max"] for s in samples.values() if s["l2_crown_seconds_per_state_max"] is not None]
+    stop_d = bool(seconds) and max(seconds) > stop["seconds_per_state"]
+    proceed_ok = (not stop_b and not stop_c and not stop_d and beats > 0
+                  and (closed_median is not None and closed_median >= proceed["gap_closed"]
+                       or any(v is not None and v < proceed["fraction"] for v in l2_decided.values())))
+    return {"B_uncertainty_set": {"triggered": stop_b, "met_on_samples": met_on, "l2_set_weights_flip_until": l2_flips,
+                                  "l2_reduced_set_flips_until": set_flips, "resident_set_flips_until": resident_flips, "near_full_fraction": near},
+            "C_weak_improvement": {"triggered": stop_c, "gap_closed_median": closed_median, "threshold": stop["gap_closed"],
+                                   "l2_crown_decides_from": l2_decided, "states_where_l2_crown_beats_phase5a_realistic": beats},
+            "D_verifier_cost": {"triggered": stop_d, "l2_crown_seconds_per_state_max": max(seconds) if seconds else None, "threshold": stop["seconds_per_state"]},
+            "proceed_to_stage_2": proceed_ok}
+
+
+def l2_markdown(run: Path, summary: dict, validation: dict, environment: dict) -> str:
+    lines = [f"# Phase 5A2 stage 1.5 (L2 probe) summary: {run}", "",
+             f"- verifier: Python {environment.get('python')}, torch {environment.get('torch')}, auto_LiRPA {environment.get('auto_LiRPA', {}).get('version')} "
+             f"@ `{environment.get('auto_LiRPA', {}).get('commit', '')[:12]}`; GPU {environment.get('gpu')}; PYTHONHASHSEED {environment.get('python_hash_seed')}", "",
+             "## Correctness", "", "| Check | Result |", "| --- | --- |"]
+    lines += [f"| {k} | {fmt(v) if not isinstance(v, (dict, list)) else json.dumps(v)} |" for k, v in validation.items()]
+    lines += ["", "Units: lower bounds and attained values of Δ·y in real arithmetic (Δ = (W_w − W_j)⊙g; positive decides the pair). "
+              "Per state, each quantity's minimum over the focus contenders (the runner-up, the tightest by Phase 5A's realistic bound, "
+              "the tightest truly). Reduced sets: Phase 5A's activation enclosure × down's rows in their sets; weight sets: gate, up and down rows "
+              "in their sets. `[a, b]`: a lower bound and an attained value of the set's minimum.", ""]
+    for sample, s in summary["samples"].items():
+        lines += [f"## Sample {sample}: prompt {s['prompt_id']}, step {s['step']}, gap {fmt(s['gap'])} (stage 2 position {s['selection_index']})", "",
+                  "| Bytes | Truth | 5A realistic | Box CROWN | Box set (reduced) | Box set (weights) | L2 CROWN | L2 set (reduced) | L2 set (weights) | Resident witness | 5A ideal | Gap closed by L2 CROWN | L2 CROWN s | peak VRAM GB | peak RSS GB |",
+                  "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+        for r in s["points"]:
+            lines.append(f"| {fmt(r['fraction'])} | {fmt(r['truth'])} | {fmt(r['phase5a_realistic'])} | {fmt(r['box_crown'])} | {fmt(r['box_reduced_optimum'])} | "
+                         f"{fmt(r['box_weight_optimum'])} | {fmt(r['l2_crown'])} | [{fmt(r['l2_reduced_lower'])}, {fmt(r['l2_reduced_attained'])}] | "
+                         f"[{fmt(r['l2_weight_lower'])}, {fmt(r['witness_l2'])}] | {fmt(r['witness_resident'])} | {fmt(r['phase5a_ideal'])} | "
+                         f"{fmt(r['gap_closed_l2_crown'])} | {fmt(r['l2_crown_seconds'], 1)} | {r['l2_crown_peak_device_bytes'] / 1e9:.2f} | {r['l2_crown_peak_rss_bytes'] / 1e9:.2f} |")
+        lines += ["", "Routed-byte fraction from which each decides every comparison pair (every state of the schedule; CROWN at the comparison points), "
+                  "and the last fraction at which a set holds weights that flip a pair:", "", "| Quantity | Decides from | | Set | Flipping weights until |", "| --- | --- | --- | --- | --- |"]
+        decided = list(s["decided_from"].items()) + [(f"{k} (points)", v) for k, v in s["decided_from_at_points"].items()]
+        flips = list(s["flipping_weights_until"].items())
+        for position in range(max(len(decided), len(flips))):
+            d = decided[position] if position < len(decided) else ("", None)
+            f = flips[position] if position < len(flips) else ("", None)
+            lines.append(f"| {d[0]} | {fmt(d[1])} | | {f[0]} | {fmt(f[1])} |")
+        lines += ["", f"Phase 5A's own cells on this sample: {json.dumps(s['phase5a_cells'])}; gap closed by L2 CROWN (median, before full read): "
+                  f"{fmt(s['gap_closed_l2_crown_median'])}, by the L2 set's attained optimum at most {fmt(s['gap_closed_l2_set_median'])}; "
+                  f"witness rows pulled toward the truth: {s['witness_pulled_rows']}; down balls not nested in earlier ones: {s['down_balls_not_nested']}.", ""]
+    stop = summary["stop"]
+    lines += ["## Stop conditions (config `l2`, the brief's §17–18)", ""]
+    for key in ("B_uncertainty_set", "C_weak_improvement", "D_verifier_cost"):
+        lines.append(f"- **{key}**: {'TRIGGERED' if stop[key]['triggered'] else 'not triggered'} — {json.dumps({k: v for k, v in stop[key].items() if k != 'triggered'})}")
+    lines += [f"- STOP A (representation): the probe's finding, `probe_l2_A.json`.", f"- **Proceed to stage 2: {'yes' if stop['proceed_to_stage_2'] else 'no'}**", ""]
+    return "\n".join(lines) + "\n"
+
+
+def join_crown(records: list[dict], crown: list[dict]) -> list[dict]:
+    """The comparison points' CROWN records (run.py --part l2crown) joined to the same states' set records."""
+    by_state = {(c["sample"], c["index"]): c for c in crown}
+    joined = []
+    for record in records:
+        c = by_state.get((record["sample"], record["index"]))
+        if c is not None:
+            if c["focus"] != record["focus"]:
+                raise ValueError(f"state {record['sample']}/{record['index']}: the two parts chose different focus pairs")
+            record = {**record, "crown": c["crown"], "cost": c["cost"], "crown_set_values": c["set_values"]}
+        joined.append(record)
+    return joined
+
+
+def main_l2(run: Path) -> int:
+    config = yaml.safe_load((run / "config.yaml").read_text(encoding="utf-8"))
+    manifest = json.loads((run / "artifact" / "manifest.json").read_text(encoding="utf-8"))
+    validate, sets_records, crown_records = shards(run, "validate"), shards(run, "l2"), shards(run, "l2crown")
+    records = join_crown(sets_records, crown_records)
+    reports = {part: json.loads((run / f"verifier_{part}_0.json").read_text(encoding="utf-8")) for part in ("l2", "l2crown") if (run / f"verifier_{part}_0.json").exists()}
+    environment = next(iter(reports.values()))["environment"] if reports else {}
+    failures = {part: report["failures"] for part, report in reports.items()}
+    validation = {
+        "samples validated": len(validate),
+        "wrapper max relative error": max((r["wrapper_full_max_relative"] for r in validate), default=None),
+        "sets without the true weights (boxes and L2 balls, every state)": sum(len(v) for r in validate for v in r["containment"].values()),
+        "sets unchanged by poisoned unread bytes (boxes and L2 balls)": all(all(r["poisoning_unchanged"].values()) for r in validate) if validate else None,
+        "assembly vs Phase 5A margins (max relative difference)": max((r["assembly_max_relative_difference"] for r in validate), default=None),
+        "stage 1.5 states recorded (sets; CROWN points)": [len(sets_records), len(crown_records)],
+        "stage 1.5 failures (a bound above an attained value or the truth, a witness outside its set or below its set's lower bound)": failures,
+        "largest witness constraint excess": max((max(r["witness_largest_excess"].values()) for r in records), default=None),
+        "reference reproduced bitwise at export": all(all(s["bitwise"].values()) for s in manifest["samples"]),
+    }
+    summary = {"run": str(run), "environment": environment, "validation": validation, **l2_summary(records, config, manifest),
+               "parts": {part: {"timings_ms": report["timings_ms"], "peak_device_bytes": report["peak_device_bytes"], "peak_rss_bytes": report["peak_rss_bytes"]}
+                         for part, report in reports.items()},
+               "digests": {"validate": digest(validate), "l2": digest(sets_records), "l2crown": digest(crown_records),
+                           "manifest": manifest_digest(run / "artifact" / "manifest.json")}}
+    (run / "l2_summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
+    text = l2_markdown(run, summary, validation, environment)
+    (run / "l2_summary.md").write_text(text, encoding="utf-8")
+    print(text)
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("run")
     parser.add_argument("--compare", default=None)
+    parser.add_argument("--l2", action="store_true", help="stage 1.5: summarize run.py --part l2 into l2_summary.{json,md}")
     args = parser.parse_args()
     run = Path(args.run)
+    if args.l2:
+        return main_l2(run)
     config = yaml.safe_load((run / "config.yaml").read_text(encoding="utf-8"))
     manifest = json.loads((run / "artifact" / "manifest.json").read_text(encoding="utf-8"))
     validate, compare, search = shards(run, "validate"), shards(run, "compare"), shards(run, "search")

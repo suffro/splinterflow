@@ -1,0 +1,59 @@
+C:\Users\loren\Documents\GitHub\weightsift\research\crown_expert_oracle\.venv\Lib\site-packages\torch\jit\_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 18th iter due to 10 iterations no improvement!
+Early stop at 12th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 26th iter due to 10 iterations no improvement!
+Early stop at 14th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 12th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+A1 done in 0.8s
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 10th iter due to 10 iterations no improvement!
+Early stop at 13th iter due to 10 iterations no improvement!
+Early stop at 12th iter due to 10 iterations no improvement!
+Early stop at 12th iter due to 10 iterations no improvement!
+Early stop at 25th iter due to 10 iterations no improvement!
+Early stop at 19th iter due to 10 iterations no improvement!
+A2 done in 18.2s
+C:\Users\loren\Documents\GitHub\weightsift\research\crown_expert_oracle\.venv\Lib\site-packages\torch\onnx\_internal\torchscript_exporter\utils.py:1785: UserWarning: This model contains a squeeze operation on dimension 0. If the model is intended to be used with dynamic input shapes, please use opset version 11 to export the model.
+  return symbolic_fn(graph_context, *inputs, **attrs)
+A3 done in 0.3s
+Early stop at 23th iter due to 10 iterations no improvement!
+Early stop at 19th iter due to 10 iterations no improvement!
+Early stop at 21th iter due to 10 iterations no improvement!
+Early stop at 29th iter due to 10 iterations no improvement!
+Early stop at 21th iter due to 10 iterations no improvement!
+Early stop at 21th iter due to 10 iterations no improvement!
+Early stop at 25th iter due to 10 iterations no improvement!
+Early stop at 19th iter due to 10 iterations no improvement!
+Early stop at 21th iter due to 10 iterations no improvement!
+Early stop at 21th iter due to 10 iterations no improvement!
+Early stop at 14th iter due to 10 iterations no improvement!
+Early stop at 14th iter due to 10 iterations no improvement!
+Early stop at 21th iter due to 10 iterations no improvement!
+A4 done in 40.1s
+Early stop at 21th iter due to 10 iterations no improvement!
+Early stop at 20th iter due to 10 iterations no improvement!
+Early stop at 18th iter due to 10 iterations no improvement!
+Early stop at 15th iter due to 10 iterations no improvement!
+Early stop at 14th iter due to 10 iterations no improvement!
+Early stop at 14th iter due to 10 iterations no improvement!
+Early stop at 23th iter due to 10 iterations no improvement!
+A5 done in 8.2s
+part A written
+{"groups": "matrix", "perturbed_parameters": 1, "module_build_s": 0.0005167999770492315, "sound": true, "setup_s": 0.020149399992078543, "bound_s": 0.04393859999254346, "peak_device_bytes": 658851840, "peak_rss_bytes": 1287249920}
+{"groups": "pages_128", "perturbed_parameters": 16, "module_build_s": 0.004267499782145023, "sound": true, "setup_s": 0.07020359998568892, "bound_s": 0.04237969988025725, "peak_device_bytes": 706209280, "peak_rss_bytes": 1309708288}
+{"groups": "pages_16", "perturbed_parameters": 128, "module_build_s": 0.029124900000169873, "sound": true, "setup_s": 0.41273030010052025, "bound_s": 0.33621959993615746, "peak_device_bytes": 707143168, "peak_rss_bytes": 1316454400}
+{"groups": "rows", "perturbed_parameters": 2048, "module_build_s": 0.43417000002227724, "sound": true, "setup_s": 11.728820299962536, "bound_s": 5.705201900098473, "peak_device_bytes": 710141440, "peak_rss_bytes": 1342918656}
+part B written
+exit 0

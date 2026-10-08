@@ -1,0 +1,76 @@
+{
+  "environment": {
+    "python": "3.11.16",
+    "torch": "2.11.0+cu130",
+    "cuda": "13.0",
+    "numpy": "2.4.6",
+    "auto_LiRPA": {
+      "version": "0.7.2",
+      "commit": "5a098e8f9fb5786a428a024981d833d303921f2d",
+      "repository": "https://github.com/Verified-Intelligence/auto_LiRPA",
+      "license": "BSD-3-Clause"
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "gpu": "NVIDIA GeForce RTX 4060 Ti",
+    "python_hash_seed": "1",
+    "source_tree_sha256": "6e9eb65c6c6442471cdec2ef71d3556a3c34c83c6df3543032a8208b0a28bfed",
+    "research_tree_sha256": "5cc217ad0b35832083425d940bedd0120d1341d91e14d595e2c1b7559ac817ee",
+    "artifact_manifest": {
+      "source_tree_sha256": "6e9eb65c6c6442471cdec2ef71d3556a3c34c83c6df3543032a8208b0a28bfed",
+      "research_tree_sha256": "33e95967594ea79a4b84c8441050dcb93158f11084a8af5259339855b41aa98a",
+      "capture": {
+        "tensors_sha256": "c20a83917363b480c6cb672e61b641aadce17249666558a675e9367334c29aa0",
+        "records_sha256": "7de8897612f8014ae3e351647009f3e8db1109bfaa9941661fe36cc35986ddaa",
+        "prompts_sha256": "c3b0c0f38eacba4fbc4211c10af9d70bbc4b769b10257f739673d21ee9ec8cc4",
+        "capture_tensors_equal_phase5a": true,
+        "capture_records_equal_phase5a": true,
+        "prompts_equal_phase5a": true
+      },
+      "phase5a_run": "experiments/phase5a/oracle-run1",
+      "phase5a_digest": {
+        "prompts_sha256": "c3b0c0f38eacba4fbc4211c10af9d70bbc4b769b10257f739673d21ee9ec8cc4",
+        "capture_records_sha256": "7de8897612f8014ae3e351647009f3e8db1109bfaa9941661fe36cc35986ddaa",
+        "capture_tensors_sha256": "c20a83917363b480c6cb672e61b641aadce17249666558a675e9367334c29aa0",
+        "samples_sha256": "faf7653de53c1edabcd363a74a7c7d9452bdc868ac3e333c6300d8f34841e4f3",
+        "real_cells_sha256": "1686fa68beafac9e10e0230283db3707e64d2d0114202fac84642ef3c811cbf0",
+        "excluded_fields": [
+          "timings_ms",
+          "system"
+        ]
+      },
+      "python_hash_seed": "1",
+      "levels_spec": "q6+q4"
+    },
+    "deterministic_algorithms": true,
+    "default_dtype": "torch.float64"
+  },
+  "samples": [
+    0,
+    1,
+    2
+  ],
+  "timings_ms": {
+    "sample_0": 242768.334900029,
+    "sample_1": 243681.86040013097,
+    "sample_2": 242843.70560012758,
+    "total": 729319.3861001637
+  },
+  "cost": {
+    "setup_ms": 455966.6168978438,
+    "bound_ms": 217530.98780103028,
+    "calls": 324,
+    "specifications": 7104,
+    "peak_device_bytes": 6341223424,
+    "peak_rss_bytes": 2036973568,
+    "by_method": {
+      "crown": {
+        "ms": 217530.98780103028,
+        "calls": 324,
+        "specifications": 7104
+      }
+    }
+  },
+  "peak_device_bytes": 798944256,
+  "peak_rss_bytes": 2036973568,
+  "failures": []
+}

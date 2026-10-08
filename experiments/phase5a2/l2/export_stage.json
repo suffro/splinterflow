@@ -1,0 +1,18 @@
+{
+  "timings_ms": {
+    "load": 8207.471800036728,
+    "weights": 1026.503900066018,
+    "total": 207549.14739984088
+  },
+  "capture": {
+    "tensors_sha256": "c20a83917363b480c6cb672e61b641aadce17249666558a675e9367334c29aa0",
+    "records_sha256": "7de8897612f8014ae3e351647009f3e8db1109bfaa9941661fe36cc35986ddaa",
+    "prompts_sha256": "c3b0c0f38eacba4fbc4211c10af9d70bbc4b769b10257f739673d21ee9ec8cc4",
+    "capture_tensors_equal_phase5a": true,
+    "capture_records_equal_phase5a": true,
+    "prompts_equal_phase5a": true
+  },
+  "peak_device_bytes": 5610882048,
+  "artifact_bytes": 1197747302,
+  "manifest_sha256": "fa76a4bc63a33cbdcb8490f6ed871b86cf489d3e79e5b88088350f8f5cde8154"
+}

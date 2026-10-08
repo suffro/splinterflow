@@ -1,0 +1,2920 @@
+{
+ "A1": {
+  "radii": {
+   "0.3": {
+    "closed_form_lower": [
+     -0.8878652315268727,
+     -3.005250798513258
+    ],
+    "random_min": [
+     -0.8159527180808568,
+     -2.8711078664150826
+    ],
+    "verdicts": {
+     "centre": {
+      "ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -1.152435716818606,
+        -3.506458721026029
+       ],
+       "upper": [
+        0.5077782751309646,
+        0.16688895033187157
+       ],
+       "worst_lower_excess": -0.2645704852917332,
+       "worst_upper_shortfall": -0.2645704852917333,
+       "lower_gap_to_exact": [
+        0.2645704852917332,
+        0.501207922512771
+       ],
+       "exact": false
+      },
+      "crown-ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.8878652315268729,
+        -3.0052507985132575
+       ],
+       "upper": [
+        0.2432077898392313,
+        -0.33431897218089857
+       ],
+       "worst_lower_excess": 4.440892098500626e-16,
+       "worst_upper_shortfall": 0.0,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -4.440892098500626e-16
+       ],
+       "exact": true
+      },
+      "crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.8878652315268729,
+        -3.0052507985132575
+       ],
+       "upper": [
+        0.2432077898392313,
+        -0.33431897218089857
+       ],
+       "worst_lower_excess": 4.440892098500626e-16,
+       "worst_upper_shortfall": 0.0,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -4.440892098500626e-16
+       ],
+       "exact": true
+      },
+      "alpha-crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.8878652315268729,
+        -3.0052507985132575
+       ],
+       "upper": [
+        0.2432077898392313,
+        -0.33431897218089857
+       ],
+       "worst_lower_excess": 4.440892098500626e-16,
+       "worst_upper_shortfall": 0.0,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -4.440892098500626e-16
+       ],
+       "exact": true
+      }
+     },
+     "box_hull": {
+      "ibp": {
+       "ran": true,
+       "sound": false,
+       "lower": [
+        -1.5066405544110102,
+        -3.275590982401296
+       ],
+       "upper": [
+        0.15357343753856068,
+        0.3977566889566049
+       ],
+       "worst_lower_excess": -0.27034018388803815,
+       "worst_upper_shortfall": 0.08963435230067063,
+       "lower_gap_to_exact": [
+        0.6187753228841375,
+        0.27034018388803815
+       ],
+       "exact": false
+      },
+      "crown-ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.8878652315268729,
+        -3.005250798513257
+       ],
+       "upper": [
+        0.2432077898392312,
+        -0.3343189721808988
+       ],
+       "worst_lower_excess": 8.881784197001252e-16,
+       "worst_upper_shortfall": 2.220446049250313e-16,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -8.881784197001252e-16
+       ],
+       "exact": true
+      },
+      "crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.8878652315268729,
+        -3.005250798513257
+       ],
+       "upper": [
+        0.2432077898392312,
+        -0.3343189721808988
+       ],
+       "worst_lower_excess": 8.881784197001252e-16,
+       "worst_upper_shortfall": 2.220446049250313e-16,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -8.881784197001252e-16
+       ],
+       "exact": true
+      },
+      "alpha-crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.8878652315268731,
+        -3.0052507985132575
+       ],
+       "upper": [
+        0.2432077898392312,
+        -0.33431897218089923
+       ],
+       "worst_lower_excess": 4.440892098500626e-16,
+       "worst_upper_shortfall": 6.661338147750939e-16,
+       "lower_gap_to_exact": [
+        4.440892098500626e-16,
+        -4.440892098500626e-16
+       ],
+       "exact": true
+      }
+     }
+    }
+   },
+   "0.15": {
+    "closed_form_lower": [
+     -0.6050969761853466,
+     -2.3375178419301683
+    ],
+    "random_min": [
+     -0.5738363373532448,
+     -2.259367092474379
+    ],
+    "verdicts": {
+     "centre": {
+      "ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.7373822188312134,
+        -2.588121803186554
+       ],
+       "upper": [
+        0.09272477714357202,
+        -0.7514479675076036
+       ],
+       "worst_lower_excess": -0.13228524264586672,
+       "worst_upper_shortfall": -0.13228524264586672,
+       "lower_gap_to_exact": [
+        0.13228524264586672,
+        0.2506039612563855
+       ],
+       "exact": false
+      },
+      "crown-ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.6050969761853469,
+        -2.3375178419301674
+       ],
+       "upper": [
+        -0.03956046550229475,
+        -1.0020519287639884
+       ],
+       "worst_lower_excess": 8.881784197001252e-16,
+       "worst_upper_shortfall": 5.551115123125783e-17,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -8.881784197001252e-16
+       ],
+       "exact": true
+      },
+      "crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.6050969761853469,
+        -2.3375178419301674
+       ],
+       "upper": [
+        -0.03956046550229475,
+        -1.0020519287639884
+       ],
+       "worst_lower_excess": 8.881784197001252e-16,
+       "worst_upper_shortfall": 5.551115123125783e-17,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -8.881784197001252e-16
+       ],
+       "exact": true
+      },
+      "alpha-crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.6050969761853469,
+        -2.3375178419301674
+       ],
+       "upper": [
+        -0.03956046550229475,
+        -1.0020519287639884
+       ],
+       "worst_lower_excess": 8.881784197001252e-16,
+       "worst_upper_shortfall": 5.551115123125783e-17,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -8.881784197001252e-16
+       ],
+       "exact": true
+      }
+     },
+     "box_hull": {
+      "ibp": {
+       "ran": true,
+       "sound": false,
+       "lower": [
+        -0.9144846376274156,
+        -2.4726879338741865
+       ],
+       "upper": [
+        -0.08437764165263012,
+        -0.6360140981952362
+       ],
+       "worst_lower_excess": -0.1351700919440182,
+       "worst_upper_shortfall": 0.044817176150335425,
+       "lower_gap_to_exact": [
+        0.309387661442069,
+        0.1351700919440182
+       ],
+       "exact": false
+      },
+      "crown-ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.6050969761853469,
+        -2.3375178419301683
+       ],
+       "upper": [
+        -0.03956046550229453,
+        -1.0020519287639886
+       ],
+       "worst_lower_excess": 0.0,
+       "worst_upper_shortfall": 2.220446049250313e-16,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        0.0
+       ],
+       "exact": true
+      },
+      "crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.6050969761853469,
+        -2.3375178419301683
+       ],
+       "upper": [
+        -0.03956046550229453,
+        -1.0020519287639886
+       ],
+       "worst_lower_excess": 0.0,
+       "worst_upper_shortfall": 2.220446049250313e-16,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        0.0
+       ],
+       "exact": true
+      },
+      "alpha-crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.6050969761853469,
+        -2.3375178419301674
+       ],
+       "upper": [
+        -0.03956046550229492,
+        -1.002051928763989
+       ],
+       "worst_lower_excess": 8.881784197001252e-16,
+       "worst_upper_shortfall": 6.661338147750939e-16,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        -8.881784197001252e-16
+       ],
+       "exact": true
+      }
+     }
+    }
+   },
+   "0.075": {
+    "closed_form_lower": [
+     -0.4637128485145837,
+     -2.0036513636386233
+    ],
+    "random_min": [
+     -0.44665098116690416,
+     -1.959483405459801
+    ],
+    "verdicts": {
+     "centre": {
+      "ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.5298554698375171,
+        -2.1289533442668165
+       ],
+       "upper": [
+        -0.11480197185012431,
+        -1.210616426427341
+       ],
+       "worst_lower_excess": -0.06614262132293336,
+       "worst_upper_shortfall": -0.06614262132293339,
+       "lower_gap_to_exact": [
+        0.06614262132293336,
+        0.1253019806281932
+       ],
+       "exact": false
+      },
+      "crown-ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.46371284851458383,
+        -2.003651363638623
+       ],
+       "upper": [
+        -0.18094459317305778,
+        -1.3359184070555332
+       ],
+       "worst_lower_excess": 4.440892098500626e-16,
+       "worst_upper_shortfall": 8.326672684688674e-17,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -4.440892098500626e-16
+       ],
+       "exact": true
+      },
+      "crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.46371284851458383,
+        -2.003651363638623
+       ],
+       "upper": [
+        -0.18094459317305778,
+        -1.3359184070555332
+       ],
+       "worst_lower_excess": 4.440892098500626e-16,
+       "worst_upper_shortfall": 8.326672684688674e-17,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -4.440892098500626e-16
+       ],
+       "exact": true
+      },
+      "alpha-crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.46371284851458383,
+        -2.003651363638623
+       ],
+       "upper": [
+        -0.18094459317305778,
+        -1.3359184070555332
+       ],
+       "worst_lower_excess": 4.440892098500626e-16,
+       "worst_upper_shortfall": 8.326672684688674e-17,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -4.440892098500626e-16
+       ],
+       "exact": true
+      }
+     },
+     "box_hull": {
+      "ibp": {
+       "ran": true,
+       "sound": false,
+       "lower": [
+        -0.618406679235618,
+        -2.071236409610633
+       ],
+       "upper": [
+        -0.2033531812482252,
+        -1.1528994917711572
+       ],
+       "worst_lower_excess": -0.06758504597200954,
+       "worst_upper_shortfall": 0.022408588075167518,
+       "lower_gap_to_exact": [
+        0.15469383072103426,
+        0.06758504597200954
+       ],
+       "exact": false
+      },
+      "crown-ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.46371284851458394,
+        -2.0036513636386237
+       ],
+       "upper": [
+        -0.18094459317305767,
+        -1.3359184070555339
+       ],
+       "worst_lower_excess": -2.220446049250313e-16,
+       "worst_upper_shortfall": 6.661338147750939e-16,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        4.440892098500626e-16
+       ],
+       "exact": true
+      },
+      "crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.46371284851458394,
+        -2.0036513636386237
+       ],
+       "upper": [
+        -0.18094459317305767,
+        -1.3359184070555339
+       ],
+       "worst_lower_excess": -2.220446049250313e-16,
+       "worst_upper_shortfall": 6.661338147750939e-16,
+       "lower_gap_to_exact": [
+        2.220446049250313e-16,
+        4.440892098500626e-16
+       ],
+       "exact": true
+      },
+      "alpha-crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.4637128485145837,
+        -2.003651363638623
+       ],
+       "upper": [
+        -0.18094459317305767,
+        -1.3359184070555339
+       ],
+       "worst_lower_excess": 4.440892098500626e-16,
+       "worst_upper_shortfall": 6.661338147750939e-16,
+       "lower_gap_to_exact": [
+        0.0,
+        -4.440892098500626e-16
+       ],
+       "exact": true
+      }
+     }
+    }
+   },
+   "0.0": {
+    "closed_form_lower": [
+     -0.3223287208438207,
+     -1.6697848853470783
+    ],
+    "random_min": [
+     -0.3223287208438207,
+     -1.6697848853470783
+    ],
+    "verdicts": {
+     "centre": {
+      "ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.3223287208438207,
+        -1.6697848853470787
+       ],
+       "upper": [
+        -0.3223287208438207,
+        -1.6697848853470787
+       ],
+       "worst_lower_excess": 0.0,
+       "worst_upper_shortfall": 4.440892098500626e-16,
+       "lower_gap_to_exact": [
+        0.0,
+        4.440892098500626e-16
+       ],
+       "exact": true
+      },
+      "crown-ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "upper": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "worst_lower_excess": 2.220446049250313e-16,
+       "worst_upper_shortfall": 1.1102230246251565e-16,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -2.220446049250313e-16
+       ],
+       "exact": true
+      },
+      "crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "upper": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "worst_lower_excess": 2.220446049250313e-16,
+       "worst_upper_shortfall": 1.1102230246251565e-16,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -2.220446049250313e-16
+       ],
+       "exact": true
+      },
+      "alpha-crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "upper": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "worst_lower_excess": 2.220446049250313e-16,
+       "worst_upper_shortfall": 1.1102230246251565e-16,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -2.220446049250313e-16
+       ],
+       "exact": true
+      }
+     },
+     "box_hull": {
+      "ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.3223287208438207,
+        -1.6697848853470787
+       ],
+       "upper": [
+        -0.3223287208438207,
+        -1.6697848853470787
+       ],
+       "worst_lower_excess": 0.0,
+       "worst_upper_shortfall": 4.440892098500626e-16,
+       "lower_gap_to_exact": [
+        0.0,
+        4.440892098500626e-16
+       ],
+       "exact": true
+      },
+      "crown-ibp": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "upper": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "worst_lower_excess": 2.220446049250313e-16,
+       "worst_upper_shortfall": 1.1102230246251565e-16,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -2.220446049250313e-16
+       ],
+       "exact": true
+      },
+      "crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "upper": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "worst_lower_excess": 2.220446049250313e-16,
+       "worst_upper_shortfall": 1.1102230246251565e-16,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -2.220446049250313e-16
+       ],
+       "exact": true
+      },
+      "alpha-crown": {
+       "ran": true,
+       "sound": true,
+       "lower": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "upper": [
+        -0.3223287208438208,
+        -1.669784885347078
+       ],
+       "worst_lower_excess": 2.220446049250313e-16,
+       "worst_upper_shortfall": 1.1102230246251565e-16,
+       "lower_gap_to_exact": [
+        1.1102230246251565e-16,
+        -2.220446049250313e-16
+       ],
+       "exact": true
+      }
+     }
+    }
+   }
+  },
+  "wall_s": 0.8274630999658257
+ },
+ "A2": {
+  "down": {
+   "attained_min": [
+    -4.737576384555266,
+    -0.37895196689202715,
+    -3.4861765120532593
+   ],
+   "verdicts": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -7.538953617485806,
+       -2.706880439166808,
+       -6.900692820119916
+      ],
+      "upper": [
+       4.823822031058372,
+       9.53131817677041,
+       11.591868350645685
+      ],
+      "worst_lower_excess": -2.327928472274781,
+      "worst_upper_shortfall": -2.3279284722747793,
+      "lower_gap_to_exact": [
+       2.801377232930541,
+       2.3279284722747824,
+       3.41451630806666
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -4.737576384555264,
+       -0.3789519668920271,
+       -3.486176512053257
+      ],
+      "upper": [
+       2.0224447981278297,
+       7.203389704495626,
+       8.177352042579026
+      ],
+      "worst_lower_excess": 2.220446049250313e-15,
+      "worst_upper_shortfall": 5.329070518200751e-15,
+      "lower_gap_to_exact": [
+       -8.881784197001252e-16,
+       1.27675647831893e-15,
+       8.881784197001252e-16
+      ],
+      "exact": true
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -4.737576384555264,
+       -0.37895196689202754,
+       -3.4861765120532566
+      ],
+      "upper": [
+       2.0224447981278297,
+       7.203389704495625,
+       8.177352042579026
+      ],
+      "worst_lower_excess": 2.6645352591003757e-15,
+      "worst_upper_shortfall": 6.217248937900877e-15,
+      "lower_gap_to_exact": [
+       -8.881784197001252e-16,
+       1.7208456881689926e-15,
+       4.440892098500626e-16
+      ],
+      "exact": true
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -4.737576384555263,
+       -0.3789519668920271,
+       -3.486176512053257
+      ],
+      "upper": [
+       2.0224447981278297,
+       7.203389704495624,
+       8.177352042579026
+      ],
+      "worst_lower_excess": 2.6645352591003757e-15,
+      "worst_upper_shortfall": 7.105427357601002e-15,
+      "lower_gap_to_exact": [
+       -1.7763568394002505e-15,
+       1.27675647831893e-15,
+       8.881784197001252e-16
+      ],
+      "exact": true
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -13.107503472088736,
+       -3.453932860292522,
+       5.062457655494848
+      ],
+      "upper": [
+       -0.7447278235445562,
+       8.7842657556447,
+       23.55501882626045
+      ],
+      "worst_lower_excess": 8.548634167548107,
+      "worst_upper_shortfall": 2.767172621672387,
+      "lower_gap_to_exact": [
+       8.36992708753347,
+       3.0749808934004963,
+       -8.548634167548105
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -4.737576384555267,
+       -0.37895196689202354,
+       -3.486176512053257
+      ],
+      "upper": [
+       2.022444798127828,
+       7.203389704495628,
+       8.177352042579018
+      ],
+      "worst_lower_excess": 3.608224830031759e-15,
+      "worst_upper_shortfall": 1.0658141036401503e-14,
+      "lower_gap_to_exact": [
+       2.6645352591003757e-15,
+       -2.275957200481571e-15,
+       8.881784197001252e-16
+      ],
+      "exact": true
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -4.737576384555271,
+       -0.37895196689202754,
+       -3.4861765120532646
+      ],
+      "upper": [
+       2.0224447981278297,
+       7.203389704495623,
+       8.17735204257902
+      ],
+      "worst_lower_excess": -3.885780586188048e-16,
+      "worst_upper_shortfall": 8.881784197001252e-15,
+      "lower_gap_to_exact": [
+       6.217248937900877e-15,
+       1.7208456881689926e-15,
+       8.43769498715119e-15
+      ],
+      "exact": true
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -4.737576384555264,
+       -0.37895196689202354,
+       -3.4861765120532464
+      ],
+      "upper": [
+       2.022444798127826,
+       7.2033897044956205,
+       8.177352042579026
+      ],
+      "worst_lower_excess": 1.2878587085651816e-14,
+      "worst_upper_shortfall": 1.0658141036401503e-14,
+      "lower_gap_to_exact": [
+       -8.881784197001252e-16,
+       -2.275957200481571e-15,
+       -9.769962616701378e-15
+      ],
+      "exact": true
+     }
+    }
+   }
+  },
+  "gate+up": {
+   "attained_min": [
+    -5.6389052860119335,
+    -0.9273335383300751,
+    -4.6574195799611235
+   ],
+   "verdicts": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -14.755985186647047,
+       -5.034536576143851,
+       -14.832248134952028
+      ],
+      "upper": [
+       10.07773673573996,
+       14.356202718456824,
+       14.40189466142979
+      ],
+      "worst_lower_excess": -4.107203037813775,
+      "worst_upper_shortfall": -5.044252062722586
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -5.838962952125794,
+       -4.455512324823616,
+       -7.466596548296001
+      ],
+      "upper": [
+       1.0040111086489196,
+       13.927061442651164,
+       6.3346442607095605
+      ],
+      "worst_lower_excess": -0.20005766611386022,
+      "worst_upper_shortfall": -0.19865782505216734
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -5.8189454852638,
+       -3.3586081755410166,
+       -6.878298629543128
+      ],
+      "upper": [
+       0.9839936417869256,
+       12.830157293368563,
+       5.746346341956688
+      ],
+      "worst_lower_excess": -0.18004019925186654,
+      "worst_upper_shortfall": -0.17864035819017332
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -5.760155138122787,
+       -2.1063358697383503,
+       -6.143389733830283
+      ],
+      "upper": [
+       0.9839936417869246,
+       11.79303407583908,
+       5.524885599768687
+      ],
+      "worst_lower_excess": -0.1212498521108536,
+      "worst_upper_shortfall": -0.17864035819017232
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -6.710530582556773,
+       -9.21220565476924,
+       -7.850868275446737
+      ],
+      "upper": [
+       7.548160656297052,
+       3.176863412577097,
+       10.826146296057821
+      ],
+      "worst_lower_excess": -1.0716252965448394,
+      "worst_upper_shortfall": 6.135087243157141
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -3.2368828823400753,
+       -13.137160513806547,
+       -8.907228888541564
+      ],
+      "upper": [
+       6.479590639438024,
+       9.749029266210435,
+       7.57659647736423
+      ],
+      "worst_lower_excess": 2.4020224036718583,
+      "worst_upper_shortfall": -0.4370786104761972
+     },
+     "crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -2.684954912311532,
+       -10.985439926161876,
+       -8.670786237367572
+      ],
+      "upper": [
+       4.921131655883389,
+       10.922974848940356,
+       6.295240088477076
+      ],
+      "worst_lower_excess": 2.9539503737004016,
+      "worst_upper_shortfall": -1.6110241932061182
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -1.9031586897846102,
+       -3.3110128090149997,
+       -2.911894414710587
+      ],
+      "upper": [
+       1.8693976119318352,
+       3.324630745826091,
+       3.193153022802968
+      ],
+      "worst_lower_excess": 3.7357465962273233,
+      "worst_upper_shortfall": 5.987319909908146
+     }
+    }
+   }
+  },
+  "gate+up+down": {
+   "attained_min": [
+    -11.91174378514723,
+    -7.706295772839214,
+    -18.69970075845047
+   ],
+   "verdicts": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -34.421961723470034,
+       -26.002481831605618,
+       -44.182653500119486
+      ],
+      "upper": [
+       32.336471568537505,
+       33.772022389182844,
+       46.702572507080035
+      ],
+      "worst_lower_excess": -18.296186058766402,
+      "worst_upper_shortfall": -16.151443347835908
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -7.589365371472274,
+       -6.094959058902342,
+       -11.420465418167788
+      ],
+      "upper": [
+       5.623891075615255,
+       14.266273016944412,
+       13.594210467317769
+      ],
+      "worst_lower_excess": 7.27923534028268,
+      "worst_upper_shortfall": 6.819707278734754
+     },
+     "crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -9.485619091023803,
+       -7.6898973557771715,
+       -14.655686372788162
+      ],
+      "upper": [
+       7.520144795166784,
+       15.861211313819243,
+       16.82943142193814
+      ],
+      "worst_lower_excess": 4.044014385662306,
+      "worst_upper_shortfall": 3.5844863241143834
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -5.05002031482293,
+       -2.588146185415406,
+       -6.713657218335261
+      ],
+      "upper": [
+       2.8717745846220932,
+       10.03002737367778,
+       8.962874457407711
+      ],
+      "worst_lower_excess": 11.986043540115208,
+      "worst_upper_shortfall": 11.451043288644811
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -28.211801965774207,
+       -27.827989885337868,
+       -31.99511765844733
+      ],
+      "upper": [
+       23.609007144779376,
+       22.838269808860208,
+       42.86975632850984
+      ],
+      "worst_lower_excess": -13.295416899996862,
+      "worst_upper_shortfall": -5.217690767513272
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -30.310929886296126,
+       -27.883714887101767,
+       -42.71678190241885
+      ],
+      "upper": [
+       27.86149955411407,
+       31.548535546721165,
+       46.31129757051324
+      ],
+      "worst_lower_excess": -18.399186101148896,
+      "worst_upper_shortfall": -13.92795650537423
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -65.91641351413709,
+       -65.31933246425096,
+       -97.75750700730686
+      ],
+      "upper": [
+       63.540990942856375,
+       66.48443283368759,
+       101.54006715800932
+      ],
+      "worst_lower_excess": -54.00466972898986,
+      "worst_upper_shortfall": -48.863853792340656
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -12.57161932480468,
+       -13.507547600623212,
+       -18.092673470245888
+      ],
+      "upper": [
+       12.269277257171847,
+       12.36773419920793,
+       19.764799300118078
+      ],
+      "worst_lower_excess": 0.6070272882045806,
+      "worst_upper_shortfall": 5.252844842139005
+     }
+    }
+   }
+  },
+  "wall_s": 18.175402000080794
+ },
+ "A3": {
+  "pages_of_2": {
+   "per_group_closed_form": [
+    -0.7544115659402559,
+    -5.432508528265348
+   ],
+   "joint_ball_closed_form": [
+    -0.7983029617113364,
+    -5.480044911883995
+   ],
+   "every_group_at_its_extreme": -0.754411565939358,
+   "extreme_outside_one_ball_of_the_largest_radius": true,
+   "stacked": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.0096311181608724,
+       -7.185527435942658
+      ],
+      "upper": [
+       2.4732687114885867,
+       -0.8086327847898223
+      ],
+      "worst_lower_excess": -1.2552195522206164,
+      "worst_upper_shortfall": -1.255219552220618,
+      "lower_gap_to_exact": [
+       1.2552195522206164,
+       1.7530189076773102
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "AttributeError: 'NoneType' object has no attribute 'unsqueeze'",
+      "where": "    y_l = y_l.unsqueeze(-3)"
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.5222975587943997,
+       -8.202954331896633
+      ],
+      "upper": [
+       1.9606022708550594,
+       -1.8260596807437977
+      ],
+      "worst_lower_excess": -1.7678859928541437,
+      "worst_upper_shortfall": -0.735592011723337,
+      "lower_gap_to_exact": [
+       1.7678859928541437,
+       2.7704458036312847
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "AttributeError: 'NoneType' object has no attribute 'unsqueeze'",
+      "where": "    y_l = y_l.unsqueeze(-3)"
+     }
+    }
+   },
+   "split": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -1.1280927189416423,
+       -5.776757718559881
+      ],
+      "upper": [
+       1.5917303122693554,
+       -2.2174025021725994
+      ],
+      "worst_lower_excess": -0.3442491902945326,
+      "worst_upper_shortfall": -0.34424919029453527,
+      "lower_gap_to_exact": [
+       0.3736811530013864,
+       0.3442491902945326
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7544115659402564,
+       -5.432508528265347
+      ],
+      "upper": [
+       1.2180491592679683,
+       -2.561651692467134
+      ],
+      "worst_lower_excess": 8.881784197001252e-16,
+      "worst_upper_shortfall": 4.440892098500626e-16,
+      "lower_gap_to_exact": [
+       4.440892098500626e-16,
+       -8.881784197001252e-16
+      ],
+      "exact": true
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7544115659402564,
+       -5.432508528265347
+      ],
+      "upper": [
+       1.2180491592679683,
+       -2.561651692467134
+      ],
+      "worst_lower_excess": 8.881784197001252e-16,
+      "worst_upper_shortfall": 4.440892098500626e-16,
+      "lower_gap_to_exact": [
+       4.440892098500626e-16,
+       -8.881784197001252e-16
+      ],
+      "exact": true
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -1.6407591595751692,
+       -6.794184614513856
+      ],
+      "upper": [
+       1.0790638716358285,
+       -3.2348293981265748
+      ],
+      "worst_lower_excess": -0.8863475936349132,
+      "worst_upper_shortfall": 0.6731777056594401,
+      "lower_gap_to_exact": [
+       0.8863475936349132,
+       1.361676086248508
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7544115659402564,
+       -5.432508528265348
+      ],
+      "upper": [
+       1.2180491592679683,
+       -2.5616516924671364
+      ],
+      "worst_lower_excess": 0.0,
+      "worst_upper_shortfall": 1.7763568394002505e-15,
+      "lower_gap_to_exact": [
+       4.440892098500626e-16,
+       0.0
+      ],
+      "exact": true
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7544115659402564,
+       -5.432508528265348
+      ],
+      "upper": [
+       1.2180491592679683,
+       -2.5616516924671364
+      ],
+      "worst_lower_excess": 0.0,
+      "worst_upper_shortfall": 1.7763568394002505e-15,
+      "lower_gap_to_exact": [
+       4.440892098500626e-16,
+       0.0
+      ],
+      "exact": true
+     }
+    }
+   }
+  },
+  "rows": {
+   "per_group_closed_form": [
+    -0.7426182847887017,
+    -5.261145731700573
+   ],
+   "joint_ball_closed_form": [
+    -0.7983029617113364,
+    -5.480044911883995
+   ],
+   "every_group_at_its_extreme": -0.7426182847878151,
+   "extreme_outside_one_ball_of_the_largest_radius": true,
+   "stacked": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.0096311181608724,
+       -7.185527435942658
+      ],
+      "upper": [
+       2.4732687114885867,
+       -0.8086327847898223
+      ],
+      "worst_lower_excess": -1.2670128333721706,
+      "worst_upper_shortfall": -1.2670128333721722,
+      "lower_gap_to_exact": [
+       1.2670128333721706,
+       1.9243817042420854
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "AttributeError: 'NoneType' object has no attribute 'unsqueeze'",
+      "where": "    y_l = y_l.unsqueeze(-3)"
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.357193970152192,
+       -7.8212660967019545
+      ],
+      "upper": [
+       2.125705859497267,
+       -1.4443714455491183
+      ],
+      "worst_lower_excess": -1.6145756853634903,
+      "worst_upper_shortfall": -0.9194499813808525,
+      "lower_gap_to_exact": [
+       1.6145756853634903,
+       2.5601203650013815
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "AttributeError: 'NoneType' object has no attribute 'unsqueeze'",
+      "where": "    y_l = y_l.unsqueeze(-3)"
+     }
+    }
+   },
+   "split": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7426182847887021,
+       -5.261145731700572
+      ],
+      "upper": [
+       1.2062558781164152,
+       -2.733014489031908
+      ],
+      "worst_lower_excess": 8.881784197001252e-16,
+      "worst_upper_shortfall": -6.661338147750939e-16,
+      "lower_gap_to_exact": [
+       3.3306690738754696e-16,
+       -8.881784197001252e-16
+      ],
+      "exact": true
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7426182847887018,
+       -5.261145731700572
+      ],
+      "upper": [
+       1.2062558781164143,
+       -2.733014489031908
+      ],
+      "worst_lower_excess": 8.881784197001252e-16,
+      "worst_upper_shortfall": 2.220446049250313e-16,
+      "lower_gap_to_exact": [
+       1.1102230246251565e-16,
+       -8.881784197001252e-16
+      ],
+      "exact": true
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7426182847887018,
+       -5.261145731700572
+      ],
+      "upper": [
+       1.2062558781164143,
+       -2.733014489031908
+      ],
+      "worst_lower_excess": 8.881784197001252e-16,
+      "worst_upper_shortfall": 2.220446049250313e-16,
+      "lower_gap_to_exact": [
+       1.1102230246251565e-16,
+       -8.881784197001252e-16
+      ],
+      "exact": true
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -1.0901811367800214,
+       -5.896884392459868
+      ],
+      "upper": [
+       0.858693026125096,
+       -3.368753149791204
+      ],
+      "worst_lower_excess": -0.34756285199131964,
+      "worst_upper_shortfall": 0.6357386607592947,
+      "lower_gap_to_exact": [
+       0.34756285199131964,
+       0.6357386607592952
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7426182847887023,
+       -5.261145731700573
+      ],
+      "upper": [
+       1.2062558781164148,
+       -2.733014489031908
+      ],
+      "worst_lower_excess": 0.0,
+      "worst_upper_shortfall": -2.220446049250313e-16,
+      "lower_gap_to_exact": [
+       5.551115123125783e-16,
+       0.0
+      ],
+      "exact": true
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -0.7426182847887023,
+       -5.261145731700573
+      ],
+      "upper": [
+       1.2062558781164148,
+       -2.733014489031908
+      ],
+      "worst_lower_excess": 0.0,
+      "worst_upper_shortfall": -2.220446049250313e-16,
+      "lower_gap_to_exact": [
+       5.551115123125783e-16,
+       0.0
+      ],
+      "exact": true
+     }
+    }
+   }
+  },
+  "wall_s": 0.3160032001323998
+ },
+ "A4": {
+  "gate+up": {
+   "exact_min": [
+    -11.344472329501556,
+    -1.1026043807770134,
+    7.523026020662456
+   ],
+   "witness_at_exact_min": [
+    -11.344472329501556,
+    -1.1026043807770134,
+    7.523026020662458
+   ],
+   "random_min": [
+    -10.707237911925045,
+    -0.9797392977610165,
+    8.160762961241616
+   ],
+   "stacked": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -15.973769667145694,
+       -3.415997010011215,
+       3.287126328462298
+      ],
+      "upper": [
+       -4.299255018884848,
+       1.7228235046202434,
+       14.49017442584532
+      ],
+      "worst_lower_excess": -2.3133926292342015,
+      "worst_upper_shortfall": -2.306777778706219,
+      "lower_gap_to_exact": [
+       4.629297337644138,
+       2.3133926292342015,
+       4.235899692200158
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "alpha-crown": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -17.92336782285743,
+       -3.7435924798695543,
+       4.544434610465947
+      ],
+      "upper": [
+       -5.760107586705692,
+       1.5776068196669346,
+       16.160306425097296
+      ],
+      "worst_lower_excess": -2.640988099092541,
+      "worst_upper_shortfall": -2.16156109375291,
+      "lower_gap_to_exact": [
+       6.578895493355873,
+       2.640988099092541,
+       2.9785914101965094
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "alpha-crown": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     }
+    }
+   },
+   "split": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -12.63781651266754,
+       -1.973527719548081,
+       6.325503195885219
+      ],
+      "upper": [
+       -7.471308865212789,
+       0.29359398851541973,
+       11.272466155115662
+      ],
+      "worst_lower_excess": -0.8709233387710675,
+      "worst_upper_shortfall": -0.8775482626013951,
+      "lower_gap_to_exact": [
+       1.293344183165983,
+       0.8709233387710675,
+       1.1975228247772378
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.415585531455022,
+       -1.114891793827168,
+       7.468533761463516
+      ],
+      "upper": [
+       -8.7189159433941,
+       -0.5687362902277505,
+       10.139337127739834
+      ],
+      "worst_lower_excess": -0.012287413050154683,
+      "worst_upper_shortfall": -0.015217983858224815,
+      "lower_gap_to_exact": [
+       0.07111320195346593,
+       0.012287413050154683,
+       0.054492259198940296
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.385975086358199,
+       -1.1099524941682242,
+       7.494875170490674
+      ],
+      "upper": [
+       -8.748526388490923,
+       -0.5736755898866952,
+       10.112995718712654
+      ],
+      "worst_lower_excess": -0.0073481133912107754,
+      "worst_upper_shortfall": -0.01027868419928013,
+      "lower_gap_to_exact": [
+       0.04150275685664262,
+       0.0073481133912107754,
+       0.028150850171781983
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.344472329502764,
+       -1.1026043807772574,
+       7.523026020661343
+      ],
+      "upper": [
+       -8.7704093519537,
+       -0.5839542740857495,
+       10.074735735268959
+      ],
+      "worst_lower_excess": -2.440270208126094e-13,
+      "worst_upper_shortfall": -2.2581936320875684e-13,
+      "lower_gap_to_exact": [
+       1.2079226507921703e-12,
+       2.440270208126094e-13,
+       1.113775738303957e-12
+      ],
+      "exact": true
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -14.446108605877377,
+       -2.2485181742815286,
+       7.70457905659371
+      ],
+      "upper": [
+       -9.071836881321698,
+       0.09382442060792773,
+       12.823359069756714
+      ],
+      "worst_lower_excess": 0.1815530359312536,
+      "worst_upper_shortfall": 0.301427529366876,
+      "lower_gap_to_exact": [
+       3.101636276375821,
+       1.1459137935045152,
+       -0.1815530359312536
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.40951463507891,
+       -1.1228996294856413,
+       7.460574399996737
+      ],
+      "upper": [
+       -8.688312088604231,
+       -0.5656578313329684,
+       10.157638402312244
+      ],
+      "worst_lower_excess": -0.020295248708627867,
+      "worst_upper_shortfall": -0.018296442753006903,
+      "lower_gap_to_exact": [
+       0.06504230557735369,
+       0.020295248708627867,
+       0.062451620665719076
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.385975086358197,
+       -1.1099524941682235,
+       7.4948751704906895
+      ],
+      "upper": [
+       -8.748526388490943,
+       -0.5736755898866925,
+       10.112995718712673
+      ],
+      "worst_lower_excess": -0.007348113391210109,
+      "worst_upper_shortfall": -0.010278684199282795,
+      "lower_gap_to_exact": [
+       0.04150275685664084,
+       0.007348113391210109,
+       0.028150850171766884
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.344472329502754,
+       -1.102604380777256,
+       7.523026020661355
+      ],
+      "upper": [
+       -8.770409351953695,
+       -0.5839542740857486,
+       10.074735735268973
+      ],
+      "worst_lower_excess": -2.426947531830592e-13,
+      "worst_upper_shortfall": -2.2670754162845697e-13,
+      "lower_gap_to_exact": [
+       1.1972645097557688e-12,
+       2.426947531830592e-13,
+       1.1013412404281553e-12
+      ],
+      "exact": true
+     }
+    }
+   }
+  },
+  "gate+up+down": {
+   "exact_min": [
+    -11.820284327262337,
+    -1.237299326960204,
+    7.146922177809006
+   ],
+   "witness_at_exact_min": [
+    -11.820284327261948,
+    -1.2372993269600383,
+    7.146922177809339
+   ],
+   "random_min": [
+    -10.811131746348277,
+    -0.9814257598111499,
+    8.0826608977445
+   ],
+   "stacked": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -17.170910847798414,
+       -3.980722583598161,
+       2.066798151586263
+      ],
+      "upper": [
+       -3.19311025981795,
+       2.3745871567974994,
+       15.678344530238014
+      ],
+      "worst_lower_excess": -2.743423256637957,
+      "worst_upper_shortfall": -2.760852071792668,
+      "lower_gap_to_exact": [
+       5.350626520536077,
+       2.743423256637957,
+       5.080124026222743
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "alpha-crown": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -19.26460613655556,
+       -4.306344841447216,
+       2.917004753010616
+      ],
+      "upper": [
+       -4.482816735261793,
+       2.346737905857606,
+       17.180627978090904
+      ],
+      "worst_lower_excess": -3.069045514487012,
+      "worst_upper_shortfall": -2.7330028208527746,
+      "lower_gap_to_exact": [
+       7.444321809293223,
+       3.069045514487012,
+       4.22991742479839
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "alpha-crown": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     }
+    }
+   },
+   "split": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -13.101863755032946,
+       -2.11477182358991,
+       5.889048446045366
+      ],
+      "upper": [
+       -7.097253413408067,
+       0.5206796663755711,
+       11.67673554270985
+      ],
+      "worst_lower_excess": -0.8774724966297058,
+      "worst_upper_shortfall": -0.9069445813707397,
+      "lower_gap_to_exact": [
+       1.281579427770609,
+       0.8774724966297058,
+       1.25787373176364
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.820743890484051,
+       -1.2211882847279285,
+       7.101329472004689
+      ],
+      "upper": [
+       -8.403884004462869,
+       -0.3766278242549469,
+       10.474007388781185
+      ],
+      "worst_lower_excess": 0.01611104223227544,
+      "worst_upper_shortfall": 0.004173658899711441,
+      "lower_gap_to_exact": [
+       0.00045956322171392117,
+       -0.01611104223227544,
+       0.0455927058043164
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.795050353783369,
+       -1.2178260525871336,
+       7.124099053355711
+      ],
+      "upper": [
+       -8.429577541163546,
+       -0.37999005639574085,
+       10.451237807430164
+      ],
+      "worst_lower_excess": 0.025233973478968608,
+      "worst_upper_shortfall": 0.02694324025073236,
+      "lower_gap_to_exact": [
+       -0.025233973478968608,
+       -0.019473274373070337,
+       0.022823124453294596
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.74945839847494,
+       -1.2086022147519975,
+       7.1566338591048275
+      ],
+      "upper": [
+       -8.455585971079632,
+       -0.39213990438313845,
+       10.408652859692161
+      ],
+      "worst_lower_excess": 0.07082592878739646,
+      "worst_upper_shortfall": 0.06952818798873572,
+      "lower_gap_to_exact": [
+       -0.07082592878739646,
+       -0.028697112208206477,
+       -0.009711681295821784
+      ],
+      "exact": false
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -14.959993741521966,
+       -2.349318830760592,
+       6.940061784284181
+      ],
+      "upper": [
+       -8.620910002272613,
+       0.39802730970383204,
+       12.988629628147857
+      ],
+      "worst_lower_excess": -0.206860393524825,
+      "worst_upper_shortfall": 0.17425340848100745,
+      "lower_gap_to_exact": [
+       3.139709414259629,
+       1.1120195038003882,
+       0.206860393524825
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.918556367618498,
+       -1.2732525114056874,
+       7.05718831982616
+      ],
+      "upper": [
+       -8.326608599332337,
+       -0.3538018085047112,
+       10.604148731173021
+      ],
+      "worst_lower_excess": -0.035953184445483455,
+      "worst_upper_shortfall": -0.03246310649045747,
+      "lower_gap_to_exact": [
+       0.09827204035616077,
+       0.035953184445483455,
+       0.0897338579828455
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.874382414567389,
+       -1.2513423300266984,
+       7.10883335021812
+      ],
+      "upper": [
+       -8.405865287947126,
+       -0.3692603266327407,
+       10.538166864363191
+      ],
+      "worst_lower_excess": -0.01404300306649442,
+      "worst_upper_shortfall": -0.017004588362427964,
+      "lower_gap_to_exact": [
+       0.054098087305051834,
+       0.01404300306649442,
+       0.03808882759088572
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.82028432726395,
+       -1.2372993269606198,
+       7.146922177807601
+      ],
+      "upper": [
+       -8.446656593790177,
+       -0.38626491499481147,
+       10.478181047682497
+      ],
+      "worst_lower_excess": -4.1588954502458364e-13,
+      "worst_upper_shortfall": -3.572142581731441e-13,
+      "lower_gap_to_exact": [
+       1.6129320101754274e-12,
+       4.1588954502458364e-13,
+       1.4050982599655981e-12
+      ],
+      "exact": true
+     }
+    }
+   }
+  },
+  "reduced": {
+   "exact_min": [
+    -11.820284327262337,
+    -1.237299326960204,
+    7.146922177809006
+   ],
+   "stacked": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -13.171711843381594,
+       -2.197865680853684,
+       5.80736227008727
+      ],
+      "upper": [
+       -7.0333325261729,
+       0.5971235617185611,
+       11.757924448709648
+      ],
+      "worst_lower_excess": -0.9605663538934799,
+      "worst_upper_shortfall": -0.9833884767137298,
+      "lower_gap_to_exact": [
+       1.3514275161192568,
+       0.9605663538934799,
+       1.3395599077217355
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "AttributeError: 'NoneType' object has no attribute 'unsqueeze'",
+      "where": "    y_l = y_l.unsqueeze(-3)"
+     },
+     "alpha-crown": {
+      "ran": false,
+      "error": "AttributeError: 'NoneType' object has no attribute 'unsqueeze'",
+      "where": "    y_l = y_l.unsqueeze(-3)"
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -13.155783359726101,
+       -2.1501885592021988,
+       5.555012007547225
+      ],
+      "upper": [
+       -6.99722288695375,
+       0.6430195717956998,
+       11.500853142743418
+      ],
+      "worst_lower_excess": -0.9128892322419948,
+      "worst_upper_shortfall": -1.0226720950625214,
+      "lower_gap_to_exact": [
+       1.3354990324637637,
+       0.9128892322419948,
+       1.591910170261781
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": false,
+      "error": "ValueError: Squeezing with axes == 0 is not allowed",
+      "where": "  File \"C:\\Users\\loren\\Documents\\GitHub\\weightsift\\research\\crown_expert_oracle\\.venv\\Lib\\site-packages\\auto_LiRPA\\operators\\reshape.py\", line 279, in bound_backward"
+     },
+     "crown": {
+      "ran": false,
+      "error": "AttributeError: 'NoneType' object has no attribute 'unsqueeze'",
+      "where": "    y_l = y_l.unsqueeze(-3)"
+     },
+     "alpha-crown": {
+      "ran": false,
+      "error": "AttributeError: 'NoneType' object has no attribute 'unsqueeze'",
+      "where": "    y_l = y_l.unsqueeze(-3)"
+     }
+    }
+   },
+   "split": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -12.560220780003997,
+       -1.843573341483331,
+       6.460724489226535
+      ],
+      "upper": [
+       -7.644823589550496,
+       0.2428312223482081,
+       11.104562229570387
+      ],
+      "worst_lower_excess": -0.6062740145231271,
+      "worst_upper_shortfall": -0.6263811818894904,
+      "lower_gap_to_exact": [
+       0.7399364527416594,
+       0.6062740145231271,
+       0.686197688582471
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.754207101360905,
+       -1.210624076470867,
+       7.151968375843564
+      ],
+      "upper": [
+       -8.450837268193586,
+       -0.39011804266425343,
+       10.413318342953353
+      ],
+      "worst_lower_excess": 0.06607722590143261,
+      "worst_upper_shortfall": 0.06486270472754363,
+      "lower_gap_to_exact": [
+       -0.06607722590143261,
+       -0.026675250489337055,
+       -0.0050461980345586355
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.754207101360905,
+       -1.210624076470867,
+       7.151968375843564
+      ],
+      "upper": [
+       -8.450837268193586,
+       -0.39011804266425343,
+       10.413318342953353
+      ],
+      "worst_lower_excess": 0.06607722590143261,
+      "worst_upper_shortfall": 0.06486270472754363,
+      "lower_gap_to_exact": [
+       -0.06607722590143261,
+       -0.026675250489337055,
+       -0.0050461980345586355
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.753384213624354,
+       -1.2102827666122935,
+       7.152753616088241
+      ],
+      "upper": [
+       -8.45166015593014,
+       -0.3904593525228279,
+       10.412533102708677
+      ],
+      "worst_lower_excess": 0.06690011363798298,
+      "worst_upper_shortfall": 0.06564794497221982,
+      "lower_gap_to_exact": [
+       -0.06690011363798298,
+       -0.027016560347910445,
+       -0.005831438279234824
+      ],
+      "exact": false
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -12.544292296348504,
+       -1.795896219831846,
+       6.208374226686489
+      ],
+      "upper": [
+       -7.608713950331348,
+       0.2887272324253468,
+       10.847490923604154
+      ],
+      "worst_lower_excess": -0.558596892871642,
+      "worst_upper_shortfall": -0.3693098759232569,
+      "lower_gap_to_exact": [
+       0.7240079690861663,
+       0.558596892871642,
+       0.9385479511225165
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.83253640677346,
+       -1.243736309552722,
+       7.137569312533737
+      ],
+      "upper": [
+       -8.428818837690045,
+       -0.3801334552244944,
+       10.498461996134866
+      ],
+      "worst_lower_excess": -0.006436982592518126,
+      "worst_upper_shortfall": -0.006131459770674308,
+      "lower_gap_to_exact": [
+       0.01225207951112317,
+       0.006436982592518126,
+       0.009352865275269018
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.83253640677346,
+       -1.243736309552722,
+       7.137569312533737
+      ],
+      "upper": [
+       -8.428818837690045,
+       -0.3801334552244944,
+       10.498461996134866
+      ],
+      "worst_lower_excess": -0.006436982592518126,
+      "worst_upper_shortfall": -0.006131459770674308,
+      "lower_gap_to_exact": [
+       0.01225207951112317,
+       0.006436982592518126,
+       0.009352865275269018
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.820284327262724,
+       -1.2372993269603698,
+       7.1469221778086744
+      ],
+      "upper": [
+       -8.446656593791271,
+       -0.386264914995023,
+       10.478181047681286
+      ],
+      "worst_lower_excess": -1.6586731987899839e-13,
+      "worst_upper_shortfall": -1.4566126083082054e-13,
+      "lower_gap_to_exact": [
+       3.872457909892546e-13,
+       1.6586731987899839e-13,
+       3.312905505481467e-13
+      ],
+      "exact": true
+     }
+    }
+   },
+   "one_ball_per_matrix": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -13.171711843381594,
+       -2.197865680853684,
+       5.80736227008727
+      ],
+      "upper": [
+       -7.0333325261729,
+       0.5971235617185611,
+       11.757924448709648
+      ],
+      "worst_lower_excess": -0.9605663538936455,
+      "worst_upper_shortfall": -0.9833884767138752
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.795341827140618,
+       -1.285139086427316,
+       7.057680170792447
+      ],
+      "upper": [
+       -8.409702542413871,
+       -0.31560303270780454,
+       10.507606548004468
+      ],
+      "worst_lower_excess": 0.02494250012133037,
+      "worst_upper_shortfall": -0.029425500323958076
+     },
+     "crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.795341827140618,
+       -1.285139086427316,
+       7.057680170792447
+      ],
+      "upper": [
+       -8.409702542413871,
+       -0.31560303270780454,
+       10.507606548004468
+      ],
+      "worst_lower_excess": 0.02494250012133037,
+      "worst_upper_shortfall": -0.029425500323958076
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -11.79448082740192,
+       -1.2846460193282594,
+       7.058652665170774
+      ],
+      "upper": [
+       -8.410563542152566,
+       -0.31609609980686104,
+       10.506634053626144
+      ],
+      "worst_lower_excess": 0.025803499860028722,
+      "worst_upper_shortfall": -0.028453005945634047
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -13.369866756366779,
+       -2.051710164039166,
+       5.3300643990509515
+      ],
+      "upper": [
+       -7.155404244409713,
+       0.7725552907002691,
+       11.319002748368312
+      ],
+      "worst_lower_excess": -0.8144108370791279,
+      "worst_upper_shortfall": -0.8408217006878029
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.982282733537218,
+       -1.3930140507089148,
+       7.020695510428478
+      ],
+      "upper": [
+       -8.355430852827785,
+       -0.28641724000676316,
+       10.721142048871025
+      ],
+      "worst_lower_excess": -0.12622666738086075,
+      "worst_upper_shortfall": -0.09122574096415192
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.982282733537218,
+       -1.3930140507089148,
+       7.020695510428478
+      ],
+      "upper": [
+       -8.355430852827785,
+       -0.28641724000676316,
+       10.721142048871025
+      ],
+      "worst_lower_excess": -0.12622666738086075,
+      "worst_upper_shortfall": -0.09122574096415192
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -11.868173784282757,
+       -1.3309242823812042,
+       7.051193200492856
+      ],
+      "upper": [
+       -8.404648877801904,
+       -0.30465591350943877,
+       10.589228087807163
+      ],
+      "worst_lower_excess": -0.04788945702080838,
+      "worst_upper_shortfall": -0.04200771599003339
+     }
+    }
+   }
+  },
+  "wall_s": 40.13772060000338
+ },
+ "A5": {
+  "truth": [
+   -1.048231023930239,
+   -3.302815429894823,
+   -4.081554174126975
+  ],
+  "box": {
+   "exact_min": [
+    -2.012555365768148,
+    -4.148612685335968,
+    -5.818201299541057
+   ],
+   "witness_at_exact_min": [
+    -2.012555365768148,
+    -4.148612685335968,
+    -5.818201299541057
+   ],
+   "activation_width_sum": [
+    0.8903604165236807,
+    0.7506131785571984
+   ],
+   "crown_full": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.930549416606644,
+       -4.843286480315851,
+       -8.088762308221726
+      ],
+      "upper": [
+       1.0510894544439995,
+       -1.7582657276577676,
+       -0.5696444044372289
+      ],
+      "worst_lower_excess": -0.6946737949798827,
+      "worst_upper_shortfall": -0.7323513002478323
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.1103368127712154,
+       -4.1855054618160485,
+       -5.92056885974381
+      ],
+      "upper": [
+       0.20425619217924296,
+       -2.380428009910773,
+       -2.6560877123081665
+      ],
+      "worst_lower_excess": -0.03689277648008016,
+      "worst_upper_shortfall": -0.11018901799482705
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.0862920406716157,
+       -4.17302175887685,
+       -5.8647145535780325
+      ],
+      "upper": [
+       0.18052458983901154,
+       -2.3922902195554303,
+       -2.7117168076898377
+      ],
+      "worst_lower_excess": -0.024409073540881288,
+      "worst_upper_shortfall": -0.0983268083501696
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.0125553657691326,
+       -4.148612685336806,
+       -5.818201299542473
+      ],
+      "upper": [
+       0.0673674359856633,
+       -2.4906169995289913,
+       -2.988797639584811
+      ],
+      "worst_lower_excess": -8.375522497772181e-13,
+      "worst_upper_shortfall": -6.354599957347773e-09
+     }
+    }
+   },
+   "crown_reduced": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.714261731276714,
+       -4.658513379940656,
+       -7.611772714815334
+      ],
+      "upper": [
+       0.819962133456143,
+       -1.9504021537911247,
+       -1.055388006246114
+      ],
+      "worst_lower_excess": -0.5099006946046876,
+      "worst_upper_shortfall": -0.5402148741144752,
+      "lower_gap_to_exact": [
+       0.7017063655085658,
+       0.5099006946046876,
+       1.7935714152742772
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.0729425984417733,
+       -4.164195588991271,
+       -5.840480342536576
+      ],
+      "upper": [
+       0.17124586737076708,
+       -2.3941749700405905,
+       -2.754471396415287
+      ],
+      "worst_lower_excess": -0.015582903655302793,
+      "worst_upper_shortfall": -0.09644205786500937,
+      "lower_gap_to_exact": [
+       0.060387232673625224,
+       0.015582903655302793,
+       0.022279042995519305
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.0729425984417733,
+       -4.164195588991271,
+       -5.840480342536576
+      ],
+      "upper": [
+       0.17124586737076708,
+       -2.3941749700405905,
+       -2.754471396415287
+      ],
+      "worst_lower_excess": -0.015582903655302793,
+      "worst_upper_shortfall": -0.09644205786500937,
+      "lower_gap_to_exact": [
+       0.060387232673625224,
+       0.015582903655302793,
+       0.022279042995519305
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.012555365768552,
+       -4.148612685336252,
+       -5.818201299541729
+      ],
+      "upper": [
+       0.06736742529327922,
+       -2.4906170279053566,
+       -2.9887976459388486
+      ],
+      "worst_lower_excess": -2.8332891588433995e-13,
+      "worst_upper_shortfall": -2.433608869978343e-13,
+      "lower_gap_to_exact": [
+       4.04121180963557e-13,
+       2.8332891588433995e-13,
+       6.723510637129948e-13
+      ],
+      "exact": true
+     }
+    }
+   }
+  },
+  "l2": {
+   "exact_min": [
+    -1.9047855663729534,
+    -3.9856533073149443,
+    -5.629159084649031
+   ],
+   "witness_at_exact_min": [
+    -1.9047855663724764,
+    -3.985653307314629,
+    -5.629159084648309
+   ],
+   "activation_width_sum": [
+    0.6627755585258324,
+    0.4903605094271445
+   ],
+   "crown_reduced": {
+    "centre": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.4422022470956453,
+       -4.346091954516538,
+       -6.909044568695412
+      ],
+      "upper": [
+       0.5310543737671928,
+       -2.225061584287172,
+       -1.7696360123052521
+      ],
+      "worst_lower_excess": -0.3604386472015939,
+      "worst_upper_shortfall": -0.40129932487355147,
+      "lower_gap_to_exact": [
+       0.5374166807226919,
+       0.3604386472015939,
+       1.279885484046381
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -1.9228524311145878,
+       -3.9868258158813363,
+       -5.6296711348256725
+      ],
+      "upper": [
+       0.011704557786131553,
+       -2.5843277229223744,
+       -3.0490094461749897
+      ],
+      "worst_lower_excess": -0.0005120501766411323,
+      "worst_upper_shortfall": -0.042033186238349174,
+      "lower_gap_to_exact": [
+       0.018066864741634436,
+       0.001172508566392061,
+       0.0005120501766411323
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -1.9228524311145878,
+       -3.9868258158813363,
+       -5.6296711348256725
+      ],
+      "upper": [
+       0.011704557786131553,
+       -2.5843277229223744,
+       -3.0490094461749897
+      ],
+      "worst_lower_excess": -0.0005120501766411323,
+      "worst_upper_shortfall": -0.042033186238349174,
+      "lower_gap_to_exact": [
+       0.018066864741634436,
+       0.001172508566392061,
+       0.0005120501766411323
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": false,
+      "lower": [
+       -1.8550131237098366,
+       -3.9434080529729365,
+       -5.530937287400571
+      ],
+      "upper": [
+       -0.05613474961861692,
+       -2.6277454858307747,
+       -3.1477432936000946
+      ],
+      "worst_lower_excess": 0.0982217972484607,
+      "worst_upper_shortfall": 0.018478887890955698,
+      "lower_gap_to_exact": [
+       -0.049772442663116756,
+       -0.042245254342007765,
+       -0.0982217972484607
+      ],
+      "exact": false
+     }
+    },
+    "box_hull": {
+     "ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -2.482805597716659,
+       -4.082911125940199,
+       -7.365939135417301
+      ],
+      "upper": [
+       0.5030700493608098,
+       -1.9696788395310403,
+       -2.2367500306236963
+      ],
+      "worst_lower_excess": -0.09725781862525462,
+      "worst_upper_shortfall": -0.540725911088471,
+      "lower_gap_to_exact": [
+       0.5780200313437058,
+       0.09725781862525462,
+       1.73678005076827
+      ],
+      "exact": false
+     },
+     "crown-ibp": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -1.9565724100813946,
+       -3.9981958763155854,
+       -5.64750954327393
+      ],
+      "upper": [
+       0.0706057885846928,
+       -2.535924989250936,
+       -2.9325762827405915
+      ],
+      "worst_lower_excess": -0.012542569000641102,
+      "worst_upper_shortfall": -0.09043591990978772,
+      "lower_gap_to_exact": [
+       0.05178684370844122,
+       0.012542569000641102,
+       0.018350458624898813
+      ],
+      "exact": false
+     },
+     "crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -1.9565724100813946,
+       -3.9981958763155854,
+       -5.64750954327393
+      ],
+      "upper": [
+       0.0706057885846928,
+       -2.535924989250936,
+       -2.9325762827405915
+      ],
+      "worst_lower_excess": -0.012542569000641102,
+      "worst_upper_shortfall": -0.09043591990978772,
+      "lower_gap_to_exact": [
+       0.05178684370844122,
+       0.012542569000641102,
+       0.018350458624898813
+      ],
+      "exact": false
+     },
+     "alpha-crown": {
+      "ran": true,
+      "sound": true,
+      "lower": [
+       -1.904785566373433,
+       -3.9856978320925593,
+       -5.6291590846497535
+      ],
+      "upper": [
+       -0.03765586172721308,
+       -2.626337159081661,
+       -3.147056206266199
+      ],
+      "worst_lower_excess": -4.796163466380676e-13,
+      "worst_upper_shortfall": -4.4814152388994444e-13,
+      "lower_gap_to_exact": [
+       4.796163466380676e-13,
+       4.4524777615073674e-05,
+       7.220890552162018e-13
+      ],
+      "exact": false
+     }
+    }
+   }
+  },
+  "both": {
+   "exact_min": [
+    -1.7909421374121033,
+    -3.9212427862532095,
+    -5.498371881863747
+   ],
+   "witness_at_exact_min": [
+    -1.7909421374119994,
+    -3.9212427862531363,
+    -5.498371881863576
+   ],
+   "activation_width_sum": [
+    0.6586791309530347,
+    0.4891990166326854
+   ]
+  },
+  "wall_s": 8.22539269994013
+ },
+ "environment": {
+  "python": "3.11.16",
+  "torch": "2.11.0+cu130",
+  "cuda": "13.0",
+  "auto_LiRPA": "0.7.2",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "gpu": "NVIDIA GeForce RTX 4060 Ti",
+  "python_hash_seed": "1"
+ },
+ "wall_ms": 67682.20639997162
+}

@@ -19,7 +19,7 @@ def test_the_verifier_environment_has_no_weightsift():
     assert importlib.util.find_spec("auto_LiRPA") is not None
 
 
-VERIFIER_SCRIPTS = ("probe.py", "run.py", "report.py", "full_crown_cost.py")  # export.py runs in the Weightsift environment, by design
+VERIFIER_SCRIPTS = ("probe.py", "probe_l2.py", "run.py", "report.py", "full_crown_cost.py")  # export.py runs in the Weightsift environment, by design
 
 
 def test_the_verifier_imports_no_weightsift_module():

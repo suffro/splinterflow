@@ -43,8 +43,8 @@ import torch.nn.functional as F  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from crown_oracle.attack import pgd_minimize, reduced_optimum  # noqa: E402
 from crown_oracle.graph import (  # noqa: E402
-    BoundCost, Bounder, ExpertsSuffix, ReducedSuffix, boxed_input, boxed_parameter, gpu_peak, gpu_reset, process_peak_rss,
-    silu, suffix_value,
+    BoundCost, Bounder, ExpertsSuffix, ReducedSuffix, boxed_input, boxed_parameter, gpu_peak, gpu_reset, leave,
+    process_peak_rss, silu, suffix_value,
 )
 
 torch.set_default_dtype(torch.float64)
@@ -376,4 +376,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    leave(main())

@@ -1,0 +1,39 @@
+{
+  "model": {
+    "repository": "moonshotai/Moonlight-16B-A3B",
+    "revision": "476b36a473d4467f94469414bef6cee75c9c8172",
+    "dtype": "bfloat16",
+    "device": "cuda"
+  },
+  "python": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+  "os": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "torch": "2.14.1+cu130",
+    "transformers": "5.18.0",
+    "safetensors": "0.8.0",
+    "numpy": "2.5.3",
+    "huggingface-hub": "1.33.0",
+    "tokenizers": "0.23.2",
+    "pyarrow": "25.0.1"
+  },
+  "cuda_version": "13.0",
+  "cudnn_version": 92400,
+  "gpu": "NVIDIA GeForce RTX 4060 Ti",
+  "numerics": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "deterministic_algorithms": true,
+    "float32_matmul_precision": "highest",
+    "cuda_matmul_allow_tf32": false,
+    "cudnn_allow_tf32": false,
+    "cuda_matmul_allow_bf16_reduced_precision_reduction": false,
+    "cuda_matmul_allow_fp16_reduced_precision_reduction": false,
+    "cuda_matmul_allow_bf16_reduced_precision_reduction_split_k": true,
+    "cuda_matmul_allow_fp16_accumulation": false
+  },
+  "git_commit": "406c168a0bc84d4aedd3bd57f5874a0971d973f7",
+  "git_dirty": true,
+  "source_tree_sha256": "6e9eb65c6c6442471cdec2ef71d3556a3c34c83c6df3543032a8208b0a28bfed",
+  "uv_lock_sha256": "98065f4e20787e71bc49183cfdf3e213a5e3d8717241f568da399061611f132e",
+  "python_hash_seed": "1",
+  "research_tree_sha256": "33e95967594ea79a4b84c8441050dcb93158f11084a8af5259339855b41aa98a"
+}

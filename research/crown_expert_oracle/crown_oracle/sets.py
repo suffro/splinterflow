@@ -12,6 +12,9 @@ the intersection
 with each end one float64 ulp outward. These are auto_LiRPA's elementwise boxes (`graph.boxed_parameter`). A runtime
 holds no more than this: the codes, the scales and the norms (Phase 5A charges their bytes).
 
+The rows' L2 norms give the other half (`matrix_balls`, stage 1.5): the row's own ball ‖W_r‖₂ ≤ n_r and, per level read,
+‖W_r − A_l,r‖₂ ≤ ρ_l,r. Phase 5A's realistic bounds use both halves (Cauchy–Schwarz and Hölder, the smaller).
+
 The builder never sees an unread value. It takes the BF16 rows through `read_view`, which keeps only the rows in state
 EXACT and puts NaN everywhere else: a set built from it cannot depend on an unread byte (tested by poisoning them).
 `contains` checks a set against the true weights afterwards, as validation only.
@@ -95,6 +98,58 @@ def expert_boxes(matrices: list[MatrixData], states: torch.Tensor, device) -> Bo
     """The boxes of one matrix kind across the routed experts: [K, R, C] (states [K, R])."""
     boxes = [matrix_box(m, states[k].to(device), read_view(m.truth.to(device), states[k].to(device))) for k, m in enumerate(matrices)]
     return Box(torch.stack([b.lower for b in boxes]), torch.stack([b.upper for b in boxes]), torch.stack([b.centre for b in boxes]))
+
+
+@dataclass(frozen=True)
+class Balls:
+    """The L2 half of one matrix's set (stage 1.5): each row in the ball of `radius` about `centre` and in every ball of
+    `extra`.
+
+        UNKNOWN    ‖W_r‖₂ ≤ n_r                                       (the row's resident L2 norm)
+        level l    ‖W_r − A_l,r‖₂ ≤ ρ_l,r;  also ‖W_r − A_l',r‖₂ ≤ ρ_l',r (l' < l) and ‖W_r‖₂ ≤ n_r
+        EXACT      W_r itself (radius 0)
+
+    `centre`/`radius` are the row's tightest ball (its current level's; the own norm's about 0 if UNKNOWN); `extra` holds
+    every ball (centre [R, C], radius [R], ∞ where a level was not read). Radii one float64 ulp outward. Built from the
+    read view like `matrix_box`: no unread byte enters."""
+
+    centre: torch.Tensor
+    radius: torch.Tensor
+    extra: tuple[tuple[torch.Tensor, torch.Tensor], ...]
+
+    def contains(self, values: torch.Tensor, slack: float = 0.0) -> bool:
+        values = values.to(torch.float64)
+        inside = torch.linalg.vector_norm(values - self.centre, dim=-1) <= self.radius * (1.0 + slack)
+        for centre, radius in self.extra:
+            inside &= torch.linalg.vector_norm(values - centre, dim=-1) <= radius * (1.0 + slack)
+        return bool(inside.all())
+
+
+def matrix_balls(data: MatrixData, states: torch.Tensor, view: torch.Tensor) -> Balls:
+    """The L2 balls of one matrix of one expert ([R, C]) given its rows' states [R] and the read view of its BF16 rows."""
+    if view.shape != data.truth.shape:
+        raise ValueError("the read view must have the matrix's shape")
+    device = view.device
+    own = _up(data.own_l2.to(device=device, dtype=torch.float64))
+    centre = torch.zeros_like(view)
+    radius = own.clone()
+    extra = [(torch.zeros_like(view), own)]
+    approximation = torch.zeros_like(view)
+    for level, (codes, scales, rho) in enumerate(zip(data.codes, data.scales, data.remainder_l2)):
+        approximation = approximation + codes.to(device=device, dtype=torch.float64) * scales.to(device=device, dtype=torch.float64)[:, None]
+        rho = _up(rho.to(device=device, dtype=torch.float64))
+        read = (states >= level) & (states != UNKNOWN)  # levels 0..level read (an EXACT row read them all)
+        at = states == level
+        centre = torch.where(at.unsqueeze(-1), approximation, centre)
+        radius = torch.where(at, rho, radius)
+        extra.append((approximation.clone(), torch.where(read, rho, torch.full_like(rho, math.inf))))
+    exact = states == EXACT
+    centre = torch.where(exact.unsqueeze(-1), view, centre)
+    radius = torch.where(exact, torch.zeros_like(radius), radius)
+    if bool(torch.isnan(centre).any()):
+        raise ValueError("a set needs a value that was not read")
+    extra = tuple((torch.where(exact.unsqueeze(-1), view, c), torch.where(exact, torch.zeros_like(r), r)) for c, r in extra)
+    return Balls(centre, radius, extra)
 
 
 def activation_box(levels: torch.Tensor, lower: torch.Tensor, upper: torch.Tensor, states: torch.Tensor) -> Box:

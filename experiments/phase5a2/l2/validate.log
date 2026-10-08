@@ -1,0 +1,6 @@
+C:\Users\loren\Documents\GitHub\weightsift\research\crown_expert_oracle\.venv\Lib\site-packages\torch\jit\_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+validate: sample 0 done in 75s
+validate: sample 1 done in 74s
+validate: sample 2 done in 74s
+exit 0

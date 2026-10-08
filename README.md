@@ -74,6 +74,14 @@ bounds on unread parts are too loose to certify any token earlier, even in real 
 round-to-nearest-even what-ifs and a real-arithmetic diagnostic are reported beside it; no expert-AWPMI
 runtime is built.
 
+**Phase 5A2 — a formal verifier on the same question** asks whether auto_LiRPA's CROWN family, used as published
+in an isolated environment (`research/crown_expert_oracle`), bounds the unread expert weights more tightly than
+Phase 5A. It does not make expert AWPMI pay. Given the L2 remainder norms Phase 5A already uses, upstream
+auto_LiRPA bounds them soundly only in an experimental mode, and there about 34 times below Phase 5A's own bound;
+and the uncertainty sets this metadata defines hold weights that flip the decision until about 0.82–0.91 of the
+routed bytes even in real arithmetic, so no verifier could do much better. The phase stopped before its 12-sample
+stage.
+
 ## Setup
 
 ```bash
@@ -114,6 +122,7 @@ uv run python benchmarks/moonlight_report.py experiments/phase4b/my-run [--compa
 uv run python benchmarks/expert_oracle.py --output experiments/phase5a/my-run --stage prepare   # Phase 5A, then each stage:
 uv run python benchmarks/expert_oracle.py --output experiments/phase5a/my-run --stage capture   # capture | oracle --shard i | oracle-real | digest
 uv run python benchmarks/expert_oracle_report.py experiments/phase5a/my-run [--compare experiments/phase5a/other-run]
+# Phase 5A2 runs in its own environment: see research/crown_expert_oracle/README.md
 ```
 
 `run.py` writes raw per-input records, validation records, the prompts, the
@@ -183,7 +192,9 @@ benchmarks/     run.py, report.py, prompts.py, oracle.py, refinement_oracle.py, 
                 expert_oracle.py, expert_oracle_report.py
 configs/        smollm2-135m.yaml (pinned model and dataset revisions), phase1b-refinement.yaml,
                 phase1c-runtime.yaml, phase2-suffix.yaml, phase3-storage.yaml, phase3-moe.yaml,
-                phase4a-olmoe.yaml, phase4b-moonlight.yaml, phase5a-expert-oracle.yaml
+                phase4a-olmoe.yaml, phase4b-moonlight.yaml, phase5a-expert-oracle.yaml,
+                phase5a2-crown-oracle.yaml
+research/       crown_expert_oracle (Phase 5A2: the auto_LiRPA verifier, its own environment and lockfile)
 experiments/    raw results per phase and run
 packs/          packs and expert indexes (gitignored; rebuilt by `weightsift pack`)
 ```

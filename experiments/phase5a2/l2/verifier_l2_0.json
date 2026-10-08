@@ -1,0 +1,70 @@
+{
+  "environment": {
+    "python": "3.11.16",
+    "torch": "2.11.0+cu130",
+    "cuda": "13.0",
+    "numpy": "2.4.6",
+    "auto_LiRPA": {
+      "version": "0.7.2",
+      "commit": "5a098e8f9fb5786a428a024981d833d303921f2d",
+      "repository": "https://github.com/Verified-Intelligence/auto_LiRPA",
+      "license": "BSD-3-Clause"
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "gpu": "NVIDIA GeForce RTX 4060 Ti",
+    "python_hash_seed": "1",
+    "source_tree_sha256": "6e9eb65c6c6442471cdec2ef71d3556a3c34c83c6df3543032a8208b0a28bfed",
+    "research_tree_sha256": "49f842c5a0f578f63811238acb4775e396168d4a5dff14a9fd23dfe7a0cac58d",
+    "artifact_manifest": {
+      "source_tree_sha256": "6e9eb65c6c6442471cdec2ef71d3556a3c34c83c6df3543032a8208b0a28bfed",
+      "research_tree_sha256": "33e95967594ea79a4b84c8441050dcb93158f11084a8af5259339855b41aa98a",
+      "capture": {
+        "tensors_sha256": "c20a83917363b480c6cb672e61b641aadce17249666558a675e9367334c29aa0",
+        "records_sha256": "7de8897612f8014ae3e351647009f3e8db1109bfaa9941661fe36cc35986ddaa",
+        "prompts_sha256": "c3b0c0f38eacba4fbc4211c10af9d70bbc4b769b10257f739673d21ee9ec8cc4",
+        "capture_tensors_equal_phase5a": true,
+        "capture_records_equal_phase5a": true,
+        "prompts_equal_phase5a": true
+      },
+      "phase5a_run": "experiments/phase5a/oracle-run1",
+      "phase5a_digest": {
+        "prompts_sha256": "c3b0c0f38eacba4fbc4211c10af9d70bbc4b769b10257f739673d21ee9ec8cc4",
+        "capture_records_sha256": "7de8897612f8014ae3e351647009f3e8db1109bfaa9941661fe36cc35986ddaa",
+        "capture_tensors_sha256": "c20a83917363b480c6cb672e61b641aadce17249666558a675e9367334c29aa0",
+        "samples_sha256": "faf7653de53c1edabcd363a74a7c7d9452bdc868ac3e333c6300d8f34841e4f3",
+        "real_cells_sha256": "1686fa68beafac9e10e0230283db3707e64d2d0114202fac84642ef3c811cbf0",
+        "excluded_fields": [
+          "timings_ms",
+          "system"
+        ]
+      },
+      "python_hash_seed": "1",
+      "levels_spec": "q6+q4"
+    },
+    "deterministic_algorithms": true,
+    "default_dtype": "torch.float64"
+  },
+  "samples": [
+    0,
+    1,
+    2
+  ],
+  "timings_ms": {
+    "sample_0": 1671015.9198001493,
+    "sample_1": 1404723.9928001072,
+    "sample_2": 1374071.3206999935,
+    "total": 4449853.806999978
+  },
+  "cost": {
+    "setup_ms": 0.0,
+    "bound_ms": 0.0,
+    "calls": 0,
+    "specifications": 0,
+    "peak_device_bytes": 0,
+    "peak_rss_bytes": 0,
+    "by_method": {}
+  },
+  "peak_device_bytes": 1537121792,
+  "peak_rss_bytes": 1913298944,
+  "failures": []
+}

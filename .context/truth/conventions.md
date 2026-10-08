@@ -71,6 +71,13 @@
   and `--shard 1` (about 60 and 35 minutes), `--stage oracle-real --shard 0` (about 50 minutes), `--stage digest` (config `configs/phase5a-expert-oracle.yaml`;
   each stage under two hours, launched one by one), and `python -m uv run python benchmarks/expert_oracle_report.py <run> --compare <second run>`.
   The captured tensors (`capture.safetensors`) are not committed: the capture stage regenerates them (their sha256 is in the digest).
+- Phase 5A2 (the auto_LiRPA verifier, decision 0010) has its own environment: `python -m uv sync --project
+  research/crown_expert_oracle`, tests with `python -m uv run --project research/crown_expert_oracle pytest
+  research/crown_expert_oracle/tests`, the pipeline in that directory's README (`export.py` runs in the Weightsift
+  environment, everything else in the verifier's). Never install auto_LiRPA into the root environment. Its scripts print
+  UTF-8 (set `PYTHONIOENCODING=utf-8` on a Windows console) and end with `crown_oracle.graph.leave`, because a process
+  that ran auto_LiRPA on CUDA otherwise fails fast while unloading (0xC0000409, shown by Git Bash as 127); the run's
+  outcome is its `verifier_<part>_<shard>.json` (`failures`) in any case.
 - Keep a benchmark's peak device memory well under the card, and record it (`peak_device_bytes`). Under
   Windows' WDDM, allocations beyond the GPU's memory do not fail: the driver pages device memory to the host
   and kernels slow down. Phase 5A's first development runs peaked at 8.03 GB on the 8 GB card and ran

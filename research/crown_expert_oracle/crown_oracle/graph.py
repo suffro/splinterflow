@@ -25,6 +25,8 @@ here: `Bounder` calls `BoundedModule.compute_bounds` and records its cost.
 from __future__ import annotations
 
 import math
+import os
+import sys
 import time
 from dataclasses import dataclass, field
 
@@ -155,6 +157,24 @@ def process_peak_rss() -> int:
     """The process's peak working set (Windows) or resident size (elsewhere), bytes."""
     info = psutil.Process().memory_info()
     return int(getattr(info, "peak_wset", info.rss))
+
+
+def leave(status: int) -> None:
+    """End the process with `status`, once every file is written and closed. On Windows a process that ran auto_LiRPA on
+    CUDA fails fast while its native libraries unload (status 0xC0000409, which Git Bash shows as 127), even after
+    os._exit; TerminateProcess skips the unloading, so the exit status is the run's."""
+    sys.stdout.flush()
+    sys.stderr.flush()
+    if os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+        kernel32.TerminateProcess.argtypes = (wintypes.HANDLE, wintypes.UINT)
+        kernel32.TerminateProcess.restype = wintypes.BOOL
+        kernel32.TerminateProcess(kernel32.GetCurrentProcess(), int(status))
+    os._exit(int(status))
 
 
 @dataclass

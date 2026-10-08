@@ -1,0 +1,24 @@
+C:\Users\loren\Documents\GitHub\weightsift\research\crown_expert_oracle\.venv\Lib\site-packages\torch\jit\_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+l2crown: sample 0 index -1/81 fraction 0.383 5A -950.27 box CROWN -2178.5 (set -1097.4) L2 CROWN -32171.2 (set <= -803.1) L2 108s
+l2crown: sample 0 index 19/81 fraction 0.696 5A -30.59 box CROWN -33.7 (set -27.7) L2 CROWN -258.1 (set <= -28.5) L2 89s
+l2crown: sample 0 index 39/81 fraction 1.008 5A -5.58 box CROWN -5.7 (set -5.3) L2 CROWN -20.0 (set <= -5.4) L2 26s
+l2crown: sample 0 index 60/81 fraction 1.336 5A -1.80 box CROWN -1.8 (set -1.8) L2 CROWN -3.1 (set <= -1.8) L2 7s
+l2crown: sample 0 index 72/81 fraction 1.524 5A -0.63 box CROWN -0.6 (set -0.6) L2 CROWN -0.9 (set <= -0.7) L2 3s
+l2crown: sample 0 index 80/81 fraction 1.634 5A 0.11 box CROWN 0.1 (set 0.1) L2 CROWN 0.1 (set <= 0.1) L2 1s
+l2crown: sample 0 done in 243s
+l2crown: sample 1 index -1/81 fraction 0.383 5A -738.56 box CROWN -1710.9 (set -861.0) L2 CROWN -25290.8 (set <= -629.0) L2 108s
+l2crown: sample 1 index 19/81 fraction 0.696 5A -22.35 box CROWN -24.9 (set -20.0) L2 CROWN -208.8 (set <= -20.9) L2 91s
+l2crown: sample 1 index 39/81 fraction 1.008 5A 2.38 box CROWN 2.3 (set 2.7) L2 CROWN -9.1 (set <= 2.4) L2 26s
+l2crown: sample 1 index 60/81 fraction 1.336 5A 7.53 box CROWN 7.5 (set 7.6) L2 CROWN 6.5 (set <= 7.5) L2 7s
+l2crown: sample 1 index 72/81 fraction 1.524 5A 8.44 box CROWN 8.4 (set 8.5) L2 CROWN 8.3 (set <= 8.4) L2 3s
+l2crown: sample 1 index 80/81 fraction 1.634 5A 8.94 box CROWN 8.9 (set 8.9) L2 CROWN 8.9 (set <= 8.9) L2 1s
+l2crown: sample 1 done in 244s
+l2crown: sample 2 index -1/81 fraction 0.383 5A -2010.56 box CROWN -4735.9 (set -2391.9) L2 CROWN -69948.0 (set <= -1702.7) L2 107s
+l2crown: sample 2 index 19/81 fraction 0.696 5A -66.38 box CROWN -74.1 (set -60.8) L2 CROWN -562.0 (set <= -62.1) L2 86s
+l2crown: sample 2 index 39/81 fraction 1.008 5A 0.83 box CROWN 0.6 (set 1.4) L2 CROWN -24.5 (set <= 0.9) L2 29s
+l2crown: sample 2 index 60/81 fraction 1.336 5A 15.11 box CROWN 15.1 (set 15.2) L2 CROWN 13.5 (set <= 15.1) L2 9s
+l2crown: sample 2 index 72/81 fraction 1.524 5A 19.29 box CROWN 19.3 (set 19.3) L2 CROWN 19.2 (set <= 19.3) L2 3s
+l2crown: sample 2 index 80/81 fraction 1.634 5A 20.91 box CROWN 20.9 (set 20.9) L2 CROWN 20.9 (set <= 20.9) L2 1s
+l2crown: sample 2 done in 243s
+exit 127

@@ -22,7 +22,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import probe  # noqa: E402
 from auto_LiRPA import BoundedModule  # noqa: E402
-from crown_oracle.graph import BOUND_OPTIONS, gpu_peak, gpu_reset  # noqa: E402
+from crown_oracle.graph import BOUND_OPTIONS, gpu_peak, gpu_reset, leave  # noqa: E402
 
 torch.set_default_dtype(torch.float64)
 
@@ -61,4 +61,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    leave(main())

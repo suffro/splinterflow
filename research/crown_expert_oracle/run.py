@@ -15,6 +15,11 @@ Runs in the isolated verifier environment. Reads `<run>/artifact` (export.py), w
             → compare.<shard>.jsonl
   search    the certificates: Phase 5A's realistic schedules, the first budget at which auto_LiRPA's certificate holds
             (bisection on the nearest rows, then the whole vocabulary), its bytes, its cost → search.<shard>.jsonl
+  l2        stage 1.5 (config `l2`): along one schedule, every state's sets from Phase 5A's metadata (boxes, the L2
+            remainder balls, both) and their optima on the comparison pairs, and witnesses (weights in each set and
+            their value) → l2.<shard>.jsonl
+  l2crown   stage 1.5, the comparison points: auto_LiRPA's CROWN on the reduced graph with down in boxes and in L2
+            balls, against the sets' own values, and its cost → l2crown.<shard>.jsonl
 Each part also writes verifier_<part>_<shard>.json (environment, timings, peak memory) and stops at its first hard
 failure (failure.json): a bound above a true value or a realization, a set without the true weights, a certified token
 that is not the reference's.
@@ -43,12 +48,13 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
-from crown_oracle import attack, certify, sets  # noqa: E402
+from crown_oracle import attack, certify, rowsets, sets  # noqa: E402
 from crown_oracle.artifact import EXACT, UNKNOWN, Artifact, research_tree_sha256, source_tree_sha256  # noqa: E402
 from crown_oracle.graph import (  # noqa: E402
-    BoundCost, Bounder, ExpertsSuffix, ReducedSuffix, boxed_input, boxed_parameter, gpu_peak, gpu_reset, process_peak_rss,
-    suffix_value,
+    BoundCost, Bounder, ExpertsSuffix, ReducedSuffix, boxed_input, boxed_parameter, gpu_peak, gpu_reset, leave,
+    process_peak_rss, suffix_value,
 )
+from crown_oracle.l2 import LinearReduced, SplitLinear, l2_interval_mode  # noqa: E402
 
 torch.set_default_dtype(torch.float64)
 torch.use_deterministic_algorithms(True)
@@ -269,6 +275,11 @@ def run_validate(artifact: Artifact, sample: SampleData, config: dict, writer, f
                 activations = sample.activation_box(strategy, tier, rows["gate"])
                 if not activations.contains(real_a if tier == "real" else reference_a):
                     bad.append([index, "a"])
+                for name in MATRICES:  # stage 1.5: the L2 balls too
+                    for k, m in enumerate(sample.matrices[name]):
+                        states = rows[name][k].to(sample.device)
+                        if not sets.matrix_balls(m, states, sets.read_view(m.truth, states)).contains(m.truth):
+                            bad.append([index, f"{name}_balls"])
                 if previous is not None and not all(previous[name].includes(boxes[name]) for name in MATRICES):
                     shrinking = False
                 previous = boxes
@@ -291,6 +302,14 @@ def run_validate(artifact: Artifact, sample: SampleData, config: dict, writer, f
                 altered.append(type(m)(torch.where(unread, junk, m.truth), m.codes, m.scales, m.remainder_linf, m.remainder_l2, m.own_linf, m.own_l2))
             dirty = sets.expert_boxes(altered, rows[name], sample.device)
             poisoned[f"{name}/{poison}"] = bool(torch.equal(clean.lower, dirty.lower) and torch.equal(clean.upper, dirty.upper) and torch.equal(clean.centre, dirty.centre))
+            # The L2 balls (stage 1.5) from the same poisoned rows.
+            same = True
+            for k, (m, a) in enumerate(zip(sample.matrices[name], altered)):
+                states = rows[name][k].to(sample.device)
+                c, d = sets.matrix_balls(m, states, sets.read_view(m.truth, states)), sets.matrix_balls(a, states, sets.read_view(a.truth, states))
+                same &= torch.equal(c.centre, d.centre) and torch.equal(c.radius, d.radius)
+                same &= all(torch.equal(p, q) and torch.equal(r, s) for (p, r), (q, s) in zip(c.extra, d.extra))
+            poisoned[f"{name}_balls/{poison}"] = bool(same)
     if not all(poisoned.values()):
         failures.append({"kind": "set_reads_unread_bytes", "sample": sample.index, "poisoned": poisoned})
     record.update(containment=containment, monotone=inclusion, poisoning_unchanged=poisoned)
@@ -562,6 +581,239 @@ def run_search(artifact: Artifact, sample: SampleData, config: dict, writer, fai
                 raise HardFailure
 
 
+# l2 (stage 1.5): Phase 5A's L2 remainder norms
+
+
+SET_KINDS = ("box", "l2", "resident")
+
+
+def expert_row_sets(sample: SampleData, rows: dict[str, torch.Tensor], e: int) -> dict[str, dict[str, rowsets.RowSets]]:
+    """One expert's rows as sets of each kind, from what a runtime has read (the read view): the boxes (`matrix_box`),
+    the L2 balls (`matrix_balls`), and both ("resident": every resident constraint)."""
+    out = {}
+    for name in MATRICES:
+        m = sample.matrices[name][e]
+        states = rows[name][e].to(sample.device)
+        view = sets.read_view(m.truth.to(sample.device), states)
+        box, balls = sets.matrix_box(m, states, view), sets.matrix_balls(m, states, view)
+        midpoint = box.lower * 0.5 + box.upper * 0.5
+        out[name] = {"box": rowsets.RowSets(midpoint, torch.full_like(balls.radius, math.inf), box.lower, box.upper),
+                     "l2": rowsets.RowSets(balls.centre, balls.radius, extra=balls.extra),
+                     "resident": rowsets.RowSets(balls.centre, balls.radius, box.lower, box.upper, balls.extra)}
+    return out
+
+
+def l2_crown(sample: SampleData, rows: dict[str, torch.Tensor], activations: sets.Box, delta: torch.Tensor, settings: dict, cost: BoundCost) -> torch.Tensor:
+    """auto_LiRPA's bound on Δ·y over the reduced L2 set: Phase 5A's activation enclosure × every row of down in its
+    current L2 ball (one root per row), in the configured interval mode, Δ·b plus each expert's bound."""
+    lower = delta @ sample.base
+    zero = torch.zeros_like(sample.base)
+    with l2_interval_mode(settings["interval_mode"] == "box_hull"):
+        for e in range(len(sample.experts)):
+            m = sample.matrices["down"][e]
+            states = rows["down"][e].to(sample.device)
+            balls = sets.matrix_balls(m, states, sets.read_view(m.truth.to(sample.device), states))
+            size = {"rows": 1, "matrix": None}.get(settings["groups"], settings["groups"])
+            model = LinearReduced([SplitLinear(balls.centre, balls.radius, size)], [float(sample.routing[e])], zero)
+            inputs = (boxed_input(activations.lower[e : e + 1], activations.upper[e : e + 1]),)
+            bounder = Bounder(model, inputs, sample.device, cost=cost)
+            lower = lower + bounder.lower(delta, settings["method"], int(settings["spec_chunk"]))
+            del bounder, model, balls
+            gc.collect()
+            torch.cuda.empty_cache()
+    return lower
+
+
+def l2_state(sample: SampleData, strategy: str, tier: str, index: int, delta: torch.Tensor, focus: list[int]) -> dict:
+    """The sets of one state and their optima on Δ·y (every contender), and witnesses (the focus contenders).
+
+    Reduced (Phase 5A's activation enclosure × down's sets): the box set's exact minimum (`attack.reduced_optimum`); the
+    L2 set's (current balls) decoupled lower bound and an attained vertex value (`rowsets`). Weight space (gate, up and
+    down rows in their sets, the activations' exact range): the box set's exact minimum; the L2 set's decoupled lower
+    bound (its current balls: a superset); and per kind a witness, weights in the whole set with their Δ·y
+    (`RowSets.point`: each row at its set's maximizer in the needed direction, exact for a ball, a ball ∩ a further ball,
+    a ball ∩ a box; a row still outside is moved toward a point of the set near the true row: a witness only has to lie
+    in the set)."""
+    rows = sample.rows(strategy, tier, index)
+    activations = sample.activation_box(strategy, tier, rows["gate"])
+    base = delta @ sample.base
+    x = sample.x.reshape(-1)
+    out = {key: base.clone() for key in ("box_reduced", "l2_reduced_lower", "l2_reduced_attained", "box_weight", "l2_weight_lower")}
+    witness = {kind: base[focus].clone() for kind in SET_KINDS}
+    excess = {kind: -math.inf for kind in SET_KINDS}
+    pulled = {kind: 0 for kind in SET_KINDS}
+    nested = 0
+    zero, one = torch.zeros_like(sample.base), torch.ones(1, device=sample.device)
+    focused = delta[focus]
+    for e in range(len(sample.experts)):
+        w = float(sample.routing[e])
+        S = expert_row_sets(sample, rows, e)
+        a_lo, a_hi = activations.lower[e], activations.upper[e]
+        down_box, down_l2 = S["down"]["box"], S["down"]["l2"]
+        out["box_reduced"] += w * attack.reduced_optimum(delta, down_box.lower[None], down_box.upper[None], a_lo[None], a_hi[None], one, zero)
+        M, c = delta @ down_l2.centre, delta.abs() @ down_l2.radius
+        out["l2_reduced_lower"] += w * rowsets.l2_decoupled(M, c, a_lo, a_hi)
+        out["l2_reduced_attained"] += w * rowsets.l2_vertex_search(M, c, a_lo, a_hi)[0]
+        for kind in SET_KINDS:
+            # Witness rows' last resort (`RowSets.anchor`): points of the sets near the true weights, validation data.
+            anchors = {name: S[name][kind].anchor(sample.truth_bf16[name][e].to(torch.float64)) for name in MATRICES}
+            down = S["down"][kind]
+            if kind == "box":  # no further ball: the exact range is attained
+                ranges = rowsets.activation_range(S["gate"][kind], S["up"][kind], x)
+                r_lo, r_hi = ranges.a
+                out["box_weight"] += w * attack.reduced_optimum(delta, down.lower[None], down.upper[None], r_lo[None], r_hi[None], one, zero)
+                sides = attack.reduced_vertex(focused, down.lower, down.upper, r_lo, r_hi)
+            else:
+                if kind == "l2":  # the current balls' box: a superset of the set's activations, for the lower bound
+                    r_lo, r_hi = rowsets.activation_range(S["gate"][kind], S["up"][kind], x).a
+                    out["l2_weight_lower"] += w * rowsets.l2_decoupled(delta @ down.centre, delta.abs() @ down.radius, r_lo, r_hi)
+                ranges = rowsets.activation_range(S["gate"][kind], S["up"][kind], x, anchors)
+                r_lo, r_hi = ranges.a
+                _, vertex = rowsets.l2_vertex_search(focused @ down.centre, focused.abs() @ down.radius, r_lo, r_hi)
+                sides = (vertex == r_hi).to(delta.dtype)
+            for position, j in enumerate(focus):
+                found = rowsets.realize(S["gate"][kind], S["up"][kind], down, x, delta[j], sides[position], ranges, anchors)
+                witness[kind][position] += w * float(delta[j] @ (found.down @ found.a))
+                excess[kind] = max(excess[kind], found.largest_excess)
+                pulled[kind] += found.pulled_rows
+        # Is each row's current ball inside its earlier ones (the single ball auto_LiRPA receives shrinks along a schedule)?
+        balls = S["down"]["l2"]
+        for centre, radius in balls.extra[1:]:
+            finite = torch.isfinite(radius)
+            nested += int(((torch.linalg.vector_norm(balls.centre - centre, dim=1) + balls.radius > radius * (1 + 1e-12)) & finite).sum())
+        del S, anchors
+        gc.collect()
+    record = {key: floats(value) for key, value in out.items()}
+    record["witness"] = {kind: floats(value) for kind, value in witness.items()}
+    record["witness_largest_excess"] = excess
+    record["witness_pulled_rows"] = pulled
+    record["down_balls_not_nested"] = nested
+    return record
+
+
+class L2Context:
+    """One sample's stage 1.5 setting: the schedule, the comparison pairs' Δ, the truth, Phase 5A's bounds per state and
+    the focus contenders (the runner-up, the tightest by Phase 5A's realistic bound, the tightest truly)."""
+
+    def __init__(self, artifact: Artifact, sample: SampleData, config: dict) -> None:
+        self.settings = config["l2"]
+        self.strategy, self.tier = self.settings["strategy"], self.settings["tier"]
+        lm_weight, gain = artifact.tensor("lm_head", sample.device), artifact.tensor("norm", sample.device)
+        self.rows = sample.tensors["comparison_rows"]
+        _, _, _, self.delta = certify.pair_deltas(lm_weight, gain, sample.entry["token"], self.rows)
+        del lm_weight
+        self.steps = sample.steps(self.strategy, self.tier)
+        self.truth = true_structural(sample, self.delta, self.tier)
+        self.points = comparison_indices(self.steps, self.settings["comparison_points"])
+        self.sample = sample
+
+    def phase5a(self, index: int) -> dict:
+        prefix = f"{self.strategy}.{self.tier}"
+        return {bound: {key: self.sample.tensors[f"{prefix}.compare.{bound}.{key}"][index + 1] for key in ("decomposed", "margin")}
+                for bound in ("realistic", "ideal")}
+
+    def focus(self, index: int) -> list[int]:
+        margin = self.phase5a(index)["realistic"]["margin"]
+        return sorted({0, int(margin.argmin()), int(self.truth.argmin())})[: int(self.settings["focus_pairs"])]
+
+    def record(self, index: int) -> dict:
+        sample = self.sample
+        return {"sample": sample.index, "selection_index": sample.entry.get("selection_index"), "prompt_id": sample.entry["prompt_id"],
+                "step": sample.entry["step"], "gap": sample.entry["gap"], "strategy": self.strategy, "tier": self.tier, "index": index,
+                "steps": self.steps, "fraction": sample.state_record(self.strategy, self.tier, index)["certified_fraction"],
+                "rows": self.rows.tolist(), "focus": self.focus(index), "truth": floats(self.truth),
+                "phase5a": {bound: {key: floats(v) for key, v in values.items()} for bound, values in self.phase5a(index).items()}}
+
+
+def run_l2(artifact: Artifact, sample: SampleData, config: dict, writer, failures: list, totals: BoundCost) -> None:
+    """Stage 1.5 on one sample, every state of the configured schedule: the sets' optima on every comparison pair and
+    witnesses for the focus pairs (`l2_state`), checked against each other and the truth."""
+    context = L2Context(artifact, sample, config)
+    delta, truth = context.delta, context.truth
+    for index in range(-1, context.steps):
+        started = time.perf_counter()
+        record = context.record(index)
+        focus = record["focus"]
+        realistic_margin = context.phase5a(index)["realistic"]["margin"]
+        record.update(l2_state(sample, context.strategy, context.tier, index, delta, focus))
+        record["timings_ms"] = {"sets": (time.perf_counter() - started) * 1e3}
+        # Soundness of every lower bound and attained value against each other and the truth (hard failures).
+        lowers = {"box_reduced": torch.tensor(record["box_reduced"]), "l2_reduced_lower": torch.tensor(record["l2_reduced_lower"]),
+                  "box_weight": torch.tensor(record["box_weight"]), "l2_weight_lower": torch.tensor(record["l2_weight_lower"])}
+        attained = torch.tensor(record["l2_reduced_attained"])
+        truth_cpu = truth.cpu()
+        slack = 1e-9 * (1.0 + truth_cpu.abs())
+        bad = [key for key, value in lowers.items() if bool((value > truth_cpu + slack).any())]
+        if bool((lowers["l2_reduced_lower"] > attained + 1e-9 * (1 + attained.abs())).any()):
+            bad.append("l2_reduced_lower>attained")
+        # A witness is a point of its set: never below the set's lower bound (Phase 5A's realistic bound is one for the
+        # resident set: it holds for any weights the resident metadata allows).
+        floors = {"box": lowers["box_weight"], "l2": lowers["l2_weight_lower"], "resident": torch.tensor(realistic_margin.tolist())}
+        for kind, values in record["witness"].items():
+            if record["witness_largest_excess"][kind] > 1e-9:
+                bad.append(f"witness_{kind}_outside_its_set")
+            values = torch.tensor(values)
+            floor = floors[kind][focus]
+            if bool((values < floor - 1e-9 * (1 + floor.abs())).any()):
+                bad.append(f"witness_{kind}_below_its_set_lower_bound")
+        if bad:
+            failures.append({"kind": "l2_inconsistent", "sample": sample.index, "index": index, "what": bad})
+        writer.write(record)
+        print(f"l2: sample {sample.index} index {index}/{context.steps} fraction {record['fraction']:.3f} 5A {min(record['phase5a']['realistic']['margin']):.2f} "
+              f"L2 set [{min(record['l2_reduced_lower']):.2f}, {min(record['l2_reduced_attained']):.2f}] witness box {min(record['witness']['box']):.2f} "
+              f"l2 {min(record['witness']['l2']):.2f} resident {min(record['witness']['resident']):.2f} ({(time.perf_counter() - started):.1f}s)", flush=True)
+        if failures:
+            raise HardFailure
+
+
+def run_l2_crown(artifact: Artifact, sample: SampleData, config: dict, writer, failures: list, totals: BoundCost) -> None:
+    """Stage 1.5 on one sample, the comparison points: auto_LiRPA's CROWN on the reduced graph with down in its boxes
+    (every comparison pair, `StateBounds`) and in its L2 balls (the focus pairs, `l2_crown`), with their cost; each bound
+    checked against its set's exact minimum or an attained value of it."""
+    context = L2Context(artifact, sample, config)
+    delta, settings = context.delta, context.settings
+    one, zero = torch.ones(1, device=sample.device), torch.zeros_like(sample.base)
+    for index in context.points:
+        record = context.record(index)
+        focus = record["focus"]
+        rows = sample.rows(context.strategy, context.tier, index)
+        activations = sample.activation_box(context.strategy, context.tier, rows["gate"])
+        cost_box, cost_l2 = BoundCost(), BoundCost()
+        t0 = time.perf_counter()
+        bounds = StateBounds(sample, context.strategy, context.tier, index, "reduced", config["verifier"], cost_box)
+        box_lower, _ = bounds.structural(delta, "crown")
+        bounds.close()
+        t1 = time.perf_counter()
+        l2_lower = l2_crown(sample, rows, activations, delta[focus], settings, cost_l2)
+        t2 = time.perf_counter()
+        # The sets' own values: the box set's exact minimum, and an attained value of the L2 set (its current balls).
+        box_optimum, l2_attained = delta @ sample.base, delta[focus] @ sample.base
+        for e in range(len(sample.experts)):
+            w = float(sample.routing[e])
+            box = sets.expert_boxes([sample.matrices["down"][e]], rows["down"][e : e + 1], sample.device)
+            box_optimum = box_optimum + w * attack.reduced_optimum(delta, box.lower, box.upper, activations.lower[e : e + 1], activations.upper[e : e + 1], one, zero)
+            m, states = sample.matrices["down"][e], rows["down"][e].to(sample.device)
+            balls = sets.matrix_balls(m, states, sets.read_view(m.truth, states))
+            l2_attained = l2_attained + w * rowsets.l2_vertex_search(delta[focus] @ balls.centre, delta[focus].abs() @ balls.radius,
+                                                                     activations.lower[e], activations.upper[e])[0]
+            del box, balls
+        record["crown"] = {"box_reduced": floats(box_lower), "l2_reduced": floats(l2_lower)}
+        record["set_values"] = {"box_reduced_optimum": floats(box_optimum), "l2_reduced_attained": floats(l2_attained)}
+        record["cost"] = {"box_reduced": {**cost_box.to_json(), "wall_ms": (t1 - t0) * 1e3}, "l2_reduced": {**cost_l2.to_json(), "wall_ms": (t2 - t1) * 1e3}}
+        totals.merge(cost_box)
+        totals.merge(cost_l2)
+        if bool((box_lower > box_optimum + 1e-9 * (1 + box_optimum.abs())).any()):
+            failures.append({"kind": "box_crown_above_its_set_minimum", "sample": sample.index, "index": index})
+        if bool((l2_lower > l2_attained + 1e-9 * (1 + l2_attained.abs())).any()):
+            failures.append({"kind": "l2_crown_above_an_attained_value", "sample": sample.index, "index": index})
+        writer.write(record)
+        print(f"l2crown: sample {sample.index} index {index}/{context.steps} fraction {record['fraction']:.3f} 5A {min(record['phase5a']['realistic']['margin']):.2f} "
+              f"box CROWN {float(box_lower.min()):.1f} (set {float(box_optimum.min()):.1f}) L2 CROWN {float(l2_lower.min()):.1f} "
+              f"(set <= {float(l2_attained.min()):.1f}) L2 {(t2 - t1):.0f}s", flush=True)
+        if failures:
+            raise HardFailure
+
+
 def full_check_box(lm_weight, gain, mu, artifact, sample, tier, state, y, candidate, near, neurons) -> torch.Tensor:
     """Every row of the vocabulary but the candidate and the nearest rows: those the y box settles (a valid, weaker bound),
     in blocks; the rest are returned for auto_LiRPA."""
@@ -607,7 +859,7 @@ def environment(artifact: Artifact) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--run", required=True)
-    parser.add_argument("--part", choices=["validate", "compare", "search"], required=True)
+    parser.add_argument("--part", choices=["validate", "compare", "search", "l2", "l2crown"], required=True)
     parser.add_argument("--samples", default=None, help="comma-separated sample indices (default: all)")
     parser.add_argument("--shard", type=int, default=0)
     parser.add_argument("--shards", type=int, default=1)
@@ -632,6 +884,10 @@ def main() -> int:
                 run_validate(artifact, sample, config, writer, failures)
             elif args.part == "compare":
                 run_compare(artifact, sample, config, writer, failures, totals)
+            elif args.part == "l2":
+                run_l2(artifact, sample, config, writer, failures, totals)
+            elif args.part == "l2crown":
+                run_l2_crown(artifact, sample, config, writer, failures, totals)
             else:
                 run_search(artifact, sample, config, writer, failures, totals)
             report["timings_ms"][f"sample_{index}"] = (time.perf_counter() - sample_started) * 1e3
@@ -658,4 +914,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    leave(main())

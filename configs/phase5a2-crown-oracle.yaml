@@ -74,6 +74,31 @@ escalation:
   stage3_samples: 96    # Phase 5A's real-tier subset (steps 1 and 9 of every prompt)
   stage4_samples: 768
 
+# Stage 1.5, the L2 probe (the user's brief of 2026-10-07), fixed before any L2 run on real data: given Phase 5A's L2
+# remainder norms instead of L∞ boxes, does auto_LiRPA make expert AWPMI materially more viable? `probe_l2.py` decided
+# the representation; `run.py --part l2` measures it; `report.py --l2` evaluates the brief's stop conditions.
+l2:
+  selection: [0, 6, 11]   # positions in the stage 2 selection: (12, 7) the exact tie, (12, 9) gap 3.9, (23, 4) gap 11.1
+  strategy: D-q6+q4
+  tier: real              # the structural diagnostic first (real arithmetic, no rounding floor)
+  # L2 CROWN: the reduced graph (Phase 5A's activation enclosure × each row of down in its L2 ball, one linear per row:
+  # `split`), in auto_LiRPA's box-hull interval mode (AUTOLIRPA_L2_DEBUG=1). The only configuration probe_l2 found sound:
+  # upstream's default mode is unsound wherever an L2 weight meets an uncertain input, and stacking rows fails.
+  groups: rows
+  interval_mode: box_hull
+  method: crown
+  spec_chunk: 8
+  focus_pairs: 3          # L2 CROWN's contenders: the runner-up, the tightest by Phase 5A's realistic bound, the tightest truly
+  comparison_points: [0.0, 0.25, 0.5, 0.75, 0.9, 1.0]   # CROWN (box and L2) here; the sets' optima and witnesses at every state
+  # The brief's stop conditions (§17) and what would justify stage 2 (§18).
+  stop:
+    gap_closed: 0.20          # STOP C: L2 CROWN closes less than this share of Phase 5A's realistic→ideal distance (median)
+    near_full_fraction: 0.90  # STOP B/C: a set (or a bound) that decides the pairs only at or above this routed-byte fraction
+    seconds_per_state: 600    # STOP D: one state's L2 bounds (six experts) beyond this
+  proceed:
+    gap_closed: 0.30          # with L2 CROWN materially above Phase 5A's realistic bound, and one of: this share closed,
+    fraction: 0.90            # a required fraction materially below this, or states decided with substantial bytes unread
+
 # Gates (the brief's §22), fixed before any CROWN run on real data; `report.py` evaluates them. A strategy's fraction is
 # its bytes (metadata included) over the routed experts' BF16 bytes; a sample it never certifies costs its whole schedule
 # (Phase 5A's convention). Coverage: the share of samples certified.

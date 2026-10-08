@@ -60,11 +60,25 @@ def reduced_optimum(delta: torch.Tensor, down_lower: torch.Tensor, down_upper: t
     outward rounding: a diagnostic.
     """
     total = delta @ base
-    positive, negative = delta.clamp_min(0.0), delta.clamp_max(0.0)
     for e in range(down_lower.shape[0]):
-        P = positive @ down_lower[e] + negative @ down_upper[e]  # [J, I]: Σ_k min(Δ_k·D_lo,ki, Δ_k·D_hi,ki)
-        Q = positive @ down_upper[e] + negative @ down_lower[e]  # Σ_k max(·, ·)
-        at_lower = torch.where(a_lower[e] >= 0, a_lower[e] * P, a_lower[e] * Q)
-        at_upper = torch.where(a_upper[e] >= 0, a_upper[e] * P, a_upper[e] * Q)
+        at_lower, at_upper = _reduced_ends(delta, down_lower[e], down_upper[e], a_lower[e], a_upper[e])
         total = total + routing[e] * torch.minimum(at_lower, at_upper).sum(dim=1)
     return total
+
+
+def _reduced_ends(delta, down_lower, down_upper, a_lower, a_upper):
+    """Each neuron's term of the reduced problem at either end of its activation interval, D at its best end: [J, I]."""
+    positive, negative = delta.clamp_min(0.0), delta.clamp_max(0.0)
+    P = positive @ down_lower + negative @ down_upper  # [J, I]: Σ_k min(Δ_k·D_lo,ki, Δ_k·D_hi,ki)
+    Q = positive @ down_upper + negative @ down_lower  # Σ_k max(·, ·)
+    at_lower = torch.where(a_lower >= 0, a_lower * P, a_lower * Q)
+    at_upper = torch.where(a_upper >= 0, a_upper * P, a_upper * Q)
+    return at_lower, at_upper
+
+
+def reduced_vertex(delta: torch.Tensor, down_lower: torch.Tensor, down_upper: torch.Tensor, a_lower: torch.Tensor,
+                   a_upper: torch.Tensor) -> torch.Tensor:
+    """The vertex where one expert's reduced problem over boxes attains its minimum (`reduced_optimum`'s argmin): per
+    contender and neuron, 1 where a⁺ is the better end. delta [J, H]; down_* [H, I]; a_* [I] → [J, I]."""
+    at_lower, at_upper = _reduced_ends(delta, down_lower, down_upper, a_lower, a_upper)
+    return (at_upper < at_lower).to(delta.dtype)
