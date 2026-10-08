@@ -1,0 +1,117 @@
+# Weightsift Phase 6A: the native runtime foundation (decision 0012). Moonlight-16B-A3B as in Phase 4B, its experts
+# served by the Python storage backend and by the native (Rust) one, with and without a host-RAM expert cache.
+# Model, tokenizer, prompts, index, device cap and call budget are Phase 4B's (configs/phase4b-moonlight.yaml).
+
+model:
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  adapter: moonlight
+  tokenizer_revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  trust_remote_code_tokenizer: true
+
+prompts:
+  dataset:
+    repository: Salesforce/wikitext
+    revision: b08601e04326c79dfdd32d625aee71d232d685c3
+    file: wikitext-2-raw-v1/test-00000-of-00001.parquet
+    text_column: text
+  seed: 4
+  lengths: [16, 32, 64, 128, 256, 512, 768, 1024, 16, 32, 64, 128, 256, 512, 768, 1024]
+  decode_steps: 8
+
+index:
+  directory: packs/moonlight-16b-a3b-expert-index
+
+storage:
+  alignment: 4096
+  max_gap: 0
+  workers: 8
+  max_read_bytes: 1048576
+  max_extent_bytes: 8388608
+  slot_bytes: 33554432
+  slots: 2                    # the Python streamer's staging slots (Phase 4B)
+  native_slots: 4             # the native transfers' staging slots: the readers fill three while one is copied
+
+gpu_budget_bytes: 6000000000
+call_budget_bytes: 268435456
+
+reference:
+  # The reference stage is Phase 4B's, unchanged (the independent streaming reference in its own process).
+  residency_check_layers: [1]
+  residency_check_prompts: 2
+
+# Every configuration serves the routed experts from the drive through its backend; a cache persists across the prompts of
+# its configuration and starts empty. backend: python (Phase 4B's store) or native (the Rust core). host_cache_bytes: the
+# native host-RAM cache's budget (0: none); host_cache_experts: the same in whole experts (16.5 MiB each). freeze_prefill:
+# no row is admitted into the host cache during a prefill (DwarfStar's admission freeze, ds4 issue #1119). prefetch_chunks:
+# a chunked experts call announces its experts when it starts, and the host cache loads its later chunks in the background
+# while the earlier ones are computed (stage D's exact prefetch; decode calls are never chunked, and already move all their
+# rows in one transfer as soon as the router has chosen).
+# Budgets, from the routing-trace analysis of stage A (experiments/phase6a/trace): LRU hits nothing below one decode token's
+# working set (156 experts, 2.6 GB); 4 GB holds 1.5 tokens of experts (0.39-0.43 of decode lookups), 12 GB 4.4 (0.69-0.76).
+# The machine has 32 GB of RAM; the streamed process held 3.25 GB in Phase 4B.
+configurations:
+  # The Python backend: Phase 4B's stream configuration, unchanged (the baseline; poisoned first prompts as in Phase 4B).
+  - {name: python-stream, backend: python, cache_experts: 0, per_assignment_prompts: all, poison_prompts: 3}
+  # The native backend without a host cache: the same plans, reads and copies (its I/O records equal python-stream's).
+  - {name: native-stream, backend: native, cache_experts: 0, per_assignment_prompts: all, poison_prompts: 3}
+  # Native, one expert per chunk: every call chunked, decode included (gate E through native transfers).
+  - {name: native-chunk-1, backend: native, cache_experts: 0, call_budget_experts: 1, num_prompts: 4, per_assignment_prompts: all}
+  # A host cache smaller than one decode call's rows: misses, bypasses and evictions on nearly every step.
+  - {name: native-host-tiny, backend: native, host_cache_experts: 2, num_prompts: 4}
+  - {name: native-host-4g, backend: native, host_cache_bytes: 4000000000}
+  - {name: native-host-12g, backend: native, host_cache_bytes: 12000000000}
+  - {name: native-host-12g-prefetch, backend: native, host_cache_bytes: 12000000000, prefetch_chunks: true}
+  - {name: native-host-12g-freeze, backend: native, host_cache_bytes: 12000000000, freeze_prefill: true}
+
+hotness_half_life: 1024
+poison_prompts: 3
+record_ranges_prompts: 3
+per_assignment_prompts: 2
+
+timing:
+  settle_seconds: 3
+  warmup_prompts: 1
+
+# Performance (benchmarks/moonlight_profile.py, un-instrumented, one configuration per process): Phase 4B's prompts 7, 0,
+# 3 and 5 (1,024, 16, 128 and 512 tokens) with 8 decode steps each. "warm": the prompts 8..15 run first in the same
+# process (not measured), so a cache starts as a serving process's would; "cold": the cache starts empty.
+profile:
+  prompts: [7, 0, 3, 5]
+  warm_prompts: [8, 9, 10, 11, 12, 13, 14, 15]
+  configurations:
+    - {name: python-stream, backend: python, cache_experts: 0}
+    - {name: python-hotness-80, backend: python, cache_experts: 80, policy: hotness}
+    - {name: native-stream, backend: native, cache_experts: 0}
+    - {name: native-host-4g, backend: native, host_cache_bytes: 4000000000}
+    - {name: native-host-8g, backend: native, host_cache_bytes: 8000000000}
+    - {name: native-host-12g, backend: native, host_cache_bytes: 12000000000}
+    - {name: native-host-12g-prefetch, backend: native, host_cache_bytes: 12000000000, prefetch_chunks: true}
+    - {name: native-host-12g-freeze, backend: native, host_cache_bytes: 12000000000, freeze_prefill: true}
+
+# Gates, fixed before the full runs (benchmarks/native_report.py evaluates them).
+gate:
+  # Correctness, every step of every configuration, prefill and decode: Phase 4B's (token, logits, whole KV cache, routed
+  # experts; per layer attention, router logits, scores, indices, weights, the experts call's inputs and output, every
+  # (token, expert) output where checked, shared experts' output, MoE block output; dense MLP) all equal to the reference,
+  # and every step's storage audit clean. Native steps are also audited for the host cache: lookups = hits + waits +
+  # misses, the bytes copied from the cache = the hits' and waits' bytes, the resident bytes within the budget, and the
+  # physical bytes exactly the 4 KiB blocks of the rows read from storage.
+  #
+  # I/O parity: native-stream's records equal python-stream's in every field but timings and system (the same requests,
+  # rows, logical and physical bytes, read calls, extents, 4 KiB blocks, host-to-device bytes and copies, buffers), and its
+  # raw physical-I/O traces equal python-stream's.
+  #
+  # Host cache: on every step of every host-cache configuration, the measured host-cache hits and misses equal an LRU replay
+  # of the reference's routing in the backend's request order (budgets above one call's rows; with freeze_prefill, no
+  # admission on prefill steps; with prefetch_chunks, a chunked call's rows looked up and admitted when it starts), and no
+  # prefetched row is wasted. The process's peak working set stays below the cache budget plus this many bytes (Phase
+  # 4B's streamed process peaked at 3.25 GB).
+  max_working_set_above_cache_bytes: 5000000000
+  #
+  # Performance (profiles, warm): the best native configuration's mean decode step is at most this fraction of the best
+  # Python configuration's (python-stream, python-hotness-80): a measurable end-to-end benefit, not a microbenchmark.
+  max_native_decode_ratio_to_best_python: 0.95
+  # Aspirational, reported (the brief's 20%): the same against Phase 4B's baseline configuration (python-stream).
+  aspirational_decode_ratio: 0.80

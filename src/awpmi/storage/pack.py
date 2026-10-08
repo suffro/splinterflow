@@ -34,6 +34,7 @@ from safetensors.torch import save_file
 
 from awpmi.storage.fileio import DIRECT_ALIGNMENT, PositionedFile, aligned_host_buffer
 from awpmi.storage.layout import AnySegment, ComposedSegment, Segment, row_bytes_of, safetensors_segments, segment_from_json
+from awpmi.storage.native import NativePageStore
 from awpmi.storage.store import FileBackedPageStore, InMemoryPageStore
 from awpmi.tracing import sha256_file
 
@@ -118,8 +119,16 @@ class Pack:
     def metadata(self) -> dict[str, Any]:
         return self.manifest["metadata"]
 
-    def store(self, **options) -> FileBackedPageStore:
-        """A file-backed page store over this pack's segments (options: `FileBackedPageStore`'s)."""
+    def store(self, backend: str = "python", **options) -> FileBackedPageStore | NativePageStore:
+        """A file-backed page store over this pack's segments (options: `FileBackedPageStore`'s).
+
+        `backend="native"` gives the native core's store (`NativePageStore`, decision 0012), which also takes
+        `host_cache_bytes`; "python" (the default) the Python store.
+        """
+        if backend == "native":
+            return NativePageStore(self.files, self.segments, **options)
+        if backend != "python":
+            raise ValueError(f"unknown storage backend {backend!r} (python or native)")
         return FileBackedPageStore(self.files, self.segments, **options)
 
     def load(self, segments: list[str] | None = None, pin: bool | None = None) -> InMemoryPageStore:

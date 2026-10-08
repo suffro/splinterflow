@@ -63,6 +63,13 @@ class ExpertStore:
         for name, data in self.load(key, experts).items():
             buffers[name].index_copy_(0, index, data)
 
+    def prefetch(self, key: str, experts: torch.Tensor, parameters: list[str] | None = None):
+        """A hint that `experts` (ascending) of group `key` will be assembled soon: every parameter, or `parameters`, in the
+        group's order. Returns the backend's handle (close it once they were used) or None (`prefetch_rows`)."""
+        group = self.groups[key]
+        names = [name for name in group.segments if parameters is None or name in parameters]
+        return self.weights.backend.prefetch_rows([(group.segments[name], experts) for name in names])
+
     def assemble(self, key: str, experts: torch.Tensor, buffers: Mapping[str, torch.Tensor]) -> None:
         """Write the slices of `experts` (ascending, unique) into the first rows of `buffers[name]`, in that order.
 
@@ -76,6 +83,7 @@ class ExpertStore:
         if unknown:
             raise KeyError(f"{key} has no parameters {sorted(unknown)}")
         count = experts.numel()
+        requests = []
         for name, segment in group.segments.items():
             if name not in buffers:
                 continue
@@ -83,5 +91,7 @@ class ExpertStore:
             buffer = buffers[name]
             if buffer.dtype != info.torch_dtype or tuple(buffer.shape[1:]) != info.row_shape or buffer.shape[0] < count:
                 raise ValueError(f"{key}.{name}: expected a buffer [>= {count}, {info.row_shape}] of {info.torch_dtype}")
-            if count:
-                self.weights.backend.materialize(segment, experts, out=row_bytes_of(buffer[:count]))
+            requests.append((segment, experts, row_bytes_of(buffer[:count])))
+        if count:
+            # Every parameter of the experts at once: a native store moves them in one transfer (decision 0012).
+            self.weights.backend.materialize_many(requests)

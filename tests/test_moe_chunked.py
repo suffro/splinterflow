@@ -15,7 +15,7 @@ from awpmi.models import checkpoint, moonlight
 from awpmi.models.moe import ChunkedExpertWeight, ExpertCall, RoutingRecord, StreamedExperts, find_expert_modules, write_expert_pack
 from awpmi.storage.cache import LRUPolicy, PageCache
 from awpmi.storage.pack import SourceFile, open_pack
-from tests.conftest import DEVICES
+from tests.conftest import BACKENDS, CHUNKED_BACKENDS, DEVICES
 from tests.test_moe import ARCHITECTURES, COMMON, tiny_model
 from tests.test_moe_compact import RandomPolicy, assert_same_run, expert_store, greedy, prompts
 
@@ -38,10 +38,11 @@ def budget(model, experts: int) -> int:
     return experts * matrix_bytes(model) + small_bytes(model, 10)
 
 
+@pytest.mark.parametrize("backend", CHUNKED_BACKENDS)
 @pytest.mark.parametrize("implementation", IMPLEMENTATIONS)
 @pytest.mark.parametrize("device", DEVICES)
 @pytest.mark.parametrize("architecture", sorted(ARCHITECTURES))
-def test_chunked_calls_reproduce_the_resident_model_bitwise(tmp_path, device, architecture, implementation):
+def test_chunked_calls_reproduce_the_resident_model_bitwise(tmp_path, device, architecture, implementation, backend):
     model = tiny_model(architecture, device)
     model.config._experts_implementation = implementation
     inputs = prompts(device)
@@ -51,15 +52,21 @@ def test_chunked_calls_reproduce_the_resident_model_bitwise(tmp_path, device, ar
     matrices = {m.name: sum(getattr(m.module, p).dim() >= 3 for p in m.parameters) for m in modules}
     limits = {experts: budget(model, experts) for experts in (1, 3)}
     for experts in (1, 3):
-        store = expert_store(pack, device)
+        store = expert_store(pack, device, backend=backend)
         routes: list[RoutingRecord] = []
         calls: list[ExpertCall] = []
         streamed = StreamedExperts(
-            model, store, compact=True, poison=True, max_call_bytes=limits[experts], on_route=routes.append, on_call=calls.append
+            model, store, compact=True, poison=True, max_call_bytes=limits[experts], on_route=routes.append, on_call=calls.append,
+            prefetch_chunks=backend == "native-prefetch",
         ).install()
         try:
             for ids, expected in zip(inputs, reference):
                 assert_same_run(greedy(model, ids, steps=3), expected)
+            if backend == "native-prefetch":
+                # Every chunked call's rows were announced and used: none wasted, none read twice.
+                cache = store.weights.backend.store.cache_stats()
+                assert cache["prefetch_fills"] > 0 and cache["prefetch_wasted"] == 0
+                assert cache["prefetch_used"] == cache["prefetch_fills"] and cache["aborted_fills"] == 0
             # Every call ran in chunks of consecutive slots covering exactly its routed experts, in order.
             assert streamed.chunked_calls == streamed.calls == len(calls) > 0
             for call, route in zip(calls, routes):
@@ -211,8 +218,9 @@ def test_cache_evictions_during_chunked_calls_change_nothing(tmp_path, policy):
         store.weights.backend.store.close()
 
 
+@pytest.mark.parametrize("backend", BACKENDS)
 @pytest.mark.parametrize("device", DEVICES)
-def test_per_assignment_outputs_of_chunked_calls_equal_the_full_layers(tmp_path, device):
+def test_per_assignment_outputs_of_chunked_calls_equal_the_full_layers(tmp_path, device, backend):
     model = tiny_model("deepseek_v3", device, seed=17)
     pack = open_pack(write_expert_pack(model, tmp_path / "pack").directory)
     ids = torch.randint(0, 128, (1, 12), generator=torch.Generator().manual_seed(17)).to(device)
@@ -222,7 +230,7 @@ def test_per_assignment_outputs_of_chunked_calls_equal_the_full_layers(tmp_path,
     greedy(model, ids, steps=2)
     streamed.remove()
     full_store.weights.backend.store.close()
-    store = expert_store(pack, device)
+    store = expert_store(pack, device, backend=backend)
     check = expert_store(pack, device)  # the caller's own source of a chunked call's experts (no cache)
     calls: list[ExpertCall] = []
     streamed = StreamedExperts(model, store, compact=True, max_call_bytes=budget(model, 1), on_call=calls.append).install()
@@ -258,8 +266,9 @@ def test_dense_streaming_in_chunks(tmp_path):
         store.weights.backend.store.close()
 
 
+@pytest.mark.parametrize("backend", BACKENDS)
 @pytest.mark.parametrize("implementation", IMPLEMENTATIONS)
-def test_a_split_deepseek_checkpoint_is_served_in_chunks(tmp_path, implementation):
+def test_a_split_deepseek_checkpoint_is_served_in_chunks(tmp_path, implementation, backend):
     """A DeepSeek-V3 checkpoint as published (one tensor per expert projection), read in place, in chunks."""
     device = DEVICES[-1]
     source = tiny_model("deepseek_v3", "cpu", seed=19)
@@ -274,7 +283,7 @@ def test_a_split_deepseek_checkpoint_is_served_in_chunks(tmp_path, implementatio
     files_info = {k: checkpoint.CheckpointFile(k, SourceFile("example/split", "0" * 40, k), p, None) for k, p in files.items()}
     checkpoint.write_expert_index(model, tmp_path / "index", files_info, sources=moonlight.expert_sources(model))
     pack = open_pack(tmp_path / "index", verify="size", resolve=lambda requested: files[requested.filename])
-    store = expert_store(pack, device)
+    store = expert_store(pack, device, backend=backend)
     streamed = StreamedExperts(model, store, compact=True, poison=True, max_call_bytes=budget(model, 1)).install()
     try:
         for ids, expected in zip(inputs, reference):

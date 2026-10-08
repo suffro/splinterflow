@@ -5,69 +5,84 @@
 **CLI:** `weightsift` is the command; `wsift` is its equivalent shorthand. Both expose
 the `pack` command (`lm-head`, `experts`, `expert-index`). The Python package is `awpmi`.
 
-## Latest: Phase 5C (exact shared bases and progressive expert deltas) is complete (2026-10-08)
+## Latest: Phase 6A (the native runtime foundation) is complete (2026-10-08)
 
-**Answer: neither pays on Moonlight.** The report is `history/2026-10-08-awpmi-phase5c-report.md`; the decision is 0011.
-The brief was the user's of 2026-10-08.
+**Answer: native code pays end to end.** The report is `history/2026-10-08-weightsift-phase6a-report.md`; the decision
+is 0012. The brief was the user's of 2026-10-08 (`state/phase_6A.md`, left untracked like the earlier briefs).
 
-- **Exact structural reuse (5C1): gate FAIL.** A layer's 64 routed experts are, to every test, independent (4 layers × 3
-  matrices: flat cross-expert spectrum, correlations and sign/exponent agreement at independence, no permuted neuron
-  copies). No expert has a delta (XOR or modular, on the BF16 patterns, reconstructed bit for bit) cheaper than itself
-  against any other expert. Every base strategy (first expert, medoid, best of three, clusters, a synthetic median) costs
-  6–9% more stored bytes than compressing each expert alone, and loses on Phase 5A's routing trace at every host budget
-  (−4.5% to −61%), bases pinned, bounded or on the GPU.
-- **Independent exact compression is the measured gain**: bit planes (sign, exponent byte, mantissa bits) with zstd-19,
-  0.661 of BF16 (the order-0 entropy is 0.658): −34% drive bytes per decode token without a cache (2.70 → 1.78 GB,
-  projected to 26 layers), −55%/−86% against BF16 host caches of 8/16 GB. zstd decompression keeps up with the drive;
-  restoring bit planes needs a device-side merge (this harness: ~1 GB/s).
-- **Progressive materialization (5C2): STRUCTURAL FAIL.** Bit planes in 16-row pages (each plane its own frame) are an
-  exact, non-redundant, page-addressable representation; the set of weights consistent with what is read is a box whose
-  real-arithmetic decision minimum is exact (closed form, witnesses). At the same raw bytes it is about 3× closer to the
-  truth than Phase 5A's realistic bound, but weights consistent with everything read flip the decision until 0.80–0.99 of
-  the representation. On 12 samples the certificate needs 0.83 (gap > 6 logits) to 1.00 (gap < 1) of the best independent
-  exact bytes: mean 0.920 (gate ≤ 0.90), 0.943 on the real gap distribution. Sketch metadata (1%, 10%) does not pay.
-- **Faithful BF16 (5C2-C): not run** (gated). Phase 5A's floor bounds it: 8.1% of tokens certify even with every byte
-  read; at most ~1.4% of the compressed bytes could be saved.
-- **Correctness**: every reconstruction bit for bit against safetensors' own read; files equal the publisher's sha256;
-  Phase 5A's reference recomputed bitwise on 15 samples (also from decoded pages); 0 soundness violations (sets never
-  depend on unread bits, minima equal enumeration on toys, witnesses inside their sets). Tests: 79 new in
-  `research/expert_deltas/tests`; Weightsift's 555 unchanged.
+- **Stage A.** Phase 4B's benchmark reproduced bit for bit on the Phase 6A tree (`experiments/phase6a/baseline-run1`:
+  every digest equal to Phase 4B run1's). A decode token reads 2.70 GB of routed experts, 99.5% of them read before; an
+  LRU host tier hits nothing below one token's working set (2.6 GB), then 0.39–0.43 of decode lookups at 4 GB and
+  0.69–0.76 at 12 GB (exact stack distances, `benchmarks/native_trace.py`).
+- **The native core** (`native/`: Rust 1.95.0, PyO3 0.29, built by maturin through uv's default `native` group): read
+  plans equal to Python's, direct positioned reads on 8 threads, a host-RAM expert cache (strict byte budget,
+  deterministic LRU, leases, load-once, hits protected before admissions, admission freeze, memory recycling), transfer
+  jobs into the streamer's pinned slots, exact chunk prefetch, full byte accounting. No model knowledge, no CUDA, one
+  `unsafe` type. `awpmi.storage.native.NativePageStore` puts it behind the storage contract; configurations choose
+  `backend: python | native`; the Python backend stays the reference implementation and the fallback.
+- **Stage B.** The same reads as Python (bytes, read calls, OS counters equal); a decode call 13% faster to the GPU and
+  27% to host memory; planning 0.13 ms against 1.8 ms; more threads or larger reads do not help.
+- **Stages C and D, correctness.** Every step of 8 configurations equal to the independent reference in every Phase 4B
+  digest, in two runs (`native-run1`, `native-run2`; `PYTHONHASHSEED` 1 and 2) with identical digests; `native-stream`'s
+  records and raw I/O equal `python-stream`'s; the cache's hits and misses equal an LRU replay on every step; budget
+  never exceeded. Exact chunk prefetch is correct but slows prefills (off by default); speculative prefetch was evaluated
+  on traces only (10–21% of misses covered) and not built.
+- **Performance (gate PASS).** Warm, 807 ms per decode token with 12 GB of host cache and prefill admission frozen,
+  against 1,157 ms for the best Python configuration (0.697; gate ≤ 0.95) and 1,233 ms for Phase 4B's streaming (0.654;
+  the aspirational 20% met); prefills 37% faster. The native read path alone: −9% per decode token.
+- **What bounds a decode token now**: copying its 2.70 GB of experts to the GPU (about 440 ms over this machine's PCIe
+  3.0 x8, whatever tier serves them), the transformer's Python and 5,195 kernel launches (about 260 ms), and the cache's
+  submit cost (about 100 ms: freeing and allocating entries of different sizes inline; the first follow-up).
+- **§7 (for 6C).** `BF16_REFERENCE` is "this code at these shapes": BF16 roundings are round to nearest even and
+  correctly rounded (probed, `benchmarks/reference_numerics.py`), float32 transcendentals within 2–3 ulps, and a row's
+  GEMM result depends on its batch (cuBLAS GEMV for one row, tensor-core kernels for more). Candidate operations for
+  explicit native semantics are listed in the report; nothing is claimed, and the 8.1% faithful ceiling is not a target.
+- **§8 (for 6B).** The integration point is the transfer job's byte operations and `PageStreamer._transfer_native`, the
+  only loop that turns them into device work; nothing built.
+- **A defect the gates caught**: a closed native store's cache outlived it (the first full run's working set grew per
+  configuration). `close` now releases the cache, a reference cycle is gone, two tests guard it, and the run was repeated.
 
 ## Previous focus
 
-**Phase 5A2 (CROWN / auto_LiRPA expert oracle) is complete (2026-10-07), stopped after stage 1.5** (report
-`history/2026-10-07-awpmi-phase5a2-report.md`, decision 0010). Given Phase 5A's L2 remainder norms, auto_LiRPA's CROWN
-does not make expert AWPMI materially more viable: it is sound there only in an experimental mode and about 34× below
-Phase 5A's bound, and the uncertainty sets themselves hold decision-flipping weights until about 0.82–0.91 of the routed
-bytes in real arithmetic.
+**Phase 5C (exact shared bases and progressive expert deltas) is complete (2026-10-08)** (report
+`history/2026-10-08-awpmi-phase5c-report.md`, decision 0011): neither pays on Moonlight. A layer's routed experts share
+no exact structure; independent exact compression (bit planes with zstd, 0.661 of BF16) is the measured gain (a third
+fewer drive bytes per decode token); progressive bit-plane materialization needs 0.83–1.00 of the exact bytes to decide a
+token in real arithmetic, and Phase 5A's BF16 rounding floor remains.
 
-Phases 1A, 1B, 1C, 2, 3, 4A, 4B, 5A, 5A2 and 5C are complete; their reports are in `history/`. Phase 4B (decision 0008)
-runs Moonlight out of VRAM and host RAM, bit for bit equal to an independent reference.
+Phases 1A, 1B, 1C, 2, 3, 4A, 4B, 5A, 5A2, 5C and 6A are complete; their reports are in `history/`. Phase 4B (decision
+0008) runs Moonlight out of VRAM and host RAM, bit for bit equal to an independent reference; Phase 6A (decision 0012)
+runs it on the native core.
 
 ## Recent relevant changes
 
-- `research/expert_deltas` (new; decision 0011): `expert_deltas/` (`bits`, `codecs`, `source`, `compression`, `census`,
-  `structure`, `replay`, `progressive`, `oracle`, `records`), drivers `probe_codec.py`, `structure_run.py`,
-  `structure_report.py`, `progressive_probe.py`, `progressive_run.py`, tests, README.
-- `pyproject.toml` / `uv.lock`: dependency group `research` (default): zstandard, lz4, SciPy. The package's own
-  dependencies are unchanged.
-- `configs/phase5c-expert-deltas.yaml`; raw results in `experiments/phase5c/`.
-- No change under `src/`, `benchmarks/` or `tests/`: Phase 4B's runtime and Phase 5A's oracle are unchanged.
-- Decision 0011 is new.
+- `native/` (new; decision 0012): the Cargo workspace (`core/`: `weightsift-io`; `python/`: the PyO3 module
+  `weightsift_native`), `native/README.md` (build, toolchain, platforms, fallback, the `unsafe` boundary).
+- `src/awpmi/storage/native.py` (new): `NativePageStore`, `NativeTransfer`, `NativePrefetch`, `NativeIOStats`.
+- `src/awpmi/storage/pack.py` (`Pack.store(backend=…)`), `streaming/streamer.py` (native transfers through
+  `native_slots`; `fetch_many`), `materialization/backend.py` (`materialize_many`, `prefetch_rows`),
+  `materialization/weights.py` (`ExpertStore.assemble` in one request list; `prefetch`), `models/moe.py`
+  (`prefetch_chunks`), `tracing.py` (`native_tree_sha256` and the extension's version in every run's environment).
+- `benchmarks/native_trace.py`, `native_io.py`, `native_report.py`, `reference_numerics.py` (new);
+  `moonlight_runtime.py` and `moonlight_profile.py` gain backends, host caches, freeze, prefetch, `--reference-from`,
+  `--warm` and the cache's audits; `configs/phase6a-native.yaml`; raw results in `experiments/phase6a/`.
+- Tests: `tests/test_native_storage.py` (new), the MoE parity tests through every backend (`tests/conftest.py`), the
+  layering test over the Rust sources; Rust tests under `native/core`.
+- `pyproject.toml` / `uv.lock`: the default dependency group `native` (the local `weightsift-native` package).
+- Decision 0012 is new.
 
 ## Next
 
-The next phase is **not started**. It needs the user's go-ahead. The candidates:
+The next phase is **not started**. It needs the user's go-ahead. The candidates, by measured return:
 
-1. **The engineering path with exact compression** (recommended): Phase 4B's native runtime and host-RAM expert tier,
-   with the routed experts stored as exact bit-plane (or byte-split) zstd pages: a third fewer drive bytes per decode
-   token, about 1.5 times as many experts per byte of cache. Its open question is decode cost (a device-side plane merge, or
-   GPU decompression).
-2. **No more expert AWPMI on BF16 Moonlight** unless the rounding model for certificates changes: three representations
-   (Phase 5A's decompositions, Phase 5A2's verifier, Phase 5C's exact bit planes optimized exactly) agree that deciding a
-   token needs almost all of an expert's information, and the faithful floor decides 92% of tokens anyway.
-3. **Exact structural reuse on another model** only if its experts were upcycled from a shared dense model (the census
-   would show shared structure; Moonlight's show none).
+1. **The cache's memory churn off the critical path** (small, in the native core): up to about 100 ms of an 807 ms
+   decode token.
+2. **Phase 6B, fewer bytes to the GPU and a fused decode**: Phase 5C's exact bit planes decoded on the device (copies
+   2.70 → 1.78 GB per token, about 150 ms here; 1.5× the experts per byte of host cache), a device cache in front of the
+   host tier, CUDA Graphs for the transformer's 5,195 launches per token, native copy issuing; the integration point is
+   ready (report § 12).
+3. **Phase 6C, the reference's semantics**: whether `BF16_REFERENCE` should be shape-independent (batch-invariant GEMMs)
+   and which roundings Weightsift should own (report § 11).
 
 Open decisions for the user:
 
@@ -75,7 +90,7 @@ Open decisions for the user:
 - the rounding model for certificates (RN-even, still open from Phase 2);
 - the reference for FP8 experts;
 - Phase 2 on a larger model;
-- whether the Phase 5C brief (left untracked in the working tree's `.context/state`) is added to the repository.
+- whether the Phase 6A brief (left untracked in the working tree's `.context/state`) is added to the repository.
 
 ## Blockers
 

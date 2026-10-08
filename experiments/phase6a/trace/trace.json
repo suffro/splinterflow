@@ -1,0 +1,614 @@
+[
+ {
+  "trace": "phase4b",
+  "prompts": 16,
+  "steps": 144,
+  "decode_steps": 128,
+  "accesses": 82118,
+  "row_bytes": {
+   "gate_up_proj": 11534336,
+   "down_proj": 5767168
+  },
+  "call_budget_bytes": 268435456,
+  "total_routed_bytes": 28789702656,
+  "requested_bytes": {
+   "decode": 345476431872,
+   "prefill": 364906020864
+  },
+  "compulsory_bytes": {
+   "decode": 1609039872,
+   "prefill": 27059552256
+  },
+  "repeated_bytes": {
+   "decode": 343867392000,
+   "prefill": 337846468608
+  },
+  "repeated_fraction": {
+   "decode": 0.9953425480769231,
+   "prefill": 0.925845147219193
+  },
+  "decode_bytes_per_token": 2699034624.0,
+  "decode_origin_fraction": {
+   "previous_step_same_layer": 0.4815204326923077,
+   "earlier_in_prompt": 0.4989483173076923,
+   "earlier_prompt": 0.014873798076923076,
+   "never": 0.004657451923076923
+  },
+  "lru_curve": [
+   {
+    "capacity_gb": 0.5,
+    "fraction_of_experts": 0.01736732073875018,
+    "decode_cold_hit_rate": 0.0,
+    "decode_cold_byte_hit_rate": 0.0,
+    "decode_steady_hit_rate": 0.0,
+    "decode_steady_byte_hit_rate": 0.0,
+    "prefill_cold_hit_rate": 0.0,
+    "prefill_cold_byte_hit_rate": 0.0,
+    "prefill_steady_hit_rate": 0.0,
+    "prefill_steady_byte_hit_rate": 0.0,
+    "decode_drive_gb_per_token": 2.699034624
+   },
+   {
+    "capacity_gb": 1,
+    "fraction_of_experts": 0.03473464147750036,
+    "decode_cold_hit_rate": 0.0,
+    "decode_cold_byte_hit_rate": 0.0,
+    "decode_steady_hit_rate": 0.0,
+    "decode_steady_byte_hit_rate": 0.0,
+    "prefill_cold_hit_rate": 0.0,
+    "prefill_cold_byte_hit_rate": 0.0,
+    "prefill_steady_hit_rate": 0.0,
+    "prefill_steady_byte_hit_rate": 0.0,
+    "decode_drive_gb_per_token": 2.699034624
+   },
+   {
+    "capacity_gb": 2,
+    "fraction_of_experts": 0.06946928295500072,
+    "decode_cold_hit_rate": 0.0,
+    "decode_cold_byte_hit_rate": 0.0,
+    "decode_steady_hit_rate": 0.0,
+    "decode_steady_byte_hit_rate": 0.0,
+    "prefill_cold_hit_rate": 0.0,
+    "prefill_cold_byte_hit_rate": 0.0,
+    "prefill_steady_hit_rate": 0.0,
+    "prefill_steady_byte_hit_rate": 0.0,
+    "decode_drive_gb_per_token": 2.699034624
+   },
+   {
+    "capacity_gb": 2.77,
+    "fraction_of_experts": 0.096214956892676,
+    "decode_cold_hit_rate": 0.36147836538461536,
+    "decode_cold_byte_hit_rate": 0.36117788461538464,
+    "decode_steady_hit_rate": 0.36714743589743587,
+    "decode_steady_byte_hit_rate": 0.36684472934472934,
+    "prefill_cold_hit_rate": 0.00021336114930539093,
+    "prefill_cold_byte_hit_rate": 0.0002844815324071879,
+    "prefill_steady_hit_rate": 0.00022189349112426034,
+    "prefill_steady_byte_hit_rate": 0.0002958579881656805,
+    "decode_drive_gb_per_token": 1.724203008
+   },
+   {
+    "capacity_gb": 4,
+    "fraction_of_experts": 0.13893856591000145,
+    "decode_cold_hit_rate": 0.3820612980769231,
+    "decode_cold_byte_hit_rate": 0.3815604967948718,
+    "decode_steady_hit_rate": 0.38816773504273505,
+    "decode_steady_byte_hit_rate": 0.38767806267806265,
+    "prefill_cold_hit_rate": 0.005642217059409226,
+    "prefill_cold_byte_hit_rate": 0.006053134828441832,
+    "prefill_steady_hit_rate": 0.00586785009861933,
+    "prefill_steady_byte_hit_rate": 0.006295200525969756,
+    "decode_drive_gb_per_token": 1.669189632
+   },
+   {
+    "capacity_gb": 5.54,
+    "fraction_of_experts": 0.192429913785352,
+    "decode_cold_hit_rate": 0.4797926682692308,
+    "decode_cold_byte_hit_rate": 0.4792000534188034,
+    "decode_steady_hit_rate": 0.4740384615384615,
+    "decode_steady_byte_hit_rate": 0.4734508547008547,
+    "prefill_cold_hit_rate": 0.017827509364183775,
+    "prefill_cold_byte_hit_rate": 0.018412276958576328,
+    "prefill_steady_hit_rate": 0.01854043392504931,
+    "prefill_steady_byte_hit_rate": 0.019148586456278763,
+    "decode_drive_gb_per_token": 1.405657088
+   },
+   {
+    "capacity_gb": 6,
+    "fraction_of_experts": 0.2084078488650022,
+    "decode_cold_hit_rate": 0.5031550480769231,
+    "decode_cold_byte_hit_rate": 0.5023871527777778,
+    "decode_steady_hit_rate": 0.4971153846153846,
+    "decode_steady_byte_hit_rate": 0.4963853276353276,
+    "prefill_cold_hit_rate": 0.021952491584088,
+    "prefill_cold_byte_hit_rate": 0.022584672767215083,
+    "prefill_steady_hit_rate": 0.022830374753451677,
+    "prefill_steady_byte_hit_rate": 0.02348783694937541,
+    "decode_drive_gb_per_token": 1.343074304
+   },
+   {
+    "capacity_gb": 8,
+    "fraction_of_experts": 0.2778771318200029,
+    "decode_cold_hit_rate": 0.5776492387820513,
+    "decode_cold_byte_hit_rate": 0.5766559829059829,
+    "decode_steady_hit_rate": 0.5714476495726496,
+    "decode_steady_byte_hit_rate": 0.5704237891737892,
+    "prefill_cold_hit_rate": 0.04992650893746148,
+    "prefill_cold_byte_hit_rate": 0.05090638977130846,
+    "prefill_steady_hit_rate": 0.051923076923076926,
+    "prefill_steady_byte_hit_rate": 0.052942143326758714,
+    "decode_drive_gb_per_token": 1.14262016
+   },
+   {
+    "capacity_gb": 10,
+    "fraction_of_experts": 0.34734641477500366,
+    "decode_cold_hit_rate": 0.6421774839743589,
+    "decode_cold_byte_hit_rate": 0.6409755608974359,
+    "decode_steady_hit_rate": 0.6338141025641025,
+    "decode_steady_byte_hit_rate": 0.6326210826210826,
+    "prefill_cold_hit_rate": 0.08688540135602864,
+    "prefill_cold_byte_hit_rate": 0.08811025239833736,
+    "prefill_steady_hit_rate": 0.09035996055226825,
+    "prefill_steady_byte_hit_rate": 0.09163379355687049,
+    "decode_drive_gb_per_token": 0.969019392
+   },
+   {
+    "capacity_gb": 11.07,
+    "fraction_of_experts": 0.384512481155929,
+    "decode_cold_hit_rate": 0.6741035657051282,
+    "decode_cold_byte_hit_rate": 0.6727764423076923,
+    "decode_steady_hit_rate": 0.6647702991452992,
+    "decode_steady_byte_hit_rate": 0.6633725071225072,
+    "prefill_cold_hit_rate": 0.10964392394860367,
+    "prefill_cold_byte_hit_rate": 0.11067912063597427,
+    "prefill_steady_hit_rate": 0.11402859960552268,
+    "prefill_steady_byte_hit_rate": 0.1151051939513478,
+    "decode_drive_gb_per_token": 0.883187712
+   },
+   {
+    "capacity_gb": 12,
+    "fraction_of_experts": 0.4168156977300044,
+    "decode_cold_hit_rate": 0.6990935496794872,
+    "decode_cold_byte_hit_rate": 0.697799813034188,
+    "decode_steady_hit_rate": 0.6891292735042736,
+    "decode_steady_byte_hit_rate": 0.6878205128205128,
+    "prefill_cold_hit_rate": 0.12981840595514674,
+    "prefill_cold_byte_hit_rate": 0.13113018191013545,
+    "prefill_steady_hit_rate": 0.13500986193293885,
+    "prefill_steady_byte_hit_rate": 0.1363740959894806,
+    "decode_drive_gb_per_token": 0.815648768
+   },
+   {
+    "capacity_gb": 14,
+    "fraction_of_experts": 0.4862849806850051,
+    "decode_cold_hit_rate": 0.7544821714743589,
+    "decode_cold_byte_hit_rate": 0.7530715811965812,
+    "decode_steady_hit_rate": 0.7424145299145299,
+    "decode_steady_byte_hit_rate": 0.7409900284900285,
+    "prefill_cold_hit_rate": 0.17215874069508322,
+    "prefill_cold_byte_hit_rate": 0.17343890759091557,
+    "prefill_steady_hit_rate": 0.17904339250493095,
+    "prefill_steady_byte_hit_rate": 0.18037475345167653,
+    "decode_drive_gb_per_token": 0.666468352
+   },
+   {
+    "capacity_gb": 16,
+    "fraction_of_experts": 0.5557542636400058,
+    "decode_cold_hit_rate": 0.8046875,
+    "decode_cold_byte_hit_rate": 0.8032351762820513,
+    "decode_steady_hit_rate": 0.7947115384615384,
+    "decode_steady_byte_hit_rate": 0.7931623931623931,
+    "prefill_cold_hit_rate": 0.2151865724716704,
+    "prefill_cold_byte_hit_rate": 0.2163482053956664,
+    "prefill_steady_hit_rate": 0.22379191321499015,
+    "prefill_steady_byte_hit_rate": 0.225,
+    "decode_drive_gb_per_token": 0.531075072
+   },
+   {
+    "capacity_gb": 16.61,
+    "fraction_of_experts": 0.5769423949412811,
+    "decode_cold_hit_rate": 0.8197365785256411,
+    "decode_cold_byte_hit_rate": 0.8183259882478633,
+    "decode_steady_hit_rate": 0.8107638888888888,
+    "decode_steady_byte_hit_rate": 0.8092592592592592,
+    "prefill_cold_hit_rate": 0.227822293869423,
+    "prefill_cold_byte_hit_rate": 0.22897602452862992,
+    "prefill_steady_hit_rate": 0.23693293885601577,
+    "prefill_steady_byte_hit_rate": 0.2381328073635766,
+    "decode_drive_gb_per_token": 0.490344448
+   },
+   {
+    "capacity_gb": 20,
+    "fraction_of_experts": 0.6946928295500073,
+    "decode_cold_hit_rate": 0.8983623798076923,
+    "decode_cold_byte_hit_rate": 0.8973357371794872,
+    "decode_steady_hit_rate": 0.8946314102564102,
+    "decode_steady_byte_hit_rate": 0.8935363247863248,
+    "prefill_cold_hit_rate": 0.33139727846000666,
+    "prefill_cold_byte_hit_rate": 0.3324640842065336,
+    "prefill_steady_hit_rate": 0.3446499013806706,
+    "prefill_steady_byte_hit_rate": 0.34575936883629194,
+    "decode_drive_gb_per_token": 0.2770944
+   },
+   {
+    "capacity_gb": 21.6,
+    "fraction_of_experts": 0.7502682559140079,
+    "decode_cold_hit_rate": 0.9264322916666666,
+    "decode_cold_byte_hit_rate": 0.9257478632478633,
+    "decode_steady_hit_rate": 0.9245726495726496,
+    "decode_steady_byte_hit_rate": 0.9238425925925926,
+    "prefill_cold_hit_rate": 0.39614053387700915,
+    "prefill_cold_byte_hit_rate": 0.39731006906579425,
+    "prefill_steady_hit_rate": 0.4119822485207101,
+    "prefill_steady_byte_hit_rate": 0.413198553583169,
+    "decode_drive_gb_per_token": 0.200409088
+   },
+   {
+    "capacity_gb": 24,
+    "fraction_of_experts": 0.8336313954600088,
+    "decode_cold_hit_rate": 0.9603866185897436,
+    "decode_cold_byte_hit_rate": 0.959518563034188,
+    "decode_steady_hit_rate": 0.9607905982905983,
+    "decode_steady_byte_hit_rate": 0.9598646723646723,
+    "prefill_cold_hit_rate": 0.5426011094779764,
+    "prefill_cold_byte_hit_rate": 0.5434545540751979,
+    "prefill_steady_hit_rate": 0.5642998027613412,
+    "prefill_steady_byte_hit_rate": 0.5651873767258383,
+    "decode_drive_gb_per_token": 0.1092608
+   },
+   {
+    "capacity_gb": 28.79,
+    "fraction_of_experts": 1.0000103281372354,
+    "decode_cold_hit_rate": 0.9953425480769231,
+    "decode_cold_byte_hit_rate": 0.9953425480769231,
+    "decode_steady_hit_rate": 0.9980769230769231,
+    "decode_steady_byte_hit_rate": 0.9980769230769231,
+    "prefill_cold_hit_rate": 0.925845147219193,
+    "prefill_cold_byte_hit_rate": 0.925845147219193,
+    "prefill_steady_hit_rate": 0.9628698224852071,
+    "prefill_steady_byte_hit_rate": 0.9628698224852071,
+    "decode_drive_gb_per_token": 0.012570624
+   }
+  ],
+  "replay_check": {
+   "2.77": true,
+   "11.07": true,
+   "16.61": true
+  },
+  "previous_step_predictor": {
+   "predicted": 38563,
+   "useful": 9615,
+   "actual": 19968,
+   "precision": 0.24933226149417836,
+   "recall": 0.4815204326923077
+  },
+  "previous_step_coverage_of_lru_misses": [
+   {
+    "capacity_gb": 0.0,
+    "miss_bytes": 323884154880,
+    "covered_fraction": 0.4876068376068376
+   },
+   {
+    "capacity_gb": 2.77,
+    "miss_bytes": 205068959744,
+    "covered_fraction": 0.19073063726868777
+   },
+   {
+    "capacity_gb": 11.07,
+    "miss_bytes": 109028311040,
+    "covered_fraction": 0.20835757736048666
+   },
+   {
+    "capacity_gb": 16.61,
+    "miss_bytes": 61777903616,
+    "covered_fraction": 0.19678864824495892
+   }
+  ]
+ },
+ {
+  "trace": "phase5a",
+  "prompts": 48,
+  "steps": 816,
+  "decode_steps": 768,
+  "accesses": 366306,
+  "row_bytes": {
+   "gate_up_proj": 11534336,
+   "down_proj": 5767168
+  },
+  "call_budget_bytes": 268435456,
+  "total_routed_bytes": 28789702656,
+  "requested_bytes": {
+   "decode": 2072858591232,
+   "prefill": 1095963770880
+  },
+  "compulsory_bytes": {
+   "decode": 2474115072,
+   "prefill": 26280984576
+  },
+  "repeated_bytes": {
+   "decode": 2070384476160,
+   "prefill": 1069682786304
+  },
+  "repeated_fraction": {
+   "decode": 0.9988064236111112,
+   "prefill": 0.9760202068040098
+  },
+  "decode_bytes_per_token": 2699034624.0,
+  "decode_origin_fraction": {
+   "previous_step_same_layer": 0.46327457264957267,
+   "earlier_in_prompt": 0.5217431223290598,
+   "earlier_prompt": 0.013788728632478632,
+   "never": 0.001193576388888889
+  },
+  "lru_curve": [
+   {
+    "capacity_gb": 0.5,
+    "fraction_of_experts": 0.01736732073875018,
+    "decode_cold_hit_rate": 0.0,
+    "decode_cold_byte_hit_rate": 0.0,
+    "decode_steady_hit_rate": 0.0,
+    "decode_steady_byte_hit_rate": 0.0,
+    "prefill_cold_hit_rate": 0.0,
+    "prefill_cold_byte_hit_rate": 0.0,
+    "prefill_steady_hit_rate": 0.0,
+    "prefill_steady_byte_hit_rate": 0.0,
+    "decode_drive_gb_per_token": 2.699034624
+   },
+   {
+    "capacity_gb": 1,
+    "fraction_of_experts": 0.03473464147750036,
+    "decode_cold_hit_rate": 0.0,
+    "decode_cold_byte_hit_rate": 0.0,
+    "decode_steady_hit_rate": 0.0,
+    "decode_steady_byte_hit_rate": 0.0,
+    "prefill_cold_hit_rate": 0.0,
+    "prefill_cold_byte_hit_rate": 0.0,
+    "prefill_steady_hit_rate": 0.0,
+    "prefill_steady_byte_hit_rate": 0.0,
+    "decode_drive_gb_per_token": 2.699034624
+   },
+   {
+    "capacity_gb": 2,
+    "fraction_of_experts": 0.06946928295500072,
+    "decode_cold_hit_rate": 0.0,
+    "decode_cold_byte_hit_rate": 0.0,
+    "decode_steady_hit_rate": 0.0,
+    "decode_steady_byte_hit_rate": 0.0,
+    "prefill_cold_hit_rate": 0.0,
+    "prefill_cold_byte_hit_rate": 0.0,
+    "prefill_steady_hit_rate": 0.0,
+    "prefill_steady_byte_hit_rate": 0.0,
+    "decode_drive_gb_per_token": 2.699034624
+   },
+   {
+    "capacity_gb": 2.77,
+    "fraction_of_experts": 0.096214956892676,
+    "decode_cold_hit_rate": 0.40274021768162394,
+    "decode_cold_byte_hit_rate": 0.40259693287037035,
+    "decode_steady_hit_rate": 0.40454088243316966,
+    "decode_steady_byte_hit_rate": 0.40439739043462447,
+    "prefill_cold_hit_rate": 0.0003473044439182256,
+    "prefill_cold_byte_hit_rate": 0.0004630725918909675,
+    "prefill_steady_hit_rate": 0.00035180861611283464,
+    "prefill_steady_byte_hit_rate": 0.00046907815481711285,
+    "decode_drive_gb_per_token": 1.6124115626666669
+   },
+   {
+    "capacity_gb": 4,
+    "fraction_of_experts": 0.13893856591000145,
+    "decode_cold_hit_rate": 0.4241745125534188,
+    "decode_cold_byte_hit_rate": 0.4239032451923077,
+    "decode_steady_hit_rate": 0.42624369203491547,
+    "decode_steady_byte_hit_rate": 0.42597233587925076,
+    "prefill_cold_hit_rate": 0.006014681506038361,
+    "prefill_cold_byte_hit_rate": 0.00639355908122188,
+    "prefill_steady_hit_rate": 0.006092685579045,
+    "prefill_steady_byte_hit_rate": 0.006476476796622637,
+    "decode_drive_gb_per_token": 1.554905088
+   },
+   {
+    "capacity_gb": 5.54,
+    "fraction_of_experts": 0.192429913785352,
+    "decode_cold_hit_rate": 0.5201071714743589,
+    "decode_cold_byte_hit_rate": 0.519767739494302,
+    "decode_steady_hit_rate": 0.5174449331696672,
+    "decode_steady_byte_hit_rate": 0.5171053827968721,
+    "prefill_cold_hit_rate": 0.018746546688767858,
+    "prefill_cold_byte_hit_rate": 0.01926487226037309,
+    "prefill_steady_hit_rate": 0.018989669619726868,
+    "prefill_steady_byte_hit_rate": 0.019514717327107387,
+    "decode_drive_gb_per_token": 1.2961634986666668
+   },
+   {
+    "capacity_gb": 6,
+    "fraction_of_experts": 0.2084078488650022,
+    "decode_cold_hit_rate": 0.5484358306623932,
+    "decode_cold_byte_hit_rate": 0.5480435363247863,
+    "decode_steady_hit_rate": 0.5459202809601745,
+    "decode_steady_byte_hit_rate": 0.5455338470631024,
+    "prefill_cold_hit_rate": 0.023537769358276107,
+    "prefill_cold_byte_hit_rate": 0.02435867077117373,
+    "prefill_steady_hit_rate": 0.023843029392010745,
+    "prefill_steady_byte_hit_rate": 0.024674577030095627,
+    "decode_drive_gb_per_token": 1.219846144
+   },
+   {
+    "capacity_gb": 8,
+    "fraction_of_experts": 0.2778771318200029,
+    "decode_cold_hit_rate": 0.6387428218482906,
+    "decode_cold_byte_hit_rate": 0.6382100249287749,
+    "decode_steady_hit_rate": 0.6366484247135843,
+    "decode_steady_byte_hit_rate": 0.6361128159665393,
+    "prefill_cold_hit_rate": 0.05239561133475412,
+    "prefill_cold_byte_hit_rate": 0.05340595153524351,
+    "prefill_steady_hit_rate": 0.053075127130840824,
+    "prefill_steady_byte_hit_rate": 0.054098570377714525,
+    "decode_drive_gb_per_token": 0.9764836693333334
+   },
+   {
+    "capacity_gb": 10,
+    "fraction_of_experts": 0.34734641477500366,
+    "decode_cold_hit_rate": 0.701217781784188,
+    "decode_cold_byte_hit_rate": 0.7006265580484331,
+    "decode_steady_hit_rate": 0.698082890070922,
+    "decode_steady_byte_hit_rate": 0.6974961356610293,
+    "prefill_cold_hit_rate": 0.09010182334833057,
+    "prefill_cold_byte_hit_rate": 0.09124634935669745,
+    "prefill_steady_hit_rate": 0.09127034893018197,
+    "prefill_steady_byte_hit_rate": 0.0924297182332811,
+    "decode_drive_gb_per_token": 0.8080192853333333
+   },
+   {
+    "capacity_gb": 11.07,
+    "fraction_of_experts": 0.384512481155929,
+    "decode_cold_hit_rate": 0.7334777310363247,
+    "decode_cold_byte_hit_rate": 0.7327557425213675,
+    "decode_steady_hit_rate": 0.7304282596835788,
+    "decode_steady_byte_hit_rate": 0.7296951718494271,
+    "prefill_cold_hit_rate": 0.11369484568632095,
+    "prefill_cold_byte_hit_rate": 0.11497355750256531,
+    "prefill_steady_hit_rate": 0.11516934787475613,
+    "prefill_steady_byte_hit_rate": 0.11646464323408066,
+    "decode_drive_gb_per_token": 0.721301504
+   },
+   {
+    "capacity_gb": 12,
+    "fraction_of_experts": 0.4168156977300044,
+    "decode_cold_hit_rate": 0.7596153846153846,
+    "decode_cold_byte_hit_rate": 0.7588363603988604,
+    "decode_steady_hit_rate": 0.7566531983087834,
+    "decode_steady_byte_hit_rate": 0.7558703855246408,
+    "prefill_cold_hit_rate": 0.13752466650880102,
+    "prefill_cold_byte_hit_rate": 0.13892177756729024,
+    "prefill_steady_hit_rate": 0.13930821633031631,
+    "prefill_steady_byte_hit_rate": 0.14072344644513385,
+    "decode_drive_gb_per_token": 0.6509090133333334
+   },
+   {
+    "capacity_gb": 14,
+    "fraction_of_experts": 0.4862849806850051,
+    "decode_cold_hit_rate": 0.8073083600427351,
+    "decode_cold_byte_hit_rate": 0.8064903846153846,
+    "decode_steady_hit_rate": 0.8043124318057828,
+    "decode_steady_byte_hit_rate": 0.8034898390616476,
+    "prefill_cold_hit_rate": 0.19531928328992026,
+    "prefill_cold_byte_hit_rate": 0.19676901623385165,
+    "prefill_steady_hit_rate": 0.19785236831163847,
+    "prefill_steady_byte_hit_rate": 0.1993209027622307,
+    "decode_drive_gb_per_token": 0.522289152
+   },
+   {
+    "capacity_gb": 16,
+    "fraction_of_experts": 0.5557542636400058,
+    "decode_cold_hit_rate": 0.8481612246260684,
+    "decode_cold_byte_hit_rate": 0.8472333511396012,
+    "decode_steady_hit_rate": 0.8457148458810693,
+    "decode_steady_byte_hit_rate": 0.8447672304055283,
+    "prefill_cold_hit_rate": 0.26039940011050594,
+    "prefill_cold_byte_hit_rate": 0.2618780750914305,
+    "prefill_steady_hit_rate": 0.26377650558096394,
+    "prefill_steady_byte_hit_rate": 0.26527435741623223,
+    "decode_drive_gb_per_token": 0.41232247466666666
+   },
+   {
+    "capacity_gb": 16.61,
+    "fraction_of_experts": 0.5769423949412811,
+    "decode_cold_hit_rate": 0.8604433760683761,
+    "decode_cold_byte_hit_rate": 0.8595697560541311,
+    "decode_steady_hit_rate": 0.85825831969449,
+    "decode_steady_byte_hit_rate": 0.8573661120203674,
+    "prefill_cold_hit_rate": 0.28164022416923196,
+    "prefill_cold_byte_hit_rate": 0.28316362775278237,
+    "prefill_steady_hit_rate": 0.2852928007164103,
+    "prefill_steady_byte_hit_rate": 0.28683596123708704,
+    "decode_drive_gb_per_token": 0.3790260906666667
+   },
+   {
+    "capacity_gb": 20,
+    "fraction_of_experts": 0.6946928295500073,
+    "decode_cold_hit_rate": 0.9198467548076923,
+    "decode_cold_byte_hit_rate": 0.9191456330128205,
+    "decode_steady_hit_rate": 0.9189256001091107,
+    "decode_steady_byte_hit_rate": 0.9182095608292417,
+    "prefill_cold_hit_rate": 0.401854921461836,
+    "prefill_cold_byte_hit_rate": 0.4034098981766517,
+    "prefill_steady_hit_rate": 0.40706655579364825,
+    "prefill_steady_byte_hit_rate": 0.40864169891578983,
+    "decode_drive_gb_per_token": 0.218228736
+   },
+   {
+    "capacity_gb": 21.6,
+    "fraction_of_experts": 0.7502682559140079,
+    "decode_cold_hit_rate": 0.9416399572649573,
+    "decode_cold_byte_hit_rate": 0.9410250845797721,
+    "decode_steady_hit_rate": 0.9411824877250409,
+    "decode_steady_byte_hit_rate": 0.9405545326422986,
+    "prefill_cold_hit_rate": 0.47935117215249823,
+    "prefill_cold_byte_hit_rate": 0.48083247822769487,
+    "prefill_steady_hit_rate": 0.4855678510890076,
+    "prefill_steady_byte_hit_rate": 0.4870683681410646,
+    "decode_drive_gb_per_token": 0.15917533866666667
+   },
+   {
+    "capacity_gb": 24,
+    "fraction_of_experts": 0.8336313954600088,
+    "decode_cold_hit_rate": 0.9685246394230769,
+    "decode_cold_byte_hit_rate": 0.9679459357193733,
+    "decode_steady_hit_rate": 0.9686391843971631,
+    "decode_steady_byte_hit_rate": 0.9680481678486997,
+    "prefill_cold_hit_rate": 0.6153682216433815,
+    "prefill_cold_byte_hit_rate": 0.6163548819954219,
+    "prefill_steady_hit_rate": 0.6233488981993796,
+    "prefill_steady_byte_hit_rate": 0.6243483544951547,
+    "decode_drive_gb_per_token": 0.08651502933333333
+   },
+   {
+    "capacity_gb": 28.79,
+    "fraction_of_experts": 1.0000103281372354,
+    "decode_cold_hit_rate": 0.9988064236111112,
+    "decode_cold_byte_hit_rate": 0.9988064236111112,
+    "decode_steady_hit_rate": 0.9995652618657938,
+    "decode_steady_byte_hit_rate": 0.9995652618657938,
+    "prefill_cold_hit_rate": 0.9760202068040098,
+    "prefill_cold_byte_hit_rate": 0.9760202068040098,
+    "prefill_steady_hit_rate": 0.9886781590814597,
+    "prefill_steady_byte_hit_rate": 0.9886781590814597,
+    "decode_drive_gb_per_token": 0.003221504
+   }
+  ],
+  "replay_check": {
+   "2.77": true,
+   "11.07": true,
+   "16.61": true
+  },
+  "previous_step_predictor": {
+   "predicted": 175665,
+   "useful": 55504,
+   "actual": 119808,
+   "precision": 0.3159650471067088,
+   "recall": 0.46327457264957267
+  },
+  "previous_step_coverage_of_lru_misses": [
+   {
+    "capacity_gb": 0.0,
+    "miss_bytes": 2029674037248,
+    "covered_fraction": 0.46515275504637205
+   },
+   {
+    "capacity_gb": 2.77,
+    "miss_bytes": 1208879153152,
+    "covered_fraction": 0.10200654536433636
+   },
+   {
+    "capacity_gb": 11.07,
+    "miss_bytes": 548630691840,
+    "covered_fraction": 0.1267633764322506
+   },
+   {
+    "capacity_gb": 16.61,
+    "miss_bytes": 289500299264,
+    "covered_fraction": 0.12418821466990716
+   }
+  ]
+ }
+]

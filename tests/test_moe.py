@@ -12,7 +12,7 @@ from awpmi.models.moe import RoutingRecord, StreamedExperts, find_expert_modules
 from awpmi.storage.cache import HotnessPolicy, LRUPolicy, PageCache
 from awpmi.storage.pack import SourceFile, open_pack
 from awpmi.streaming.streamer import PageStreamer
-from tests.conftest import DEVICES
+from tests.conftest import BACKENDS, DEVICES, page_store
 
 COMMON = dict(vocab_size=128, hidden_size=64, num_hidden_layers=2, num_attention_heads=4, num_key_value_heads=2, max_position_embeddings=64)
 # Architecture fixtures only: the adapter itself knows none of these names.
@@ -58,21 +58,22 @@ def greedy_logits(model, input_ids: torch.Tensor, steps: int) -> list[torch.Tens
     return logits
 
 
-def expert_store(pack, device: str, cache: PageCache | None = None) -> ExpertStore:
-    backend = MaterializationBackend(pack.store(direct=True), device, PageStreamer(device), cache)
+def expert_store(pack, device: str, cache: PageCache | None = None, backend: str = "python") -> ExpertStore:
+    backend = MaterializationBackend(page_store(pack, backend, direct=True), device, PageStreamer(device), cache)
     return ExpertStore(WeightStore(backend), groups_from_pack(pack))
 
 
+@pytest.mark.parametrize("backend", BACKENDS)
 @pytest.mark.parametrize("device", DEVICES)
 @pytest.mark.parametrize("architecture", sorted(ARCHITECTURES))
-def test_streamed_experts_reproduce_the_resident_model_bitwise(tmp_path, device, architecture):
+def test_streamed_experts_reproduce_the_resident_model_bitwise(tmp_path, device, architecture, backend):
     model = tiny_model(architecture, device)
     prompts = [torch.randint(0, 128, (1, length), generator=torch.Generator().manual_seed(length)).to(device) for length in (1, 9, 23)]
     reference = [greedy_logits(model, ids, steps=3) for ids in prompts]
     modules = find_expert_modules(model)
     assert len(modules) == 2 and all(m.num_experts == 8 for m in modules)
     pack = open_pack(write_expert_pack(model, tmp_path / "pack").directory)
-    store = expert_store(pack, device)
+    store = expert_store(pack, device, backend=backend)
     routes: list[RoutingRecord] = []
     streamed = StreamedExperts(model, store, poison=True, on_route=routes.append).install()
     backend = store.weights.backend

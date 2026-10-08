@@ -1,0 +1,267 @@
+{
+  "timings_ms": {
+    "verify_files": 80343.11439981684,
+    "index_audit": 79509.46530001238,
+    "load": 5991.641399916261,
+    "stream": 460702.80999992974,
+    "compact": 159494.47829998098,
+    "chunk-1": 296351.68300010264,
+    "lru-40": 336633.4387999959,
+    "lru-80": 337483.4940000437,
+    "hotness-80": 317538.14229997806,
+    "shared-streamed": 100418.23780001141,
+    "all-experts": 122629.89600002766,
+    "configurations": 2132925.8411000483
+  },
+  "configurations": {
+    "stream": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3245872128,
+      "host_staging_bytes": 134217728,
+      "peak_cache_resident_bytes": null,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "compact": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": null,
+      "device_bytes_at_start": 3245872128,
+      "host_staging_bytes": 134217728,
+      "peak_cache_resident_bytes": null,
+      "calls": 1872,
+      "chunked_calls": 0
+    },
+    "chunk-1": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 17301504,
+      "device_bytes_at_start": 3245872128,
+      "host_staging_bytes": 134217728,
+      "peak_cache_resident_bytes": null,
+      "calls": 936,
+      "chunked_calls": 936
+    },
+    "lru-40": {
+      "cache_capacity_bytes": 692060160,
+      "cache_experts": 40,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3245872128,
+      "host_staging_bytes": 134217728,
+      "peak_cache_resident_bytes": 692060160,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "lru-80": {
+      "cache_capacity_bytes": 1384120320,
+      "cache_experts": 80,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3994555392,
+      "host_staging_bytes": 134217728,
+      "peak_cache_resident_bytes": 1384120320,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "hotness-80": {
+      "cache_capacity_bytes": 1384120320,
+      "cache_experts": 80,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 4742190080,
+      "host_staging_bytes": 134217728,
+      "peak_cache_resident_bytes": 1384120320,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "shared-streamed": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3758625792,
+      "host_staging_bytes": 134217728,
+      "peak_cache_resident_bytes": null,
+      "calls": 936,
+      "chunked_calls": 104
+    },
+    "all-experts": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3216512000,
+      "host_staging_bytes": 134217728,
+      "peak_cache_resident_bytes": null,
+      "calls": 156,
+      "chunked_calls": 156
+    }
+  },
+  "memory": {
+    "start": {
+      "resident_bytes": 632803328,
+      "peak_resident_bytes": 632803328,
+      "private_bytes": 1194565632
+    },
+    "after_load": {
+      "resident_bytes": 1532940288,
+      "peak_resident_bytes": 2208333824,
+      "private_bytes": 5689843712
+    },
+    "peak": {
+      "resident_bytes": 3082207232,
+      "peak_resident_bytes": 3289296896,
+      "private_bytes": 8740937728
+    },
+    "phases": {
+      "stream": {
+        "prefill": {
+          "resident_bytes": 3282239488,
+          "private_bytes": 8377372672,
+          "host_commit_bytes": 4562243584,
+          "device_bytes": 3915995648
+        },
+        "decode": {
+          "resident_bytes": 3289260032,
+          "private_bytes": 8601116672,
+          "host_commit_bytes": 4436172800,
+          "device_bytes": 3400220160
+        }
+      },
+      "compact": {
+        "prefill": {
+          "resident_bytes": 2757320704,
+          "private_bytes": 9740701696,
+          "host_commit_bytes": 3995443200,
+          "device_bytes": 4578760704
+        },
+        "decode": {
+          "resident_bytes": 2732310528,
+          "private_bytes": 9741357056,
+          "host_commit_bytes": 3854241792,
+          "device_bytes": 3400710144
+        }
+      },
+      "chunk-1": {
+        "prefill": {
+          "resident_bytes": 2747125760,
+          "private_bytes": 7370346496,
+          "host_commit_bytes": 4058943488,
+          "device_bytes": 3311813120
+        },
+        "decode": {
+          "resident_bytes": 2752888832,
+          "private_bytes": 7275515904,
+          "host_commit_bytes": 3873935360,
+          "device_bytes": 3275921408
+        }
+      },
+      "lru-40": {
+        "prefill": {
+          "resident_bytes": 2769842176,
+          "private_bytes": 9354002432,
+          "host_commit_bytes": 3918036992,
+          "device_bytes": 4676213248
+        },
+        "decode": {
+          "resident_bytes": 2769186816,
+          "private_bytes": 9352888320,
+          "host_commit_bytes": 3896107008,
+          "device_bytes": 4159445504
+        }
+      },
+      "lru-80": {
+        "prefill": {
+          "resident_bytes": 2777956352,
+          "private_bytes": 9919475712,
+          "host_commit_bytes": 4150874112,
+          "device_bytes": 5425945088
+        },
+        "decode": {
+          "resident_bytes": 2775859200,
+          "private_bytes": 9917763584,
+          "host_commit_bytes": 3930959872,
+          "device_bytes": 4911793152
+        }
+      },
+      "hotness-80": {
+        "prefill": {
+          "resident_bytes": 2785013760,
+          "private_bytes": 9865506816,
+          "host_commit_bytes": 4115128320,
+          "device_bytes": 5422799360
+        },
+        "decode": {
+          "resident_bytes": 2784305152,
+          "private_bytes": 9826918400,
+          "host_commit_bytes": 3914342400,
+          "device_bytes": 4907866624
+        }
+      },
+      "shared-streamed": {
+        "prefill": {
+          "resident_bytes": 3057577984,
+          "private_bytes": 9107726336,
+          "host_commit_bytes": 4427386880,
+          "device_bytes": 2653307392
+        },
+        "decode": {
+          "resident_bytes": 3058126848,
+          "private_bytes": 9108643840,
+          "host_commit_bytes": 4193738752,
+          "device_bytes": 2372997632
+        }
+      },
+      "all-experts": {
+        "prefill": {
+          "resident_bytes": 3068379136,
+          "private_bytes": 8547676160,
+          "host_commit_bytes": 4430151680,
+          "device_bytes": 3574940160
+        },
+        "decode": {
+          "resident_bytes": 3078557696,
+          "private_bytes": 8736714752,
+          "host_commit_bytes": 4200755200,
+          "device_bytes": 3740409856
+        }
+      }
+    }
+  },
+  "system": {
+    "start": {
+      "physical_available_bytes": 26262511616,
+      "system_cache_bytes": 1198981120,
+      "commit_total_bytes": 22670700544
+    },
+    "end": {
+      "physical_available_bytes": 21342396416,
+      "system_cache_bytes": 2615926784,
+      "commit_total_bytes": 30545522688
+    }
+  },
+  "gpu_total_bytes": 8585084928,
+  "gpu_budget_bytes": 6000000000,
+  "load": {
+    "loaded_bytes": 3130517760,
+    "tensors": 325
+  },
+  "non_expert_device_bytes": 3212317696,
+  "shared_experts_device_bytes": 899678208,
+  "host_staging_bytes": 134217728,
+  "expert_bytes_total": 28789702656,
+  "layer_bytes": 1107296256,
+  "expert_row_bytes": [
+    17301504
+  ],
+  "experts_implementation": "grouped_mm",
+  "attention_implementation": "sdpa",
+  "pinned_host_memory": {
+    "active_bytes.allocated": 2953301148,
+    "active_bytes.current": 536870912,
+    "active_bytes.freed": 2416430236,
+    "active_bytes.peak": 1073741836,
+    "allocated_bytes.allocated": 1073741836,
+    "allocated_bytes.current": 1073741836,
+    "allocated_bytes.freed": 0,
+    "allocated_bytes.peak": 1073741836
+  }
+}

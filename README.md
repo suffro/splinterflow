@@ -96,12 +96,29 @@ leaves 5–17% of the compressed bytes unread on tokens with a margin of more th
 on a gap-stratified sample, 6% over the real gap distribution; the gate asked for 10%), and Phase 5A's BF16 rounding floor
 remains. No runtime is built.
 
+**Phase 6A — the native runtime foundation** moves the storage path into a small Rust core (`native/`, built by maturin
+through uv, Python bindings with PyO3) behind the existing storage contract: read plans equal to Python's, direct reads
+on a pool of threads, a host-RAM expert cache with a strict byte budget and an exact LRU, and transfer jobs into the
+streamer's pinned buffers. It knows no model and no CUDA; the Python backend stays the fallback, and a configuration
+chooses `backend: python` or `native`. On Phase 4B's Moonlight benchmark every step of every configuration equals the
+independent reference bit for bit, in two runs; the native backend without a cache reads exactly what the Python one
+reads, 9% faster per decode token; with 12 GB of host cache (prefills not admitted) a decode token takes 807 ms instead of
+1,157 ms for the best Python configuration and 1,233 ms for Phase 4B's streaming, and prefills 37% less. What bounds a
+token now is copying its 2.7 GB of experts to the GPU (PCIe 3.0 x8 here), then the transformer's Python and kernel
+launches.
+
 ## Setup
 
 ```bash
 python -m pip install uv     # if uv is not installed
 uv sync                      # Python 3.11+, torch 2.14.1 (CUDA 13.0 wheels), transformers 5.18.0
 ```
+
+`uv sync` also builds the native I/O core (`native/`, Phase 6A) with maturin, which needs a Rust toolchain
+([rustup](https://rustup.rs); `native/rust-toolchain.toml` pins 1.95.0, fetched on first build). Without Rust,
+`uv sync --no-group native` leaves it out: everything else runs on the Python storage backend as before, the native
+tests are skipped, and configurations with `backend: native` refuse to start. Build details, platforms and the fallback
+are in [`native/README.md`](native/README.md).
 
 ## Usage
 
@@ -141,6 +158,16 @@ uv run python benchmarks/expert_oracle_report.py experiments/phase5a/my-run [--c
 uv run python research/expert_deltas/probe_codec.py --output experiments/phase5c/my-probe
 uv run python research/expert_deltas/structure_run.py --output experiments/phase5c/my-run --stage prepare   # then layer --layer L, replay, report
 uv run python research/expert_deltas/progressive_run.py --output experiments/phase5c/my-progressive --shard 0 --shards 2   # then --report
+# Phase 6A: the native (Rust) I/O core and host-RAM expert cache (configs/phase6a-native.yaml)
+uv run python benchmarks/native_trace.py --output experiments/phase6a/my-trace          # stage A: repeated bytes, LRU capacity
+uv run python benchmarks/native_io.py --output experiments/phase6a/my-io.json [--cuda] [--sweep]   # stage B: I/O alone
+uv run python benchmarks/moonlight_runtime.py --config configs/phase6a-native.yaml --output experiments/phase6a/my-run \
+    --stage prepare --reference-from experiments/phase6a/baseline-run1   # then --stage stream, --stage digest
+uv run python benchmarks/moonlight_profile.py --run experiments/phase6a/my-run --config configs/phase6a-native.yaml \
+    --configuration native-host-12g --prompts 7 0 3 5 --warm --output experiments/phase6a/my-run/profile-native-host-12g-warm.json
+uv run python benchmarks/native_report.py experiments/phase6a/my-run [--compare experiments/phase6a/other-run] \
+    [--baseline experiments/phase6a/baseline-run1] [--io experiments/phase6a/io/io-cuda.json]
+uv run python benchmarks/reference_numerics.py --output experiments/phase6a/bf16/numerics.json   # §7: the reference's kernels
 ```
 
 `run.py` writes raw per-input records, validation records, the prompts, the
@@ -182,7 +209,12 @@ official remote code (tiktoken), run at the pinned revision. `expert_oracle.py` 
 oracle: a capture of the last MoE layer's tensors at every decode step on the Phase 4B streamed path,
 then, per sample, the reference recomputed bitwise, every arithmetic tier's ceiling and every strategy's
 cells; `expert_oracle_report.py` evaluates correctness and the decision gate
-(`configs/phase5a-expert-oracle.yaml`).
+(`configs/phase5a-expert-oracle.yaml`). For Phase 6A, `native_trace.py` measures on recorded routing how often expert
+bytes repeat and exactly what an LRU host tier of each size would hit; `native_io.py` measures the native I/O core alone
+against the Python path; `moonlight_runtime.py` and `moonlight_profile.py` take `configs/phase6a-native.yaml`, whose
+configurations choose the storage backend (`python` or `native`) and the native host cache, and `native_report.py`
+evaluates its gates (correctness, I/O parity, host-cache replay, end-to-end decode time). `reference_numerics.py`
+records how the reference's kernels round and whether a row's result depends on its batch.
 
 ## Layout
 
@@ -194,24 +226,28 @@ src/awpmi/      reference, paging, bounds, state, certificate, schedulers, execu
                 storage, streaming, materialization, models/moe and cli (Phase 3),
                 profiles, models/checkpoint and models/olmoe (Phase 4A),
                 streaming_reference, models/moonlight and models/streamed (Phase 4B),
-                oracle/experts (Phase 5A expert oracle)
+                oracle/experts (Phase 5A expert oracle), storage/native (Phase 6A: the native store)
+native/         the Rust I/O core (Phase 6A): core (weightsift-io: plans, direct reads, host-RAM cache,
+                transfer jobs) and python (the PyO3 module weightsift_native); see native/README.md
 tests/          bound soundness, pages, certificate and ties, reference parity, fallback parity,
                 decomposition exactness, refinement oracle, packing, coarse bounds, runtime,
                 rounding models, operator bounds, enclosure LM head, adaptive suffix,
                 storage (no hidden reads), streaming and caches, runtime on storage, MoE experts, layering,
                 composed segments and compact expert calls (Phase 4A), chunked expert calls,
                 the streaming reference, the Moonlight adapter and streamed parameters (Phase 4B),
-                the expert oracle (Phase 5A)
+                the expert oracle (Phase 5A), the native store against the Python one (Phase 6A; the MoE
+                tests run through both backends)
 benchmarks/     run.py, report.py, prompts.py, oracle.py, refinement_oracle.py, refinement_report.py,
                 refinement_runtime.py, refinement_runtime_report.py, fallback_study.py,
                 suffix_runtime.py, suffix_report.py, storage_runtime.py, storage_report.py,
                 moe_runtime.py, moe_report.py, olmoe_runtime.py, olmoe_profile.py, olmoe_report.py,
                 moonlight_runtime.py, moonlight_reference_check.py, moonlight_profile.py, moonlight_report.py,
-                expert_oracle.py, expert_oracle_report.py
+                expert_oracle.py, expert_oracle_report.py, native_trace.py, native_io.py, native_report.py,
+                reference_numerics.py
 configs/        smollm2-135m.yaml (pinned model and dataset revisions), phase1b-refinement.yaml,
                 phase1c-runtime.yaml, phase2-suffix.yaml, phase3-storage.yaml, phase3-moe.yaml,
                 phase4a-olmoe.yaml, phase4b-moonlight.yaml, phase5a-expert-oracle.yaml,
-                phase5a2-crown-oracle.yaml, phase5c-expert-deltas.yaml
+                phase5a2-crown-oracle.yaml, phase5c-expert-deltas.yaml, phase6a-native.yaml
 research/       crown_expert_oracle (Phase 5A2: the auto_LiRPA verifier, its own environment and lockfile),
                 expert_deltas (Phase 5C: exact shared bases, bit-plane deltas, their codecs, replay and progressive oracle)
 experiments/    raw results per phase and run

@@ -1,0 +1,24 @@
+# Weightsift's native runtime (Phase 6A, decision 0012): a model-agnostic I/O core in Rust and its Python binding.
+#
+#   core    weightsift-io: read planning, positioned (direct) reads on a worker pool, a host-RAM row cache, transfer
+#           jobs into caller-owned staging buffers, byte accounting. No Python, no CUDA, no model knowledge.
+#   python  weightsift-native: the PyO3 module `weightsift_native` that Python's `awpmi.storage.native` wraps.
+[workspace]
+resolver = "2"
+members = ["core", "python"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+publish = false
+
+[workspace.dependencies]
+weightsift-io = { path = "core" }
+lru = "0.18"
+libc = "0.2"
+pyo3 = { version = "0.29", features = ["abi3-py311"] }
+
+[profile.release]
+debug = "line-tables-only"
+lto = "thin"

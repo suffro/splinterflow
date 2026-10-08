@@ -447,12 +447,29 @@ def audit_step(report: dict, requested: int) -> list[str]:
         problems.append("storage logical != fetched")
     if transfer.get("h2d_bytes") != storage["logical_bytes"]:
         problems.append("h2d != storage logical")
-    if not 0 <= storage["blocks_4k"] * IO_BLOCK_BYTES - storage["physical_bytes"] < IO_BLOCK_BYTES * max(1, storage["requests"]):
+    native = storage.get("native") or {}
+    # Physical bytes are the 4 KiB blocks of the rows read (by a request, or by a prefetch of the native host cache).
+    blocks = storage["blocks_4k"] + native.get("prefetch_blocks_4k", 0)
+    reads = max(1, storage["requests"] + native.get("prefetches", 0))
+    if not 0 <= blocks * IO_BLOCK_BYTES - storage["physical_bytes"] < IO_BLOCK_BYTES * reads:
         problems.append("physical bytes are not the requested rows' 4 KiB blocks")
     if storage["os_read_bytes"] is not None and (
         storage["os_read_bytes"] != storage["physical_bytes"] or storage["os_read_calls"] != storage["read_calls"]
     ):
         problems.append("OS counters differ from the store's reads")
+    cache = storage.get("host_cache")
+    if native and native["fallback_rows"]:
+        problems.append("rows read again after a failed cache load")
+    if cache is not None:
+        # Phase 6A (decision 0012): every row was looked up once; what the cache served was copied; the budget held.
+        if cache["lookups"] != storage["rows"] or cache["lookups"] != cache["hits"] + cache["waits"] + cache["misses"]:
+            problems.append("host cache lookups != rows requested = hits + waits + misses")
+        if native["cache_copied_bytes"] != cache["hit_bytes"] + cache["wait_bytes"]:
+            problems.append("bytes copied from the host cache != its hits and waits")
+        if max(cache["resident_bytes"], cache["peak_resident_bytes"]) > cache["capacity_bytes"]:
+            problems.append("host cache above its budget")
+        if cache["prefetch_wasted"] or cache["prefetch_used"] != cache["prefetch_fills"]:
+            problems.append("prefetched rows unused or evicted before use")
     return problems
 
 
@@ -569,9 +586,20 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
         max_read_bytes=int(storage["max_read_bytes"]), max_extent_bytes=int(storage["max_extent_bytes"]),
     )
 
-    def build(cache: PageCache | None) -> MaterializationBackend:
-        store = pack.store(**store_options)
-        return MaterializationBackend(store, device, PageStreamer(device, int(storage["slot_bytes"]), int(storage["slots"])), cache)
+    def host_cache_bytes(entry: dict) -> int:
+        if "host_cache_experts" in entry:
+            return int(entry["host_cache_experts"]) * expert_row
+        return int(float(entry.get("host_cache_bytes", 0)))
+
+    def build(cache: PageCache | None, entry: dict | None = None) -> MaterializationBackend:
+        """The configuration's backend: Phase 4B's Python store, or the native one with its host cache (decision 0012)."""
+        entry = entry or {}
+        if entry.get("backend", "python") == "native":
+            store = pack.store(backend="native", host_cache_bytes=host_cache_bytes(entry), **store_options)
+        else:
+            store = pack.store(**store_options)
+        streamer = PageStreamer(device, int(storage["slot_bytes"]), int(storage["slots"]), native_slots=int(storage.get("native_slots", 4)))
+        return MaterializationBackend(store, device, streamer, cache)
 
     def stream_shared() -> StreamedParameters:
         """The shared experts served from the checkpoint at every call (their own store and streamer, so counted apart)."""
@@ -614,11 +642,14 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                     call_budget = int(entry["call_budget_experts"]) * expert_row
                 else:
                     call_budget = entry.get("call_budget_bytes", default_call_budget)
-                backend = build(cache)
+                backend = build(cache, entry)
+                native = entry.get("backend", "python") == "native"
+                freeze_prefill = bool(entry.get("freeze_prefill", False))
+                poisoned_prompts = int(entry.get("poison_prompts", raw_config["poison_prompts"] if index == 0 else 0))
                 all_experts = bool(entry.get("all_experts", False))
                 streamed = StreamedExperts(
                     model, ExpertStore(WeightStore(backend), groups), compact=True, all_experts=all_experts, on_call=recorder.on_call,
-                    max_call_bytes=call_budget,
+                    max_call_bytes=call_budget, prefetch_chunks=bool(entry.get("prefetch_chunks", False)),
                 ).install()
                 shared = stream_shared() if entry.get("stream_shared") else None
                 peaks = {"expert": 0}
@@ -640,14 +671,21 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                     "cache_capacity_bytes": capacity, "cache_experts": int(entry.get("cache_experts", 0)), "call_budget_bytes": call_budget,
                     "device_bytes_at_start": torch.cuda.memory_allocated(device), "host_staging_bytes": backend.host_resident_bytes,
                 }
+                if native:
+                    report["configurations"][name].update(
+                        backend="native", host_cache_bytes=backend.store.host_cache_bytes, freeze_prefill=freeze_prefill,
+                        native_slots=backend.streamer.native_slots,
+                    )
                 started = time.perf_counter()
                 for position, prompt in enumerate(prompts[:count]):
-                    streamed.poison = index == 0 and position < int(raw_config["poison_prompts"])
+                    streamed.poison = position < poisoned_prompts
                     record_ranges = position < int(raw_config["record_ranges_prompts"])
                     check_chunked = position < checked_prompts
                     timing = {}
 
-                    def before(step, record_ranges=record_ranges, shared=shared):
+                    def before(step, record_ranges=record_ranges, shared=shared, freeze_prefill=freeze_prefill):
+                        if freeze_prefill:
+                            backend.store.set_admit(step > 0)  # no admission into the host cache during a prefill
                         recorder.clear()
                         sampler.clear()
                         calls_seen.clear()
@@ -742,6 +780,27 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                                 "process": dict(sampler.step),
                             },
                         }
+                        if native:
+                            # Native steps only, so Python configurations' records stay as Phase 4B wrote them.
+                            result["backend"] = "native"
+                            result["native"] = {
+                                k: storage_stats["native"][k]
+                                for k in ("cache_copied_bytes", "gathered_bytes", "admitted_bytes", "fallback_rows", "prefetches", "prefetch_rows", "prefetch_bytes")
+                            }
+                            result["timings_ms"]["drive_busy"] = storage_stats["native"]["busy_ms"]
+                            if "host_cache" in storage_stats:
+                                cache_stats = storage_stats["host_cache"]
+                                result["host_cache"] = {
+                                    k: cache_stats[k]
+                                    for k in ("lookups", "misses", "miss_bytes", "inserts", "evictions", "bypassed", "aborted_fills", "recycled",
+                                              "prefetch_fills", "prefetch_used", "prefetch_wasted", "resident_bytes", "peak_resident_bytes",
+                                              "capacity_bytes", "admit")
+                                }
+                                # A row served from the cache was either there (a hit) or being loaded by a prefetch (a wait):
+                                # which, is a matter of timing, so the records hold their sum and the split goes with the timings.
+                                result["host_cache"]["served"] = cache_stats["hits"] + cache_stats["waits"]
+                                result["host_cache"]["served_bytes"] = cache_stats["hit_bytes"] + cache_stats["wait_bytes"]
+                                result["system"]["host_cache"] = {k: cache_stats[k] for k in ("hits", "waits", "hit_bytes", "wait_bytes")}
                         phase = phases.setdefault(name, {}).setdefault(record["phase"], {**{k: 0 for k in MemorySampler.KEYS}, "device_bytes": 0})
                         for key in MemorySampler.KEYS:
                             phase[key] = max(phase[key], sampler.step[key])
@@ -811,6 +870,10 @@ def main() -> int:
     # A run is prepare (config, prompts, environment), reference, stream and digest; "all" runs them in turn, each stage
     # in a process of its own. They can also be run one by one, with the same PYTHONHASHSEED.
     parser.add_argument("--stage", choices=["all", "prepare", "reference", "stream", "digest"], default="all")
+    parser.add_argument(
+        "--reference-from", default=None,
+        help="prepare: take the reference stage's records from this run (same model, prompts and steps; checked, sha256 recorded)",
+    )
     args = parser.parse_args()
     raw_config = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))
     output = Path(args.output)
@@ -864,6 +927,18 @@ def main() -> int:
 
     files = open_pack(REPO_ROOT / raw_config["index"]["directory"], verify="size").files
     environment["storage"] = {"disk": describe_disk(next(iter(files.values())))}
+    if args.reference_from is not None:
+        # Phase 6A (decision 0012): several stream stages against one reference run, its records copied as they are.
+        source = Path(args.reference_from)
+        source_config = yaml.safe_load((source / "config.yaml").read_text(encoding="utf-8"))
+        same = {key: source_config[key] for key in ("model", "prompts", "reference")} == {key: raw_config[key] for key in ("model", "prompts", "reference")}
+        if not same or read_jsonl(source / "prompts.jsonl") != prompts:
+            parser.error(f"{source} ran another model, prompts or reference configuration")
+        copied = {}
+        for name in ("reference.jsonl.gz", "reference_rows.json", "reference_stage.json"):
+            (output / name).write_bytes((source / name).read_bytes())
+            copied[name] = sha256_file(output / name)
+        environment["reference_from"] = {"run": source.as_posix(), "files_sha256": copied}
     (output / "environment.json").write_text(json.dumps(environment, indent=2), encoding="utf-8")
     if args.stage == "prepare":
         print(f"prepared {output}: {len(prompts)} prompts, source tree {environment['source_tree_sha256'][:12]}")
@@ -873,7 +948,7 @@ def main() -> int:
     if args.keep_going:
         command.append("--keep-going")
     codes = {}
-    for stage in ("reference", "stream"):
+    for stage in ("reference", "stream") if args.reference_from is None else ("stream",):
         started = time.perf_counter()
         codes[stage] = subprocess.run([*command, "--stage", stage], check=False).returncode
         print(f"stage {stage}: exit {codes[stage]} after {time.perf_counter() - started:.0f}s", flush=True)
@@ -881,7 +956,7 @@ def main() -> int:
             break
     write_digest(output)
     print(f"done: {codes}; output: {output}")
-    return 1 if any(codes.values()) or len(codes) < 2 else 0
+    return 1 if any(codes.values()) or len(codes) < (1 if args.reference_from is not None else 2) else 0
 
 
 def write_digest(output: Path) -> dict:

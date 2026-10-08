@@ -38,6 +38,26 @@ def test_the_storage_core_knows_no_model():
         assert not CORE_FORBIDDEN_IMPORTS.search(text), f"{path.name} imports a layer above it"
 
 
+NATIVE = Path(__file__).resolve().parents[1] / "native"
+
+
+def test_the_native_core_knows_no_model():
+    """Phase 6A (decision 0012): the Rust core and its binding are model-agnostic like the Python storage core."""
+    files = sorted(path for path in NATIVE.rglob("*.rs") if "target" not in path.relative_to(NATIVE).parts)
+    assert len(files) >= 8
+    for path in files:
+        text = path.read_text(encoding="utf-8")
+        assert not MODEL_WORDS.search(text), f"{path.name}: {MODEL_WORDS.search(text).group(0)!r}"
+
+
+def test_only_the_storage_core_imports_the_native_extension():
+    """The extension is reached through `awpmi.storage.native` only, so the Python backend never depends on it."""
+    for path in sorted(SRC.rglob("*.py")):
+        if path == SRC / "storage" / "native.py":
+            continue
+        assert "weightsift_native" not in path.read_text(encoding="utf-8"), path.name
+
+
 def test_certification_does_not_depend_on_storage():
     for path in [*sorted((SRC / "bounds").glob("*.py")), SRC / "certificate.py", SRC / "refinement_head.py"]:
         assert not CERTIFICATION_FORBIDDEN_IMPORTS.search(path.read_text(encoding="utf-8")), path.name

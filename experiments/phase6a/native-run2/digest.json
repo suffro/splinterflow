@@ -1,0 +1,12 @@
+{
+  "index_sha256": "26c1d89c4de8d62e90535d412fbce878b32659e2e0bb8cf7d9ad53377ca85dd7",
+  "reference_rows_sha256": "7c101ec2a3eb270634dc6c50434ef8f166563820634125c7167fb21c67d493ea",
+  "prompts_sha256": "9966d0c1f6cea761e273f8d6f187b1ef63fa605c74e3038a38b0b07fcca79514",
+  "reference_sha256": "2e4d4a26b84a26e6bbfd7c5b66c1bbdb4c45075f896cb4aaa865a23f991aaa3f",
+  "records_sha256": "4baa27308b91385827c020a2cd1ae4a3820976817fa40c12097f649d7ed3bec0",
+  "ranges_sha256": "562ef48e6eb72b7aed1af1a719704481bfed9b97368af3fabf724091e17d3102",
+  "excluded_fields": [
+    "timings_ms",
+    "system"
+  ]
+}

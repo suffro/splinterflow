@@ -1,0 +1,92 @@
+model:
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  adapter: moonlight
+  tokenizer_revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  trust_remote_code_tokenizer: true
+prompts:
+  dataset:
+    repository: Salesforce/wikitext
+    revision: b08601e04326c79dfdd32d625aee71d232d685c3
+    file: wikitext-2-raw-v1/test-00000-of-00001.parquet
+    text_column: text
+  seed: 4
+  lengths:
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  decode_steps: 8
+index:
+  directory: packs/moonlight-16b-a3b-expert-index
+storage:
+  alignment: 4096
+  max_gap: 0
+  workers: 8
+  max_read_bytes: 1048576
+  max_extent_bytes: 8388608
+  slot_bytes: 33554432
+  slots: 2
+gpu_budget_bytes: 6000000000
+call_budget_bytes: 268435456
+reference:
+  residency_check_layers:
+  - 1
+  residency_check_prompts: 2
+configurations:
+- name: stream
+  cache_experts: 0
+  per_assignment_prompts: all
+- name: compact
+  cache_experts: 0
+  call_budget_bytes: null
+  num_prompts: 8
+  per_assignment_prompts: all
+- name: chunk-1
+  cache_experts: 0
+  call_budget_experts: 1
+  num_prompts: 4
+  per_assignment_prompts: all
+- name: lru-40
+  cache_experts: 40
+  policy: lru
+- name: lru-80
+  cache_experts: 80
+  policy: lru
+- name: hotness-80
+  cache_experts: 80
+  policy: hotness
+- name: shared-streamed
+  cache_experts: 0
+  stream_shared: true
+  num_prompts: 4
+- name: all-experts
+  all_experts: true
+  num_prompts: 2
+  decode_steps: 2
+hotness_half_life: 1024
+poison_prompts: 3
+record_ranges_prompts: 3
+per_assignment_prompts: 2
+timing:
+  settle_seconds: 3
+  warmup_prompts: 1
+gate:
+  min_expert_bytes_over_cap: 4.0
+  max_host_fraction_of_experts: 0.25
+  max_compact_fraction_of_layer: 0.25
+  max_decode_drive_fraction_without_cache: 0.11
+  max_decode_drive_ratio_to_all_experts: 0.12

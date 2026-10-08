@@ -21,6 +21,13 @@ same configuration recording nothing but time. Host wall time per step is split 
   other    everything else: Python and kernel launches of attention, norms, routers, the experts' and shared experts'
            compute and the LM head, and the GPU work the host waits for at the end of the step
 
+Phase 6A (decision 0012): `--config` names the file the configuration comes from (default: the run's config.yaml;
+configs/phase6a-native.yaml lists its profile configurations), whose `backend` is python or native and whose
+`host_cache_bytes` sizes the native host cache. A native transfer's planning and cache lookups (in the core, called from
+Python) count as `plan`, and the time Python waits for its pieces as `io`. `--warm` first runs the config's
+`profile.warm_prompts` (not measured), so caches start as a serving process's would. Every step also records the main
+thread's CPU time (the Python and FFI overhead: waits excluded), the host cache's counters, and the process's memory.
+
 With --trace, a torch.profiler trace of the prefill and two decode steps of the first prompt gives device time by
 kernel kind (GEMM, attention, other kernels, host-to-device and device-to-device copies) and by module scope
 (attention, router, experts, shared experts, LM head), the number of kernel launches and their CPU time, and the GPU's
@@ -43,7 +50,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "benchmarks"))
 
-from moonlight_runtime import DTYPES, load_adapter  # noqa: E402  (configures the numerics first)
+from moonlight_runtime import DTYPES, NUMERICS_FLAGS, load_adapter  # noqa: E402  (configures the numerics first)
 
 import torch  # noqa: E402
 from torch.profiler import ProfilerActivity, profile, record_function  # noqa: E402
@@ -51,6 +58,7 @@ from torch.profiler import ProfilerActivity, profile, record_function  # noqa: E
 import awpmi.materialization.backend as backend_module  # noqa: E402
 import awpmi.models.moe as moe_module  # noqa: E402
 import awpmi.storage.cache as cache_module  # noqa: E402
+import awpmi.storage.native as native_module  # noqa: E402
 import awpmi.storage.store as store_module  # noqa: E402
 import awpmi.streaming.streamer as streamer_module  # noqa: E402
 from awpmi.materialization.backend import MaterializationBackend  # noqa: E402
@@ -61,7 +69,7 @@ from awpmi.storage.cache import POLICIES, PageCache  # noqa: E402
 from awpmi.storage.fileio import process_memory  # noqa: E402
 from awpmi.storage.pack import open_pack  # noqa: E402
 from awpmi.streaming.streamer import PageStreamer  # noqa: E402
-from awpmi.tracing import read_jsonl  # noqa: E402
+from awpmi.tracing import environment_metadata, read_jsonl  # noqa: E402
 
 
 class Clock:
@@ -91,6 +99,21 @@ class Clock:
         self.totals.clear()
         return totals
 
+    def wrap_generator(self, region: str, function):
+        """A generator function whose every step (one next) is timed as `region`."""
+        clock = self
+
+        def timed(*args, **kwargs):
+            iterator = function(*args, **kwargs)
+            while True:
+                try:
+                    value = clock.wrap(region, next)(iterator)
+                except StopIteration:
+                    return
+                yield value
+
+        return timed
+
 
 def instrument(clock: Clock) -> None:
     """Timers around the generic path's stages (module functions and methods, wrapped in place)."""
@@ -105,6 +128,10 @@ def instrument(clock: Clock) -> None:
     backend_module.MaterializationBackend._cache_copy = clock.wrap("admit", backend_module.MaterializationBackend._cache_copy)
     cache_module.PageCache.put = clock.wrap("admit", cache_module.PageCache.put)
     ExpertStore.assemble = clock.wrap("assemble", ExpertStore.assemble)
+    # The native path (Phase 6A): submit plans and looks the cache up in the core; Python then waits for pieces.
+    native_module.NativeTransfer.__init__ = clock.wrap("plan", native_module.NativeTransfer.__init__)
+    native_module.NativeTransfer.__iter__ = clock.wrap_generator("io", native_module.NativeTransfer.__iter__)
+    native_module.NativeTransfer.close = clock.wrap("io", native_module.NativeTransfer.close)
 
 
 def scopes(model, adapter, experts: list[str]) -> list:
@@ -172,6 +199,7 @@ def summarize_trace(prof, wall_ms: float) -> dict:
 
     kinds: dict[str, float] = defaultdict(float)
     scopes_ms: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
+    by_name: dict[str, list] = defaultdict(lambda: [0, 0.0])  # kernel name: launches, device ms (Phase 6A's kernel inventory)
     annotations, activities = [], []
     launches = 0
     launch_cpu_ms = 0.0
@@ -186,6 +214,8 @@ def summarize_trace(prof, wall_ms: float) -> dict:
             annotations.append((*span, event.name[6:]))
         else:
             activities.append((*span, kernel_kind(event.name)))
+            by_name[event.name][0] += 1
+            by_name[event.name][1] += (span[1] - span[0]) / 1e3
     annotations.sort()
     starts = [a[0] for a in annotations]
     intervals = []
@@ -211,6 +241,10 @@ def summarize_trace(prof, wall_ms: float) -> dict:
         "kernel_launches": launches,
         "launch_cpu_ms": launch_cpu_ms,
         "gpu_busy_ms": busy_ms,
+        "kernels": [
+            {"name": name, "launches": count, "device_ms": ms}
+            for name, (count, ms) in sorted(by_name.items(), key=lambda item: -item[1][1])[:60]
+        ],
         "wall_ms": wall_ms,
         "gpu_idle_fraction": max(0.0, 1.0 - busy_ms / wall_ms) if wall_ms else None,
     }
@@ -224,9 +258,12 @@ def main() -> int:
     parser.add_argument("--prompts", type=int, nargs="+", default=[0, 3, 5, 7], help="indices into the run's prompts")
     parser.add_argument("--decode-steps", type=int, default=None)
     parser.add_argument("--trace", action="store_true")
+    parser.add_argument("--config", default=None, help="the file of the configuration (default: the run's config.yaml)")
+    parser.add_argument("--warm", action="store_true", help="first run the config's profile.warm_prompts, not measured")
     args = parser.parse_args()
     run = Path(args.run)
     raw = yaml.safe_load((run / "config.yaml").read_text(encoding="utf-8"))
+    chosen = yaml.safe_load(Path(args.config).read_text(encoding="utf-8")) if args.config else raw
     model_config, storage = raw["model"], raw["storage"]
     adapter = load_adapter(model_config)
     device = torch.device("cuda", torch.cuda.current_device())
@@ -240,26 +277,41 @@ def main() -> int:
     files = {key: entry.path for key, entry in checkpoint_sources(model_config["repository"], model_config["revision"], declared_sha256=False).items()}
     model, _ = load_model_without_experts(model_config["repository"], model_config["revision"], DTYPES[model_config["dtype"]], device, files)
     expert_row = max(sum(pack.segments[s].row_bytes for s in group.segments.values()) for group in groups.values())
-    entry = {e["name"]: e for e in raw["configurations"]}[args.configuration]
+    entries = {e["name"]: e for e in [*chosen.get("configurations", []), *chosen.get("profile", {}).get("configurations", [])]}
+    entry = entries[args.configuration]
     capacity = int(entry.get("cache_experts", 0)) * expert_row
     cache = None
     if capacity:
         policy_class = POLICIES[entry["policy"]]
         cache = PageCache(capacity, policy_class(float(raw["hotness_half_life"])) if entry["policy"] == "hotness" else policy_class())
     call_budget = int(entry["call_budget_experts"]) * expert_row if "call_budget_experts" in entry else entry.get("call_budget_bytes", raw.get("call_budget_bytes"))
-    store = pack.store(
+    store_options = dict(
         direct=True, alignment=int(storage["alignment"]), max_gap=int(storage["max_gap"]), workers=int(storage["workers"]),
         max_read_bytes=int(storage["max_read_bytes"]), max_extent_bytes=int(storage["max_extent_bytes"]),
     )
-    backend = MaterializationBackend(store, device, PageStreamer(device, int(storage["slot_bytes"]), int(storage["slots"])), cache)
+    native = entry.get("backend", "python") == "native"
+    if native:
+        host_cache = int(entry["host_cache_experts"]) * expert_row if "host_cache_experts" in entry else int(float(entry.get("host_cache_bytes", 0)))
+        store = pack.store(backend="native", host_cache_bytes=host_cache, **store_options)
+    else:
+        store = pack.store(**store_options)
+    freeze_prefill = bool(entry.get("freeze_prefill", False))
+    native_slots = int(chosen.get("storage", storage).get("native_slots", 4))
+    streamer = PageStreamer(device, int(storage["slot_bytes"]), int(storage["slots"]), native_slots=native_slots)
+    backend = MaterializationBackend(store, device, streamer, cache)
     clock = Clock()
     instrument(clock)
     experts = ExpertStore(WeightStore(backend), groups)
-    streamed = StreamedExperts(model, experts, compact=True, all_experts=bool(entry.get("all_experts", False)), max_call_bytes=call_budget).install()
+    streamed = StreamedExperts(
+        model, experts, compact=True, all_experts=bool(entry.get("all_experts", False)), max_call_bytes=call_budget,
+        prefetch_chunks=bool(entry.get("prefetch_chunks", False)),
+    ).install()
     names = [m.name for m in streamed.modules]
     result = {"gpu": torch.cuda.get_device_name(device), "configuration": args.configuration, "prompts": [p["prompt_id"] for p in prompts],
               "lengths": [p["length"] for p in prompts], "decode_steps": steps, "call_budget_bytes": call_budget, "cache_capacity_bytes": capacity,
-              "memory_after_load": process_memory()}
+              "backend": "native" if native else "python", "host_cache_bytes": store.host_cache_bytes if native else 0,
+              "native_slots": native_slots, "freeze_prefill": freeze_prefill, "warm": args.warm, "memory_after_load": process_memory(),
+              "environment": environment_metadata(REPO_ROOT, {"repository": model_config["repository"], "revision": model_config["revision"]}, NUMERICS_FLAGS)}
     records: list[dict] = []
     traces: list[dict] = []
     # Warm-up: one short prefill and a decode step (kernels, allocator), not recorded.
@@ -270,6 +322,20 @@ def main() -> int:
     if cache is not None:  # the warm-up must not leave anything in the measured cache
         cache.clear()
         cache.stats.reset()
+    if native:
+        store.clear_cache()
+    if args.warm:
+        # A serving process's caches: the warm prompts, in full, before the measured ones (nothing recorded).
+        with torch.inference_mode():
+            for index in chosen["profile"]["warm_prompts"]:
+                input_ids, cache_kv = torch.tensor([all_prompts[index]["token_ids"]], device=device), None
+                for step in range(steps + 1):
+                    if native and freeze_prefill:
+                        store.set_admit(step > 0)
+                    output = model(input_ids=input_ids, past_key_values=cache_kv, use_cache=True, logits_to_keep=1)
+                    input_ids, cache_kv = output.logits[0, -1].argmax().view(1, 1), output.past_key_values
+                del output, cache_kv
+        result["after_warm"] = {"host_cache": store.cache_stats() if native else None, "memory": process_memory()}
     gc.collect()
     torch.cuda.synchronize(device)
     with torch.inference_mode():
@@ -279,18 +345,22 @@ def main() -> int:
             for step in range(steps + 1):
                 trace = args.trace and index == 0 and step <= 2
                 handles = scopes(model, adapter, names) if trace else []
+                if native and freeze_prefill:
+                    store.set_admit(step > 0)
                 torch.cuda.synchronize(device)
+                torch.cuda.reset_peak_memory_stats(device)
                 backend.reset_stats()
                 clock.reset()
                 calls = (streamed.calls, streamed.chunked_calls)
                 profiler = profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) if trace else None
                 if profiler is not None:
                     profiler.__enter__()
-                started = time.perf_counter()
+                started, cpu_started = time.perf_counter(), time.thread_time()
                 output = model(input_ids=input_ids, past_key_values=cache_kv, use_cache=True, logits_to_keep=1)
                 token = output.logits[0, -1].argmax().view(1, 1)
                 torch.cuda.synchronize(device)
                 wall = (time.perf_counter() - started) * 1e3
+                main_cpu = (time.thread_time() - cpu_started) * 1e3
                 if profiler is not None:
                     profiler.__exit__(None, None, None)
                     traces.append({"step": step, "phase": "prefill" if step == 0 else "decode", **summarize_trace(profiler, wall)})
@@ -305,6 +375,16 @@ def main() -> int:
                     "read_calls": report["storage"]["read_calls"], "pieces": report["transfer"]["pieces"], "h2d_copies": report["transfer"]["h2d_copies"],
                     "requests": report["materialization"]["requests"], "chunked_calls": streamed.chunked_calls - calls[1],
                     "cache_hits": None if cache is None else report["cache"]["hits"], "traced": trace,
+                    "main_thread_cpu_ms": main_cpu, "requested_bytes": report["materialization"]["requested_bytes"],
+                    "fetched_bytes": report["materialization"]["fetched_bytes"],
+                    "extents": report["storage"]["extents"], "peak_device_bytes": torch.cuda.max_memory_allocated(device),
+                    "memory": process_memory(),
+                    "host_cache": None if "host_cache" not in report["storage"] else {
+                        k: report["storage"]["host_cache"][k]
+                        for k in ("lookups", "hits", "waits", "misses", "hit_bytes", "wait_bytes", "miss_bytes", "evictions", "resident_bytes",
+                                  "prefetch_fills", "prefetch_used", "prefetch_wasted")
+                    },
+                    "native": report["storage"].get("native"),
                 })
                 cache_kv = output.past_key_values
                 input_ids = token
@@ -343,6 +423,29 @@ def summarize(steps: list[dict]) -> dict:
         entry["regions_ms"]["other"] = entry["wall_ms"] - accounted
         entry["share"] = {k: v / entry["wall_ms"] for k, v in entry["regions_ms"].items()}
         entry["drive_gb_per_s"] = entry["physical_mb"] / 1e3 / max(1e-9, entry["regions_ms"].get("io", 0.0) / 1e3)
+        # Phase 6A: per-step distribution, the main thread's CPU time, the host cache, the drive's busy time, memory.
+        walls = sorted(s["wall_ms"] for s in chosen)
+        entry["wall_ms_median"] = statistics.median(walls)
+        entry["wall_ms_p95"] = walls[int(0.95 * (len(walls) - 1))]
+        entry["tokens_per_s"] = 1e3 / entry["wall_ms"] if phase == "decode" else None
+        if all("main_thread_cpu_ms" in s for s in chosen):
+            entry["main_thread_cpu_ms"] = mean("main_thread_cpu_ms")
+            entry["requested_mb"] = mean("requested_bytes") / 1e6
+            entry["extents"] = mean("extents")
+            entry["peak_device_bytes"] = max(s["peak_device_bytes"] for s in chosen)
+            entry["peak_resident_bytes"] = max((s.get("memory") or {}).get("peak_resident_bytes", 0) for s in chosen)
+        caches = [s["host_cache"] for s in chosen if s.get("host_cache")]
+        if caches:
+            lookups = sum(c["lookups"] for c in caches)
+            entry["host_cache_hit_rate"] = sum(c["hits"] + c["waits"] for c in caches) / max(1, lookups)
+            served = sum(c["hit_bytes"] + c["wait_bytes"] for c in caches)
+            entry["host_cache_byte_hit_rate"] = served / max(1, served + sum(c["miss_bytes"] for c in caches))
+            entry["host_cache_resident_bytes"] = max(c["resident_bytes"] for c in caches)
+        natives = [s["native"] for s in chosen if s.get("native")]
+        if natives:
+            entry["drive_busy_ms"] = statistics.mean(n["busy_ms"] for n in natives)
+            entry["drive_gb_per_s_busy"] = entry["physical_mb"] / 1e3 / max(1e-9, entry["drive_busy_ms"] / 1e3)
+            entry["cache_copied_mb"] = statistics.mean(n["cache_copied_bytes"] for n in natives) / 1e6
         if phase == "prefill":
             entry["by_length"] = {
                 int(length): statistics.mean(s["wall_ms"] for s in chosen if s["length"] == length) for length in sorted({s["length"] for s in chosen})

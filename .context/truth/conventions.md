@@ -86,6 +86,25 @@
   (5C1-A), `structure_run.py` (5C1-B: `--stage prepare`, one `--stage layer --layer L` per process, `replay`, `report`),
   `progressive_probe.py` (5C2-A), `progressive_run.py` (5C2-B, `--shard i --shards n`, then `--report`). Its records
   digest everything but timings and throughputs, which are measured only when nothing else runs on the machine.
+- Phase 6A (the native core, decision 0012): `python -m uv sync` builds `native/` with maturin (Rust 1.95.0 pinned by
+  `native/rust-toolchain.toml`; `--no-group native` skips it, and the Python backend then runs alone). In `native/`:
+  `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` (set
+  `PYO3_PYTHON` to the venv's interpreter if cargo cannot find Python). Python tests: `tests/test_native_storage.py`, and the
+  MoE parity tests run every backend (`BACKENDS` in `tests/conftest.py`: python, native, native with an evicting cache;
+  the chunked tests also native with chunk prefetch, `CHUNKED_BACKENDS`).
+  Pipeline: `benchmarks/native_trace.py --output experiments/phase6a/trace` (no GPU), `benchmarks/native_io.py --output
+  experiments/phase6a/io/io-<cpu|cuda>.json --requests 100 [--cuda] [--sweep]`, `moonlight_runtime.py --config
+  configs/phase6a-native.yaml --output <run> --stage prepare --reference-from experiments/phase6a/baseline-run1` then
+  `--stage stream` and `--stage digest`, one `moonlight_profile.py --run <run> --config configs/phase6a-native.yaml
+  --configuration <name> [--warm] [--trace]` per process (`experiments/phase6a/native-run1/profiles.sh`), and
+  `benchmarks/native_report.py <run> --compare <other run> --baseline experiments/phase6a/baseline-run1 --io <io files>`.
+  Two runs that are compared must be prepared and streamed on the same trees: change nothing under `src/`,
+  `benchmarks/`, `configs/` or `native/` from the first run's prepare to the second run's end (each run records
+  `source_tree_sha256` and `native_tree_sha256`, and the report requires both equal). On Windows, never let `uv sync` or
+  `uv run` rebuild the extension while another process has it loaded (the `.pyd` is locked): run benchmarks with the
+  venv's interpreter, or let them finish first.
+- A native store holds its host cache until `close()`, which releases it at once; a driver that builds stores one after
+  another closes each (Phase 6A's working-set gate caught a store that outlived its configuration).
 - Keep a benchmark's peak device memory well under the card, and record it (`peak_device_bytes`). Under
   Windows' WDDM, allocations beyond the GPU's memory do not fail: the driver pages device memory to the host
   and kernels slow down. Phase 5A's first development runs peaked at 8.03 GB on the 8 GB card and ran
@@ -163,6 +182,11 @@
   read of the checkpoint (safetensors' own loader), never by a numeric tolerance. Deltas are integer operations on the
   BF16 patterns (XOR, modular); `BF16(base + delta)` is not exact (Phase 5C: wrong on 36–38% of weights with a BF16
   delta, and on a few even with a float32 one).
+- Native code (decision 0012) moves bytes; it never computes with them. A native path is equal to the Python one it
+  replaces (plans, reads, copies, counters: tested), keeps the Python one as the fallback, names no model, tensor or
+  routing, and holds the GIL during no blocking work. The only `unsafe` type is `RawBuffer` (`native/core/src/buffer.rs`,
+  caller-owned staging memory); every `unsafe` block that uses it states the invariant it relies on, and anything else
+  needs a demonstrated requirement. A cache budget counts every byte held, rows being loaded included.
 - A structural diagnostic (real arithmetic, decision 0009's real tier) is never reported as a certified BF16 result. A set
   of weights "consistent with what is read" is built from a read view whose unread bits are poisoned, and its claimed
   optimum is checked against enumeration on toys and against attained points (witnesses) on real samples.

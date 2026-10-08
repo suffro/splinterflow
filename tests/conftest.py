@@ -15,6 +15,31 @@ CONFIG_PATH = REPO_ROOT / "configs" / "smollm2-135m.yaml"
 
 DEVICES = ["cpu"] + (["cuda"] if torch.cuda.is_available() else [])
 
+
+def _native_available() -> bool:
+    from awpmi.storage.native import NATIVE_AVAILABLE
+
+    return NATIVE_AVAILABLE
+
+
+_NATIVE = pytest.mark.skipif(not _native_available(), reason="the native extension weightsift_native is not built")
+# Storage backends of the parity tests (decision 0012): the Python store, the native store, and the native store with a
+# host cache so small that rows are evicted between calls (hits, misses and evictions in one run).
+BACKENDS = ["python", pytest.param("native", marks=_NATIVE), pytest.param("native-cache", marks=_NATIVE)]
+# Chunked calls also run with their experts prefetched into a host cache that holds the whole pack (decision 0012).
+CHUNKED_BACKENDS = [*BACKENDS, pytest.param("native-prefetch", marks=_NATIVE)]
+
+
+def page_store(pack, backend: str = "python", **options):
+    """A file-backed store of `pack` for a test backend; "native-cache" holds about three of its largest rows,
+    "native-prefetch" every row."""
+    if backend == "native-cache":
+        largest = max(segment.row_bytes for segment in pack.segments.values())
+        return pack.store(backend="native", host_cache_bytes=3 * largest, **options)
+    if backend == "native-prefetch":
+        return pack.store(backend="native", host_cache_bytes=sum(s.nbytes for s in pack.segments.values()), **options)
+    return pack.store(backend=backend, **options)
+
 PROMPTS = (
     "The capital of France is",
     "def fibonacci(n):\n    if n < 2:\n        return",

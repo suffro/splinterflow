@@ -1,0 +1,252 @@
+{
+ "run": "experiments/phase6a/native-run2",
+ "correctness": {
+  "python-stream": {
+   "steps": 144,
+   "all_equal": 144,
+   "audit_failures": 0,
+   "poisoned_steps": 27,
+   "chunked_calls": 416,
+   "expert_outputs_checked_layers": 3744,
+   "os_counters_match": 144
+  },
+  "native-stream": {
+   "steps": 144,
+   "all_equal": 144,
+   "audit_failures": 0,
+   "poisoned_steps": 27,
+   "chunked_calls": 416,
+   "expert_outputs_checked_layers": 3744,
+   "os_counters_match": 144
+  },
+  "native-chunk-1": {
+   "steps": 36,
+   "all_equal": 36,
+   "audit_failures": 0,
+   "poisoned_steps": 0,
+   "chunked_calls": 936,
+   "expert_outputs_checked_layers": 936,
+   "os_counters_match": 36
+  },
+  "native-host-tiny": {
+   "steps": 36,
+   "all_equal": 36,
+   "audit_failures": 0,
+   "poisoned_steps": 0,
+   "chunked_calls": 104,
+   "expert_outputs_checked_layers": 884,
+   "os_counters_match": 36
+  },
+  "native-host-4g": {
+   "steps": 144,
+   "all_equal": 144,
+   "audit_failures": 0,
+   "poisoned_steps": 0,
+   "chunked_calls": 416,
+   "expert_outputs_checked_layers": 3380,
+   "os_counters_match": 144
+  },
+  "native-host-12g": {
+   "steps": 144,
+   "all_equal": 144,
+   "audit_failures": 0,
+   "poisoned_steps": 0,
+   "chunked_calls": 416,
+   "expert_outputs_checked_layers": 3380,
+   "os_counters_match": 144
+  },
+  "native-host-12g-prefetch": {
+   "steps": 144,
+   "all_equal": 144,
+   "audit_failures": 0,
+   "poisoned_steps": 0,
+   "chunked_calls": 416,
+   "expert_outputs_checked_layers": 3380,
+   "os_counters_match": 144
+  },
+  "native-host-12g-freeze": {
+   "steps": 144,
+   "all_equal": 144,
+   "audit_failures": 0,
+   "poisoned_steps": 0,
+   "chunked_calls": 416,
+   "expert_outputs_checked_layers": 3380,
+   "os_counters_match": 144
+  }
+ },
+ "io_parity": {
+  "steps": [
+   144,
+   144
+  ],
+  "records_equal": true,
+  "differing_steps": 0,
+  "differing_fields": [],
+  "ranges_steps": [
+   27,
+   27
+  ],
+  "ranges_equal": true,
+  "os_counters_equal": true
+ },
+ "host_cache": {
+  "native-host-tiny": {
+   "capacity_bytes": 34603008,
+   "freeze_prefill": false,
+   "steps": 36,
+   "decode_hit_rate": 0.0,
+   "prefill_hit_rate": 0.0,
+   "decode_drive_gb_per_token": {
+    "mean": 2.700312576,
+    "median": 2.700312576,
+    "p95": 2.700312576,
+    "max": 2.700312576
+   },
+   "prefill_drive_gb": {
+    "mean": 19.486390272,
+    "median": 20.797599744000003,
+    "p95": 22.2031470592,
+    "max": 22.312198144
+   },
+   "evictions": 5495,
+   "bypassed": 13492,
+   "max_resident_bytes": 34603008,
+   "max_peak_resident_bytes": 34603008,
+   "max_working_set_bytes": 3407282176,
+   "within_budget": true,
+   "prefetch_rows": 0,
+   "prefetch_wasted": 0,
+   "replay_equals_measured": null
+  },
+  "native-host-4g": {
+   "capacity_bytes": 4000000000,
+   "freeze_prefill": false,
+   "steps": 144,
+   "decode_hit_rate": 0.38293770032051283,
+   "prefill_hit_rate": 0.006021525769285477,
+   "decode_drive_gb_per_token": {
+    "mean": 1.667905632,
+    "median": 1.6703856639999999,
+    "p95": 2.538749952,
+    "max": 2.561830912
+   },
+   "prefill_drive_gb": {
+    "mean": 22.668855296,
+    "median": 23.541192703999997,
+    "p95": 27.402696704,
+    "max": 27.805147136
+   },
+   "evictions": 66108,
+   "bypassed": 0,
+   "max_resident_bytes": 3996647424,
+   "max_peak_resident_bytes": 3996647424,
+   "max_working_set_bytes": 7381917696,
+   "within_budget": true,
+   "prefetch_rows": 0,
+   "prefetch_wasted": 0,
+   "replay_equals_measured": true,
+   "replay_differing_steps": 0
+  },
+  "native-host-12g": {
+   "capacity_bytes": 12000000000,
+   "freeze_prefill": false,
+   "steps": 144,
+   "decode_hit_rate": 0.7001452323717948,
+   "prefill_hit_rate": 0.13107486605661184,
+   "decode_drive_gb_per_token": {
+    "mean": 0.8139593919999999,
+    "median": 0.715464704,
+    "p95": 1.6109494271999996,
+    "max": 1.7482752
+   },
+   "prefill_drive_gb": {
+    "mean": 19.797257472,
+    "median": 20.627402752000002,
+    "p95": 24.712492032,
+    "max": 24.989454336
+   },
+   "evictions": 47239,
+   "bypassed": 0,
+   "max_resident_bytes": 11995709440,
+   "max_peak_resident_bytes": 11995709440,
+   "max_working_set_bytes": 15391727616,
+   "within_budget": true,
+   "prefetch_rows": 0,
+   "prefetch_wasted": 0,
+   "replay_equals_measured": true,
+   "replay_differing_steps": 0
+  },
+  "native-host-12g-prefetch": {
+   "capacity_bytes": 12000000000,
+   "freeze_prefill": false,
+   "steps": 144,
+   "decode_hit_rate": 0.7001452323717948,
+   "prefill_hit_rate": 1.0,
+   "decode_drive_gb_per_token": {
+    "mean": 0.8139593919999999,
+    "median": 0.715464704,
+    "p95": 1.6109494271999996,
+    "max": 1.7482752
+   },
+   "prefill_drive_gb": {
+    "mean": 19.647225344,
+    "median": 20.442750976,
+    "p95": 24.532166656,
+    "max": 24.804794368
+   },
+   "evictions": 46904,
+   "bypassed": 0,
+   "max_resident_bytes": 11995709440,
+   "max_peak_resident_bytes": 11995709440,
+   "max_working_set_bytes": 15453134848,
+   "within_budget": true,
+   "prefetch_rows": 36318,
+   "prefetch_wasted": 0,
+   "replay_equals_measured": true,
+   "replay_differing_steps": 0
+  },
+  "native-host-12g-freeze": {
+   "capacity_bytes": 12000000000,
+   "freeze_prefill": true,
+   "steps": 144,
+   "decode_hit_rate": 0.7244591346153846,
+   "prefill_hit_rate": 0.44675453985112135,
+   "decode_drive_gb_per_token": {
+    "mean": 0.746254208,
+    "median": 0.7096954879999999,
+    "p95": 1.3689061375999996,
+    "max": 2.700312576
+   },
+   "prefill_drive_gb": {
+    "mean": 12.641478912,
+    "median": 13.541939200000002,
+    "p95": 15.559953408,
+    "max": 15.971057664
+   },
+   "evictions": 9612,
+   "bypassed": 23337,
+   "max_resident_bytes": 11995709440,
+   "max_peak_resident_bytes": 11995709440,
+   "max_working_set_bytes": 15404961792,
+   "within_budget": true,
+   "prefetch_rows": 0,
+   "prefetch_wasted": 0,
+   "replay_equals_measured": true,
+   "replay_differing_steps": 0
+  }
+ },
+ "profiles": {},
+ "gates": {
+  "correctness": true,
+  "io_parity": true,
+  "host_cache": true,
+  "performance": null,
+  "layering": true
+ },
+ "compare": {
+  "run": "experiments/phase6a/native-run1",
+  "digests_equal": true,
+  "same_tree": true,
+  "same_native_tree": true
+ }
+}

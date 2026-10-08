@@ -54,6 +54,9 @@ dependencies = [
 dev = [
     { name = "pytest" },
 ]
+native = [
+    { name = "weightsift-native" },
+]
 research = [
     { name = "lz4" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
@@ -75,6 +78,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest" }]
+native = [{ name = "weightsift-native", directory = "native" }]
 research = [
     { name = "lz4", specifier = ">=4.4" },
     { name = "scipy", specifier = ">=1.16" },
@@ -1465,6 +1469,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/e3/05/b17359e1cefb4f909
 wheels = [
     { url = "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl", hash = "sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3", size = 135717, upload-time = "2026-09-15T19:29:34.577Z" },
 ]
+
+[[package]]
+name = "weightsift-native"
+version = "0.1.0"
+source = { directory = "native" }
 
 [[package]]
 name = "zstandard"

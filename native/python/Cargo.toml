@@ -1,0 +1,15 @@
+[package]
+name = "weightsift-native"
+description = "The Python module of Weightsift's native I/O core (PyO3)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lib]
+name = "weightsift_native"
+crate-type = ["cdylib"]
+
+[dependencies]
+weightsift-io.workspace = true
+pyo3.workspace = true

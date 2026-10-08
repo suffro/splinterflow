@@ -31,20 +31,33 @@ cost a sixth of a streamed decode step in the Phase 4A profile (decision 0007). 
 
 Prefetch never materializes anything logically: a ticket's data is counted as consumed
 only when the ticket is used, and as wasted when it is dropped.
+
+A native store (`awpmi.storage.native`, Phase 6A, decision 0012) plans, reads, gathers and
+serves its host cache itself, into `native_slots` pinned slots of the streamer's: one
+transfer per call (`fetch_many` moves several requests in one), pieces delivered as soon as
+they are ready, and the native readers keep reading into the other slots while a piece is
+copied. The streamer issues each piece's copies on the copy stream (the same copies Python
+would issue for the same plan) and hands a slot back once its copies finished, never
+holding more than all but one, so the readers always have a slot to fill. That loop
+(`_transfer_native`) is Phase 6B's integration point: a native copy issuer, or a device
+decoder for a compressed representation, takes each piece's operations instead.
 """
 
 from __future__ import annotations
 
 import threading
+from collections import deque
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 
 import torch
 
 from awpmi.storage.fileio import DIRECT_ALIGNMENT, aligned_host_buffer
+from awpmi.storage.native import NativePageStore
 from awpmi.storage.store import FileBackedPageStore, InMemoryPageStore, PageStore, ReadPlan, check_rows, gather_runs
 
 DEFAULT_SLOT_BYTES = 8 << 20
+DEFAULT_NATIVE_SLOTS = 4
 DIRECT_COPY_BYTES = 256 << 10  # runs at least this long skip the host gather
 
 
@@ -146,14 +159,18 @@ def resolve_device(device: torch.device | str) -> torch.device:
 class PageStreamer:
     """Moves rows of a store's segments to `device`; see the module docstring."""
 
-    def __init__(self, device: torch.device | str, slot_bytes: int = DEFAULT_SLOT_BYTES, slots: int = 2) -> None:
+    def __init__(
+        self, device: torch.device | str, slot_bytes: int = DEFAULT_SLOT_BYTES, slots: int = 2, native_slots: int = DEFAULT_NATIVE_SLOTS
+    ) -> None:
         self.device = resolve_device(device)
-        if slot_bytes % DIRECT_ALIGNMENT or slots < 1:
-            raise ValueError("slots must be at least one, of a multiple of the I/O alignment")
+        if slot_bytes % DIRECT_ALIGNMENT or slots < 1 or native_slots < 2:
+            raise ValueError("slots must be at least one (two for a native store), of a multiple of the I/O alignment")
         self.cuda = self.device.type == "cuda"
         self.slot_bytes = slot_bytes
         self._slots = [_Slot(slot_bytes, self.cuda) for _ in range(slots)]
         self._next_slot = 0
+        self.native_slots = native_slots
+        self._native: list[_Slot] = []  # allocated by the first native transfer
         self.copy_stream = torch.cuda.Stream(self.device) if self.cuda else None
         self._lock = threading.Lock()
         self._prefetcher: ThreadPoolExecutor | None = None
@@ -162,7 +179,7 @@ class PageStreamer:
     @property
     def host_resident_bytes(self) -> int:
         """Pinned staging and gather buffers held by the streamer."""
-        return sum(slot.staging.numel() + slot.compact.numel() for slot in self._slots)
+        return sum(slot.staging.numel() + slot.compact.numel() for slot in [*self._slots, *self._native])
 
     # Synchronous path
 
@@ -179,6 +196,32 @@ class PageStreamer:
         With `out` (contiguous uint8 [m, row_bytes] on the device), request i is written to
         out[positions[i]] (default i) and `out` is returned.
         """
+        self._check_out(store, segment, out, positions)
+        with self._lock:
+            tensor, ready = self._transfer(store, segment, rows, out, positions)
+        self._hand_over(tensor, ready)
+        return tensor
+
+    def fetch_many(
+        self, store: PageStore, requests: list[tuple[str, torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]]
+    ) -> list[torch.Tensor]:
+        """`fetch` of several requests, each (segment, rows, out, positions); returns their tensors.
+
+        A native store moves them in one transfer (its hits first, then each request's planned reads, one pipeline);
+        any other store is fetched request by request, exactly as separate `fetch` calls.
+        """
+        if not isinstance(store, NativePageStore):
+            return [self.fetch(store, segment, rows, out, positions) for segment, rows, out, positions in requests]
+        for segment, _, out, positions in requests:
+            self._check_out(store, segment, out, positions)
+        with self._lock:
+            tensors = self._transfer_native(store, requests)
+            ready = self._record_ready()
+        for tensor in tensors:
+            self._hand_over(tensor, ready)
+        return tensors
+
+    def _check_out(self, store: PageStore, segment: str, out: torch.Tensor | None, positions: torch.Tensor | None) -> None:
         if out is not None:
             info = store.segment(segment)
             if out.dtype != torch.uint8 or out.dim() != 2 or out.shape[1] != info.row_bytes or not out.is_contiguous():
@@ -187,10 +230,6 @@ class PageStreamer:
                 raise ValueError("out must be on the streamer's device")
         elif positions is not None:
             raise ValueError("positions need an output buffer")
-        with self._lock:
-            tensor, ready = self._transfer(store, segment, rows, out, positions)
-        self._hand_over(tensor, ready)
-        return tensor
 
     def _hand_over(self, tensor: torch.Tensor, ready) -> None:
         if ready is not None:
@@ -201,6 +240,9 @@ class PageStreamer:
     def _transfer(
         self, store: PageStore, segment: str, rows: torch.Tensor | None, out: torch.Tensor | None = None, positions=None
     ):
+        if isinstance(store, NativePageStore):
+            (tensor,) = self._transfer_native(store, [(segment, rows, out, positions)])
+            return tensor, self._record_ready()
         self.stats.fetches += 1
         if store.in_memory and resolve_device(store.device) == self.device:
             return _place(store.read_rows(segment, rows), out, positions), None
@@ -382,6 +424,57 @@ class PageStreamer:
             dest.copy_(source)
         else:
             self._copy(dest, source, slot, asynchronous=True)
+
+    # Native stores
+
+    def _transfer_native(self, store: NativePageStore, requests: list) -> list[torch.Tensor]:
+        """One native transfer of every request; returns each request's tensor (rows, or the caller's `out`)."""
+        if not self._native:
+            self._native = [_Slot(self.slot_bytes, self.cuda) for _ in range(self.native_slots)]
+        dests, results = [], []
+        for segment, rows, out, positions in requests:
+            self.stats.fetches += 1
+            info = store.segment(segment)
+            count = info.rows if rows is None else rows.numel()
+            if out is not None:
+                needed = count if positions is None else (int(positions.max()) + 1 if count else 0)
+                if out.shape[0] < needed:
+                    raise ValueError(f"out has {out.shape[0]} rows, the request needs {needed}")
+                if self.cuda:
+                    # The caller's stream may still be using this buffer (e.g. the previous layer's kernels).
+                    self.copy_stream.wait_stream(torch.cuda.current_stream(self.device))
+                    out.record_stream(self.copy_stream)
+                dests.append(out.view(-1))
+                results.append(out)
+            else:
+                if self.cuda:
+                    with torch.cuda.stream(self.copy_stream):
+                        dest = torch.empty(count * info.row_bytes, dtype=torch.uint8, device=self.device)
+                else:
+                    dest = torch.empty(count * info.row_bytes, dtype=torch.uint8)
+                dests.append(dest)
+                results.append(dest.view(count, info.row_bytes))
+        # The native readers may write any slot at once: every copy out of the previous transfer must be done.
+        for slot in self._native:
+            slot.wait_free()
+        held: deque[int] = deque()
+        with store.stream([(segment, rows, positions) for segment, rows, _, positions in requests], [(s.staging, s.compact) for s in self._native]) as job:
+            for index, ops, gathered in job:
+                slot = self._native[index]
+                self.stats.pieces += 1
+                self.stats.gathered_bytes += gathered
+                for source, src, request, dst, length in ops:
+                    buffer = slot.staging if source == 0 else slot.compact
+                    self._move(dests[request][dst : dst + length], buffer[src : src + length], slot)
+                if not self.cuda or not ops:
+                    job.release(index)
+                    continue
+                held.append(index)
+                while len(held) >= len(self._native) - 1:
+                    oldest = held.popleft()
+                    self._native[oldest].wait_free()
+                    job.release(oldest)
+        return results
 
     # Prefetch
 

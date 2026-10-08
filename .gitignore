@@ -12,3 +12,5 @@ experiments/phase5a/*/capture.safetensors
 # Phase 5A2: the regenerated capture and the verifier's artifact tensors (regenerated; sha256 in the records and manifest)
 experiments/phase5a2/*/capture.safetensors
 experiments/phase5a2/*/artifact/*.safetensors
+# Phase 6A native core: Cargo build output (rebuilt by `uv sync` / cargo)
+native/target/

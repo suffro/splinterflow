@@ -41,21 +41,48 @@ def sha256_file(path: str | Path) -> str:
 
 
 SOURCE_TREES = ("src", "benchmarks", "configs")
+NATIVE_TREE = "native"
+
+
+def _files_sha256(repo_root: Path, files: Iterable[Path]) -> str:
+    digest = hashlib.sha256()
+    for path in sorted(files):
+        digest.update(path.relative_to(repo_root).as_posix().encode("utf-8") + b"\0")
+        digest.update(path.read_bytes().replace(b"\r\n", b"\n") + b"\0")
+    return digest.hexdigest()
 
 
 def source_tree_sha256(repo_root: Path) -> str:
     """Hash of the code and configs that produced a run, independent of git state."""
-    digest = hashlib.sha256()
-    files = sorted(
-        path
-        for tree in SOURCE_TREES
-        for path in (repo_root / tree).rglob("*")
-        if path.is_file() and "__pycache__" not in path.parts
+    return _files_sha256(
+        repo_root,
+        (
+            path
+            for tree in SOURCE_TREES
+            for path in (repo_root / tree).rglob("*")
+            if path.is_file() and "__pycache__" not in path.parts
+        ),
     )
-    for path in files:
-        digest.update(path.relative_to(repo_root).as_posix().encode("utf-8") + b"\0")
-        digest.update(path.read_bytes().replace(b"\r\n", b"\n") + b"\0")
-    return digest.hexdigest()
+
+
+def native_tree_sha256(repo_root: Path) -> str | None:
+    """Hash of the native core's sources (`native/` without its build directory `target`), by the same rule.
+
+    Kept apart from `source_tree_sha256`, whose rule other tools repeat; None without a `native/` directory.
+    """
+    root = repo_root / NATIVE_TREE
+    if not root.is_dir():
+        return None
+    return _files_sha256(
+        repo_root, (path for path in root.rglob("*") if path.is_file() and path.relative_to(root).parts[0] != "target")
+    )
+
+
+def _version(package: str) -> str | None:
+    try:
+        return importlib_metadata.version(package)
+    except importlib_metadata.PackageNotFoundError:
+        return None
 
 
 def _git(repo_root: Path, *args: str) -> str | None:
@@ -83,6 +110,8 @@ def environment_metadata(repo_root: Path, model: Mapping[str, Any], numerics_fla
         "git_commit": _git(repo_root, "rev-parse", "HEAD"),
         "git_dirty": bool(status) if status is not None else None,
         "source_tree_sha256": source_tree_sha256(repo_root),
+        "native_tree_sha256": native_tree_sha256(repo_root),
+        "native_extension": _version("weightsift-native"),  # None: the extension is not installed
         "uv_lock_sha256": sha256_file(lock) if lock.exists() else None,
     }
 

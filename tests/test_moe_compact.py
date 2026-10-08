@@ -19,7 +19,7 @@ from awpmi.models.moe import ExpertCall, FullLayerOffload, RoutingRecord, Stream
 from awpmi.storage.cache import HotnessPolicy, LRUPolicy, PageCache, ReplacementPolicy
 from awpmi.storage.pack import SourceFile, open_pack
 from awpmi.streaming.streamer import PageStreamer
-from tests.conftest import DEVICES
+from tests.conftest import BACKENDS, DEVICES, page_store
 from tests.test_moe import ARCHITECTURES, COMMON, tiny_model
 
 # Architectures whose checkpoints split each expert into separate tensors (save_pretrained reverses the fusion).
@@ -51,8 +51,8 @@ def assert_same_run(got, expected) -> None:
         assert torch.equal(a, b)
 
 
-def expert_store(pack, device, cache: PageCache | None = None) -> ExpertStore:
-    backend = MaterializationBackend(pack.store(direct=True), device, PageStreamer(device), cache)
+def expert_store(pack, device, cache: PageCache | None = None, backend: str = "python") -> ExpertStore:
+    backend = MaterializationBackend(page_store(pack, backend, direct=True), device, PageStreamer(device), cache)
     return ExpertStore(WeightStore(backend), groups_from_pack(pack))
 
 
@@ -60,14 +60,15 @@ def prompts(device: str) -> list[torch.Tensor]:
     return [torch.randint(0, 128, (1, n), generator=torch.Generator().manual_seed(n)).to(device) for n in (1, 9, 23)]
 
 
+@pytest.mark.parametrize("backend", BACKENDS)
 @pytest.mark.parametrize("device", DEVICES)
 @pytest.mark.parametrize("architecture", sorted(ARCHITECTURES))
-def test_compact_experts_reproduce_the_resident_model_bitwise(tmp_path, device, architecture):
+def test_compact_experts_reproduce_the_resident_model_bitwise(tmp_path, device, architecture, backend):
     model = tiny_model(architecture, device)
     inputs = prompts(device)
     reference = [greedy(model, ids, steps=3) for ids in inputs]
     pack = open_pack(write_expert_pack(model, tmp_path / "pack").directory)
-    store = expert_store(pack, device)
+    store = expert_store(pack, device, backend=backend)
     modules = find_expert_modules(model)
     routes: list[RoutingRecord] = []
     calls: list[tuple[int, list[int], int]] = []
@@ -283,8 +284,9 @@ def test_per_assignment_outputs_agree_between_the_offload_reference_and_compact_
         assert torch.equal(out_a, out_b) and torch.equal(each_a, each_b)
 
 
+@pytest.mark.parametrize("backend", BACKENDS)
 @pytest.mark.parametrize("architecture", SPLIT)
-def test_split_checkpoints_are_served_in_place(tmp_path, architecture):
+def test_split_checkpoints_are_served_in_place(tmp_path, architecture, backend):
     """save_pretrained splits experts again; the index refers to those tensors, and streaming them is exact."""
     device = DEVICES[-1]
     source = tiny_model(architecture, "cpu", seed=9)
@@ -308,7 +310,7 @@ def test_split_checkpoints_are_served_in_place(tmp_path, architecture):
     resolve = lambda requested: files[requested.filename]  # noqa: E731
     pack = open_pack(tmp_path / "index", verify="size", resolve=resolve)
     assert pack.segments == index.segments and pack.manifest["format_version"] == 2
-    store = expert_store(pack, device)
+    store = expert_store(pack, device, backend=backend)
     streamed = StreamedExperts(model, store, compact=True, poison=True).install()
     try:
         for ids, expected in zip(inputs, reference):

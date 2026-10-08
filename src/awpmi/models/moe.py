@@ -54,7 +54,9 @@ weights in one of two ways only:
 
 Everything else the forward does (sorting, weighting, the combine) is its own code, run once
 on the whole call, so the accumulation order is the reference's. Any other use of the stand-in
-raises. The grouped path is exact when each group's product does not depend on the other
+raises. With `prefetch_chunks` (Phase 6A, decision 0012) the call's experts are announced to the
+store when the call starts (`ExpertStore.prefetch`): a store with a host cache loads the later
+chunks while the earlier ones are computed; the bytes, and so the results, are the same. The grouped path is exact when each group's product does not depend on the other
 groups in the call, which holds where `_grouped_mm` runs one GEMM per group (this GPU; checked
 by the tests and the benchmark); the eager path changes nothing but when weights are present.
 
@@ -406,6 +408,7 @@ class _ChunkedCall:
     device: torch.device
     poison: bool
     loads: list[tuple[str, int]] = field(default_factory=list)  # (parameter, chunk) in materialization order
+    prefetch: object | None = None  # the store's handle for the call's rows (`prefetch_chunks`), closed with the call
     closed: bool = False  # set when the call returns: its stand-ins can no longer reach any weight
     _starts: list[int] = field(default_factory=list)
 
@@ -475,6 +478,7 @@ class StreamedExperts:
     compact: bool = False  # buffers for the routed experts only (decision 0007)
     on_call: Callable[[ExpertCall], None] | None = None
     max_call_bytes: int | None = None  # compact mode: a call needing more expert buffers runs in chunks (decision 0008)
+    prefetch_chunks: bool = False  # announce a chunked call's experts to the store when it starts (decision 0012)
     _modules: list[ExpertModule] = field(default_factory=list, init=False)
     _handles: list = field(default_factory=list, init=False)
     _originals: dict = field(default_factory=dict, init=False)
@@ -580,6 +584,8 @@ class StreamedExperts:
             chunked = None
             if self.max_call_bytes is not None and slots * sum(row_bytes.values()) > self.max_call_bytes:
                 chunked = self._plan_chunks(entry, served.cpu(), slots, hidden.device, row_bytes)
+                if self.prefetch_chunks:
+                    chunked.prefetch = self.experts.prefetch(entry.name, served.cpu(), list(chunked.shapes))
             self.calls += 1
             # Slot of each expert; anything outside [0, E) (a sentinel) maps to the new expert count.
             slot_of = torch.full((count,), slots, dtype=top_k_index.dtype, device=top_k_index.device)
@@ -648,6 +654,8 @@ class StreamedExperts:
                     )
             finally:
                 self._active.pop(entry.name, None)
+                if active is not None and active[4] is not None and active[4].prefetch is not None:
+                    active[4].prefetch.close()
                 for parameter in self._placeholders[entry.name]:
                     module._parameters[parameter] = None
                 module.num_experts = entry.num_experts

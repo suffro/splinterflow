@@ -30,6 +30,11 @@ research = [
     "lz4>=4.4",
     "scipy>=1.16",
 ]
+# Phase 6A (decision 0012): the native I/O core (Rust), built from native/ by maturin, which needs a Rust toolchain
+# (native/rust-toolchain.toml). Optional: `uv sync --no-group native` installs the Python backend alone.
+native = [
+    "weightsift-native",
+]
 
 [build-system]
 requires = ["uv_build>=0.12,<0.13"]
@@ -37,10 +42,11 @@ build-backend = "uv_build"
 
 [tool.uv]
 environments = ["sys_platform == 'win32'", "sys_platform == 'linux'"]
-default-groups = ["dev", "research"]
+default-groups = ["dev", "research", "native"]
 
 [tool.uv.sources]
 torch = { index = "pytorch-cu130" }
+weightsift-native = { path = "native" }
 
 [[tool.uv.index]]
 name = "pytorch-cu130"

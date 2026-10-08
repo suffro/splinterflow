@@ -136,6 +136,41 @@ class MaterializationBackend:
             return data
         return self._rows_through_cache(info, rows, out)
 
+    def materialize_many(self, requests: list[tuple[str, torch.Tensor | None, torch.Tensor | None]]) -> list[torch.Tensor]:
+        """`materialize` of several requests, each (segment, rows, out), counted as that many requests.
+
+        Without a device cache they go to the streamer together (`fetch_many`: one transfer for a native store, one
+        fetch after the other otherwise); with one, request by request.
+        """
+        if self.resident or self.cache is not None or len(requests) < 2:
+            return [self.materialize(segment, rows, out) for segment, rows, out in requests]
+        fetches = []
+        for segment, rows, out in requests:
+            info = self.store.segment(segment)
+            count = info.rows if rows is None else rows.numel()
+            if out is not None and (out.dtype != torch.uint8 or tuple(out.shape) != (count, info.row_bytes) or not out.is_contiguous()):
+                raise ValueError(f"out must be contiguous uint8 [{count}, {info.row_bytes}]")
+            self.stats.requests += 1
+            self.stats.rows += count
+            self.stats.requested_bytes += count * info.row_bytes
+            self.stats.largest_request_bytes = max(self.stats.largest_request_bytes, count * info.row_bytes)
+            self.stats.fetched_rows += count
+            self.stats.fetched_bytes += count * info.row_bytes
+            fetches.append((segment, rows, out, None))
+        return self.streamer.fetch_many(self.store, fetches)
+
+    def prefetch_rows(self, requests: list[tuple[str, torch.Tensor | None]]):
+        """A hint that the rows of `requests` ((segment, rows)) will be materialized soon.
+
+        A store that can load them ahead (the native store, into its host cache, decision 0012) starts doing so in the
+        background and returns a handle to `close` once they were used; otherwise None, and nothing happens. Bytes and
+        results never depend on it.
+        """
+        prefetch = getattr(self.store, "prefetch", None)
+        if self.resident or prefetch is None:
+            return None
+        return prefetch(requests)
+
     def _rows_through_cache(self, info: AnySegment, rows: torch.Tensor, out: torch.Tensor | None) -> torch.Tensor:
         if not self.cache.holds(info.name) and not self.cache.can_admit(info.row_bytes):
             # No row of this segment is cached, and none could be: every row misses and is not kept.

@@ -1,0 +1,18 @@
+[build-system]
+requires = ["maturin>=1.15,<2"]
+build-backend = "maturin"
+
+[project]
+name = "weightsift-native"
+version = "0.1.0"
+description = "Weightsift's native I/O core (Rust): read plans, direct reads, a host-RAM row cache, transfer jobs"
+requires-python = ">=3.11"
+
+[tool.maturin]
+manifest-path = "python/Cargo.toml"
+module-name = "weightsift_native"
+profile = "release"
+
+[tool.uv]
+# uv rebuilds this path dependency when any of these change (by default it would only watch pyproject.toml).
+cache-keys = [{ file = "pyproject.toml" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }, { file = "rust-toolchain.toml" }, { file = "**/Cargo.toml" }, { file = "**/*.rs" }]
