@@ -1,0 +1,22 @@
+05:53:17 waiting for structure-run1 layers
+08:24:20 structure-run1 layers: layer 26 exit 0 layer 1 exit 0 layer 9 exit 0 layer 17 exit 0 
+08:24:42 structure-run1 replay exit 0
+08:24:45 structure-run1 report exit 0
+09:12:14 progressive-run1 shard 0 exit 0
+09:59:43 progressive-run1 shard 1 exit 0
+09:59:48 progressive-run1 report exit 0
+10:10:02 progressive-probe-run1 exit 0
+10:20:10 probe-codec-run1 exit 0
+10:30:25 progressive-probe-run2 exit 0
+10:40:33 probe-codec-run2 exit 0
+10:40:36 structure-run2 prepare exit 0
+11:30:58 structure-run2 layer 26 done
+12:21:15 structure-run2 layer 1 done
+13:11:26 structure-run2 layer 9 done
+14:01:44 structure-run2 layer 17 done
+14:02:07 structure-run2 replay exit 0
+14:02:09 structure-run2 report exit 0
+14:49:40 progressive-run2 shard 0 exit 0
+15:37:11 progressive-run2 shard 1 exit 0
+15:37:15 progressive-run2 report exit 0
+15:37:15 pipeline done

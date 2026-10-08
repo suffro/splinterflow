@@ -1,0 +1,38 @@
+{
+ "model": {
+  "repository": "moonshotai/Moonlight-16B-A3B",
+  "revision": "476b36a473d4467f94469414bef6cee75c9c8172",
+  "dtype": "bfloat16",
+  "profile": "BF16_REFERENCE"
+ },
+ "python": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+ "os": "Windows-11-10.0.26200-SP0",
+ "packages": {
+  "torch": "2.14.1+cu130",
+  "transformers": "5.18.0",
+  "safetensors": "0.8.0",
+  "numpy": "2.5.3",
+  "huggingface-hub": "1.33.0",
+  "tokenizers": "0.23.2",
+  "pyarrow": "25.0.1"
+ },
+ "cuda_version": "13.0",
+ "cudnn_version": 92400,
+ "gpu": "NVIDIA GeForce RTX 4060 Ti",
+ "numerics": {},
+ "git_commit": "31abf071f5132a021c5e00eff07bea66bbff04a8",
+ "git_dirty": true,
+ "source_tree_sha256": "694af187340e8090d44536bfb117517a948292ced80631d8515cc8f7ce29f630",
+ "uv_lock_sha256": "59ac749df01e194310fcc3ff085470275786d68dbae72e5161dbbc0d2b1fd878",
+ "codecs": {
+  "zstandard": "0.25.0",
+  "libzstd": "1.5.7",
+  "zstandard_backend": "cext",
+  "lz4": "4.4.5",
+  "liblz4": "1.9.4"
+ },
+ "research_tree_sha256": "fdbff83afd23d358d35ab7487abfebee500ef96d6eeca11f901c2c367940707e",
+ "python_hash_seed": "2",
+ "cpu_count": 6,
+ "started_at": "2026-10-08T10:40:35+0200"
+}

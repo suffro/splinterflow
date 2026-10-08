@@ -1,0 +1,147 @@
+# AWPMI Phase 5C: exact shared expert bases and progressive expert deltas (research/expert_deltas).
+#
+# Two questions, kept apart:
+#   5C1  exact structural reuse: can a shared resident base plus exact, losslessly encoded per-expert deltas move fewer
+#        bytes than the checkpoint and than competent independent compression of the experts?
+#   5C2  certified adaptive materialization: can a partially read exact representation (base + delta pages read so far +
+#        resident metadata) decide the same token as the fully materialized reference, with some bytes never read?
+# Thresholds are the brief's (2026-10-08), fixed here before any measurement; the codec probe (stage 5C1-A) may change
+# operational settings below (block sizes, codec levels), never a threshold.
+
+model:
+  # The Phase 4B/5A reference: BF16_REFERENCE, grouped_mm experts, SDPA. Read in place from the local Hugging Face cache.
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  profile: BF16_REFERENCE
+
+# Stage 5C1-A: codec probe (layout, exact transforms, baselines on a few experts).
+probe:
+  layer: 26                     # Phase 5A's target layer (model.layers.26, the last MoE layer)
+  experts: [0, 1, 2, 3, 4, 5, 6, 7]
+  dictionary_train_experts: [0, 1, 2, 3]   # disjoint from the evaluation experts
+  dictionary_eval_experts: [4, 5, 6, 7]
+  dictionary_sizes: [16384, 65536]
+  dictionary_samples: 4096      # rows drawn (deterministically) from the training experts
+  codecs: [[zstd, 1], [zstd, 3], [zstd, 9], [zstd, 19], [lz4, 0], [lz4hc, 9]]
+  transforms: [raw, byte_split, planes]
+  # Blocks are whole rows of one matrix (a gate or up row is 4 KiB, a down row 2.75 KiB); "tensor" one matrix (5.5 MiB),
+  # "expert" the three adjacent tensors as stored (16.5 MiB, file order down, gate, up).
+  blocks: [row, rows16, rows64, tensor, expert]
+  threads: 6
+  seed: 5
+
+# Stage 5C1-B: structural reuse on a representative subset (all 64 experts, three matrix kinds, four MoE layers).
+structure:
+  layers: [1, 9, 17, 26]
+  threads: 6
+  seed: 5
+  # Independent baselines (A raw BF16; B each expert compressed alone; C independent pages; D trained dictionaries).
+  # The best independent exact baseline is the smallest at the granularity compared. Chosen after the codec probe
+  # (experiments/phase5c/probe-codec, operational only): raw bytes compress to 0.78 with zstd and not at all with LZ4;
+  # bit planes with zstd-19 reach the order-0 entropy (0.6615 per tensor, 0.6648 per 16-row page); zstd-1 beats zstd-3
+  # on split streams; zstd-19 on a 16-row byte split is anomalous (0.78), zstd-9 is not; dictionaries matter only for
+  # byte-split rows (planes without one are as small). zstd-19 compresses at ~14 MB/s on 6 threads: used where it is best.
+  independent:
+    configurations:             # [block, transform, codec, level]
+      - [expert, raw, zstd, 3]
+      - [expert, byte_split, lz4, 0]
+      - [expert, byte_split, zstd, 1]
+      - [expert, byte_split, zstd, 19]
+      - [expert, planes, zstd, 1]
+      - [expert, planes, zstd, 19]
+      - [expert, planes, lz4hc, 9]
+      - [rows16, byte_split, zstd, 9]
+      - [rows16, planes, zstd, 1]
+      - [rows16, planes, zstd, 19]
+      - [rows16, planes, lz4hc, 9]
+    dictionary: {size: 65536, codec: [zstd, 19], blocks: [row, rows16], transforms: [byte_split], train_experts: 32, samples: 4096}
+  # Shared bases, per layer and matrix kind (Strategy B is the per-kind split itself). Proxy costs (order-0 plane entropy)
+  # for every strategy and encoding; actual compression (bit planes, zstd-19) for the strategies in `measure`, XOR deltas,
+  # and modular deltas too for those in `all_encodings`. A base matrix is stored as its own compressed object.
+  bases:
+    candidates: 3               # A3: each expert takes the best of the 3 most central experts (2 bits of mapping)
+    clusters: [2, 4, 8]         # C: agglomerative clusters on the pairwise proxy cost, each with its medoid as base
+    encodings: [xor, modular]
+    measure: [A1, A2, A3, C-best, synthetic-median]
+    all_encodings: [A2]
+    transforms: [planes]
+    codecs: [[zstd, 19]]
+    blocks: [expert]
+    page_blocks: [A2]           # also measured in 16-row pages (rows16), against baseline C
+  # Strategy D (a compact shared predictor plus its exact correction) runs only if A-C or the census show structure:
+  # some strategy saves at least `min_saving` against the best independent baseline, or the census finds a cross-expert
+  # shared component explaining at least `min_shared_variance` of the variance, or a shared context worth at least
+  # `min_context_bits` bits per weight of conditional entropy.
+  predictor_trigger: {min_saving: 0.05, min_shared_variance: 0.10, min_context_bits: 0.10}
+  # Neuron-permutation diagnostic (experts are trained independently; similar neurons may be permuted): best cosine of
+  # each gate row of one expert against every gate row of another, for this many expert pairs per sampled layer.
+  permutation_pairs: 16
+  # Cache and I/O accounting: Phase 5A's capture records (48 prompts, 1 prefill + 16 decode steps, every layer's routed
+  # experts), replayed in order through an LRU cache of whole experts in host RAM. Bases count against the same budget.
+  traces: experiments/phase5a/oracle-run1/capture.jsonl.gz
+  warmup_prompts: 1             # steady state: decode steps of the prompts after the first
+  host_budgets_gb: [0, 0.5, 1, 2, 4, 8, 16]
+  # Decode throughput: one decode step's routed experts of a layer (6), decoded (zstd's threads) and restored (a thread
+  # pool) on this CPU, alone and as A2's XOR deltas.
+  throughput_experts: 6
+  throughput_configurations: [[expert, planes, zstd, 19], [rows16, planes, zstd, 19], [expert, byte_split, zstd, 1], [expert, planes, lz4hc, 9]]
+  # Phase 4B's measured drive rate during a decode step (2.70 GB of routed experts in 66.5% of 1.273 s): the decode
+  # throughput a codec must reach not to become the bottleneck (reasonable-cost criterion).
+  drive_rate_gb_s: 3.19
+
+gate_5c1:
+  # Exact structural reuse is worth a runtime only if, on the same accesses and the same host-RAM budget:
+  exact: true                              # every reconstruction equal to the checkpoint's bytes (hard)
+  min_steady_ssd_reduction_vs_best_independent: 0.15   # steady-state SSD bytes per decode token, at some host budget
+  # (each budget of `host_budgets_gb` is evaluated; the gate takes the budget most favourable to the shared bases, with
+  # the bases' residency counted against it: a necessary condition, reported with every budget)
+  max_base_residency_gb: 4.0               # all layers' bases resident (projected from the sampled layers)
+  min_decode_throughput_gb_s: 3.19         # decompression + reconstruction on this CPU's 6 threads (BF16 bytes out)
+
+# Stage 5C2: progressive materialization of the exact representation (real-arithmetic structural diagnostic first).
+progressive:
+  capture: experiments/phase5a2/capture    # Phase 5A's capture regenerated (sha256 equal to Phase 5A run1's digest)
+  phase5a_run: experiments/phase5a/oracle-run1
+  phase5a2_run: experiments/phase5a2/l2    # its three samples' Phase 5A realistic bounds and set witnesses
+  # Stage 5C2-A probe samples: Phase 5A2's three (prompt 12 step 7: exact tie; prompt 12 step 9: gap 3.88; prompt 23 step 4:
+  # gap 11.06), identified by (prompt, step).
+  probe_samples: [[12, 7], [12, 9], [23, 4]]
+  near_rows: 64                 # contenders checked first (a filter; a certificate checks every vocabulary row)
+  chunk_rows: 4096
+  page_rows: 16                 # a page: 16 neurons (their gate and up rows) or 16 down rows, one refinement step
+  metadata_budgets: [0.005, 0.01, 0.02, 0.05, 0.10]   # of the routed experts' BF16 bytes (structured metadata)
+  # Structured metadata (a shared basis) is fitted on these prompts only; every evaluated sample comes from prompts 0..23
+  # (the probe's are prompts 12 and 23).
+  calibration_range: [24, 47]
+  budget_step: 0.015625         # schedule checkpoints: multiples of 1/64 of the routed BF16 bytes
+  # Stage 5C2-B (fixed after the probe's PROCEED, before any 5C2-B run): 12 samples, two per top-2 gap bin, evenly spaced in
+  # (prompt, step) order among Phase 5A run1's samples of prompts 0..23 (Phase 5A2's selection rule, no preference for
+  # certifiable ones: the tier here is real arithmetic). Schedules: the probe's two. Phase 5A's realistic D-q6+q4 bounds
+  # for the same samples and pairs come from Phase 5A's own code (5A2's export.schedule and real_components).
+  # Structured metadata (`sketch_budgets`, the greedy schedule): per layer a basis U of the experts' input (top singular
+  # vectors of x over the calibration prompts) and V of the decision directions Δ (each calibration sample's reference
+  # token against its 64 nearest rows); per routed expert the sketches G·U, Up·U and Vᵀ·D in float32 (k = budget × 1024
+  # columns each: budget × the expert's bytes), their float32 rounding bounded. A sound relaxation: the exact part through
+  # the basis, the box on the rest (the sketch's equality constraints dropped there), so its value is a lower bound.
+  selection: {gap_bins: [0.0, 0.5, 1.0, 2.0, 4.0, 8.0, .inf], per_bin: 2, prompts: [0, 23]}
+  schedules: [sequential, greedy]
+  sketch_budgets: [0.01, 0.10]
+
+gate_5c2:
+  # Structural (real arithmetic, never a certified BF16 result) on the evaluated samples:
+  soundness_violations: 0                  # hard: every set holds the truth, poisoning changes nothing, witnesses lie in their sets
+  min_structural_coverage: 0.20            # samples certified with part of the exact representation unread
+  max_mean_fraction_of_best_independent: 0.90   # mean charged bytes (metadata, fallbacks) over the best independent exact baseline
+  # Materially tighter than Phase 5A: at matched byte fractions of the routed BF16 bytes, the new set's exact optimum is at
+  # most this share of Phase 5A's realistic bound's distance to the truth (worst near contender).
+  max_distance_share_vs_phase5a: 0.5
+  # Strong: also at most this fraction of the raw BF16 bytes on average, and below the best independent baseline.
+  strong_max_mean_fraction_of_bf16: 0.70
+  # 5C2-A → 5C2-B: on the probe samples, no violation, and at least one sample with a margin certifies structurally with at
+  # most this fraction of the best independent exact bytes, with the distance criterion above.
+  probe_proceed_max_fraction_of_best_independent: 0.90
+  # Stop conditions (the brief's §28) as numbers: metadata larger than this share of the experts' bytes; sets that still
+  # flip a decision at this fraction of the representation's bytes on the samples with a margin.
+  stop_metadata_share: 0.10
+  stop_flip_fraction: 0.90

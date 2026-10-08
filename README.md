@@ -82,6 +82,20 @@ and the uncertainty sets this metadata defines hold weights that flip the decisi
 routed bytes even in real arithmetic, so no verifier could do much better. The phase stopped before its 12-sample
 stage.
 
+**Phase 5C — exact shared bases and progressive expert deltas** (`research/expert_deltas`) asks two separate questions
+about Moonlight's routed experts. First, can a shared resident base plus exact, losslessly compressed per-expert deltas
+(XOR or modular deltas of the BF16 bit patterns, reconstructed bit for bit) move fewer bytes than competent independent
+compression? No: across four layers the 64 experts of a layer are, to every test, independent (no shared component, no
+shared positional scale, no permuted copies of neurons), no expert has a delta cheaper than itself against any base, and
+every base strategy costs 4.5% or more extra drive bytes on Phase 5A's routing trace. Independent exact compression
+(bit planes with zstd) does pay: 0.66 of the BF16 bytes, a third fewer drive bytes per decode token. Second, can a
+partially read exact representation certify the reference's token while some bytes stay unread? Bit planes read page by
+page give, at the same raw bytes, uncertainty sets about three times closer to the truth than Phase 5A's, but their exact
+optimum still admits decision-flipping weights until the last mantissa plane or two: in real arithmetic the certificate
+leaves 5–17% of the compressed bytes unread on tokens with a margin of more than a logit and about none on close calls (8%
+on a gap-stratified sample, 6% over the real gap distribution; the gate asked for 10%), and Phase 5A's BF16 rounding floor
+remains. No runtime is built.
+
 ## Setup
 
 ```bash
@@ -123,6 +137,10 @@ uv run python benchmarks/expert_oracle.py --output experiments/phase5a/my-run --
 uv run python benchmarks/expert_oracle.py --output experiments/phase5a/my-run --stage capture   # capture | oracle --shard i | oracle-real | digest
 uv run python benchmarks/expert_oracle_report.py experiments/phase5a/my-run [--compare experiments/phase5a/other-run]
 # Phase 5A2 runs in its own environment: see research/crown_expert_oracle/README.md
+# Phase 5C (the Weightsift environment; codecs from the default dependency group `research`): see research/expert_deltas/README.md
+uv run python research/expert_deltas/probe_codec.py --output experiments/phase5c/my-probe
+uv run python research/expert_deltas/structure_run.py --output experiments/phase5c/my-run --stage prepare   # then layer --layer L, replay, report
+uv run python research/expert_deltas/progressive_run.py --output experiments/phase5c/my-progressive --shard 0 --shards 2   # then --report
 ```
 
 `run.py` writes raw per-input records, validation records, the prompts, the
@@ -193,8 +211,9 @@ benchmarks/     run.py, report.py, prompts.py, oracle.py, refinement_oracle.py, 
 configs/        smollm2-135m.yaml (pinned model and dataset revisions), phase1b-refinement.yaml,
                 phase1c-runtime.yaml, phase2-suffix.yaml, phase3-storage.yaml, phase3-moe.yaml,
                 phase4a-olmoe.yaml, phase4b-moonlight.yaml, phase5a-expert-oracle.yaml,
-                phase5a2-crown-oracle.yaml
-research/       crown_expert_oracle (Phase 5A2: the auto_LiRPA verifier, its own environment and lockfile)
+                phase5a2-crown-oracle.yaml, phase5c-expert-deltas.yaml
+research/       crown_expert_oracle (Phase 5A2: the auto_LiRPA verifier, its own environment and lockfile),
+                expert_deltas (Phase 5C: exact shared bases, bit-plane deltas, their codecs, replay and progressive oracle)
 experiments/    raw results per phase and run
 packs/          packs and expert indexes (gitignored; rebuilt by `weightsift pack`)
 ```

@@ -5,81 +5,77 @@
 **CLI:** `weightsift` is the command; `wsift` is its equivalent shorthand. Both expose
 the `pack` command (`lm-head`, `experts`, `expert-index`). The Python package is `awpmi`.
 
-## Latest: Phase 5A2 (CROWN / auto_LiRPA expert oracle) is complete (2026-10-07), stopped after stage 1.5
+## Latest: Phase 5C (exact shared bases and progressive expert deltas) is complete (2026-10-08)
 
-**Answer: no.** Given Phase 5A's L2 remainder norms, auto_LiRPA's CROWN does not make expert AWPMI materially more
-viable. Stage 2 (12 samples) was not run. The report is `history/2026-10-07-awpmi-phase5a2-report.md`; the decision is
-0010.
+**Answer: neither pays on Moonlight.** The report is `history/2026-10-08-awpmi-phase5c-report.md`; the decision is 0011.
+The brief was the user's of 2026-10-08.
 
-- **What stage 1.5 asked** (the user's brief of 2026-10-07): give auto_LiRPA the L2 information Phase 5A already holds
-  (‖residual row‖₂ ≤ R instead of independent boxes), upstream functionality only, and tell verifier looseness apart from
-  the uncertainty set's own looseness. Toys first, then three real samples (prompt 12 step 7, the exact tie; prompt 12
-  step 9, gap 3.88; prompt 23 step 4, gap 11.06), D-q6+q4, real arithmetic.
-- **Upstream (toys, exact optima).** Independent L2 balls go in as one root per group of rows with one `F.linear` per
-  group: with an exact input CROWN is exact and the groups independent. Stacking the groups into one weight fails
-  upstream. For down after uncertain activations, upstream's default interval mode is **unsound** (an L2 root's interval
-  bounds are its centre); only the experimental `AUTOLIRPA_L2_DEBUG=1` mode, on the reduced graph, is sound.
-- **Verifier.** L2 CROWN is 15× looser than box CROWN at the q6 state, 34–35× below Phase 5A's realistic bound and about
-  40× below its own set's attained value (its product relaxation works on each ball's box hull, ±ρ2 per entry, ρ2 ≈
-  22·ρ∞). It decides the samples with a margin only from 1.336 of the routed bytes (Phase 5A: 0.961, 1.008). Box CROWN is
-  about 2× below its set's minimum at q6, close later.
-- **Uncertainty sets (decisive).** Phase 5A's realistic bound is already the L2 set's decoupled lower bound; the set's
-  minimum is within 16% of it at q6. Weights consistent with the L2 metadata flip a pair until 1.633, 0.868 and 0.914 of
-  the routed bytes; with every resident byte (L2 and L∞) until 1.617, 0.821 and 0.852. So no verifier given this
-  metadata saves more than ~0.12–0.14 of the routed bytes over Phase 5A on these samples, in real arithmetic, before the
-  rounding floor (Phase 5A: 8.1% certified ceiling).
-- **Stop conditions** (config `l2`): C met; B met on two of three samples by the pre-registered rule; A in part; D not
-  met (L2 CROWN ~100 s per state, about 30× the phase's runtime bar).
-- **The checkpoint's unexplained `exit 127`, resolved.** A process that ran auto_LiRPA on CUDA fails fast while its
-  native libraries unload at exit (0xC0000409; Git Bash shows 127), after every record is written. The verifier's scripts
-  now end with `TerminateProcess` (`crown_oracle.graph.leave`): exit status 0 after the same work.
-- **Correctness.** Every box and L2 ball of every state holds the true weights; poisoning unread rows changes no set; no
-  bound above the truth or an attained value of its set; every witness inside its set. Tests: 54 in the verifier
-  environment (26 new), 555 in Weightsift (unchanged behaviour; the root cannot import auto_LiRPA).
+- **Exact structural reuse (5C1): gate FAIL.** A layer's 64 routed experts are, to every test, independent (4 layers × 3
+  matrices: flat cross-expert spectrum, correlations and sign/exponent agreement at independence, no permuted neuron
+  copies). No expert has a delta (XOR or modular, on the BF16 patterns, reconstructed bit for bit) cheaper than itself
+  against any other expert. Every base strategy (first expert, medoid, best of three, clusters, a synthetic median) costs
+  6–9% more stored bytes than compressing each expert alone, and loses on Phase 5A's routing trace at every host budget
+  (−4.5% to −61%), bases pinned, bounded or on the GPU.
+- **Independent exact compression is the measured gain**: bit planes (sign, exponent byte, mantissa bits) with zstd-19,
+  0.661 of BF16 (the order-0 entropy is 0.658): −34% drive bytes per decode token without a cache (2.70 → 1.78 GB,
+  projected to 26 layers), −55%/−86% against BF16 host caches of 8/16 GB. zstd decompression keeps up with the drive;
+  restoring bit planes needs a device-side merge (this harness: ~1 GB/s).
+- **Progressive materialization (5C2): STRUCTURAL FAIL.** Bit planes in 16-row pages (each plane its own frame) are an
+  exact, non-redundant, page-addressable representation; the set of weights consistent with what is read is a box whose
+  real-arithmetic decision minimum is exact (closed form, witnesses). At the same raw bytes it is about 3× closer to the
+  truth than Phase 5A's realistic bound, but weights consistent with everything read flip the decision until 0.80–0.99 of
+  the representation. On 12 samples the certificate needs 0.83 (gap > 6 logits) to 1.00 (gap < 1) of the best independent
+  exact bytes: mean 0.920 (gate ≤ 0.90), 0.943 on the real gap distribution. Sketch metadata (1%, 10%) does not pay.
+- **Faithful BF16 (5C2-C): not run** (gated). Phase 5A's floor bounds it: 8.1% of tokens certify even with every byte
+  read; at most ~1.4% of the compressed bytes could be saved.
+- **Correctness**: every reconstruction bit for bit against safetensors' own read; files equal the publisher's sha256;
+  Phase 5A's reference recomputed bitwise on 15 samples (also from decoded pages); 0 soundness violations (sets never
+  depend on unread bits, minima equal enumeration on toys, witnesses inside their sets). Tests: 79 new in
+  `research/expert_deltas/tests`; Weightsift's 555 unchanged.
 
 ## Previous focus
 
-**Phase 5A (AWPMI inside routed experts: an oracle study) is complete (2026-10-04). Correctness passes; the gate FAILs**
-(report `history/2026-10-04-awpmi-phase5a-report.md`, decision 0009). On Moonlight-16B-A3B's last MoE layer, under the
-certified rounding model, no token certifies with any routed-expert byte unread; with every byte read the certificate
-holds on 8.1% of tokens. Two obstacles, each decisive alone: the rounding floor (3.2 logits of named error terms on the
-tightest pair against a median top-2 gap of 1.1) and the bounds on unread parts (norm-based bounds need every byte even
-in real arithmetic; with ideal bounds and no floor, D-q6+q4 would need 0.47).
+**Phase 5A2 (CROWN / auto_LiRPA expert oracle) is complete (2026-10-07), stopped after stage 1.5** (report
+`history/2026-10-07-awpmi-phase5a2-report.md`, decision 0010). Given Phase 5A's L2 remainder norms, auto_LiRPA's CROWN
+does not make expert AWPMI materially more viable: it is sound there only in an experimental mode and about 34× below
+Phase 5A's bound, and the uncertainty sets themselves hold decision-flipping weights until about 0.82–0.91 of the routed
+bytes in real arithmetic.
 
-Phases 1A, 1B, 1C, 2, 3, 4A, 4B and 5A are complete; their reports are in `history/`. Phase 4B (decision 0008) runs
-Moonlight out of VRAM and host RAM, bit for bit equal to an independent reference.
+Phases 1A, 1B, 1C, 2, 3, 4A, 4B, 5A, 5A2 and 5C are complete; their reports are in `history/`. Phase 4B (decision 0008)
+runs Moonlight out of VRAM and host RAM, bit for bit equal to an independent reference.
 
 ## Recent relevant changes
 
-- `research/crown_expert_oracle` (the isolated verifier environment; decision 0010):
-  - new: `crown_oracle/l2.py` (L2 groups as auto_LiRPA graphs), `crown_oracle/rowsets.py` (the sets' optima and
-    witnesses; diagnostics), `probe_l2.py` (the stage 1.5 probe), `tests/test_l2.py`;
-  - changed: `sets.py` (`matrix_balls`), `attack.py` (`reduced_vertex`), `graph.py` (`leave`), `run.py` (parts `l2` and
-    `l2crown`; L2 balls in `validate`), `report.py` (`--l2`), `export.py` (`--select`), the README.
-- `configs/phase5a2-crown-oracle.yaml`: the `l2` section (stage 1.5's settings and stop conditions).
-- Raw results: `experiments/phase5a2/probe_l2`, `experiments/phase5a2/l2` (the artifact's tensors are regenerated, not
-  committed).
-- No change under `src/`, `benchmarks/` or `tests/`: the Weightsift environment, Phase 4B's runtime and Phase 5A's
-  oracle are unchanged.
-- Decision 0010 is new.
+- `research/expert_deltas` (new; decision 0011): `expert_deltas/` (`bits`, `codecs`, `source`, `compression`, `census`,
+  `structure`, `replay`, `progressive`, `oracle`, `records`), drivers `probe_codec.py`, `structure_run.py`,
+  `structure_report.py`, `progressive_probe.py`, `progressive_run.py`, tests, README.
+- `pyproject.toml` / `uv.lock`: dependency group `research` (default): zstandard, lz4, SciPy. The package's own
+  dependencies are unchanged.
+- `configs/phase5c-expert-deltas.yaml`; raw results in `experiments/phase5c/`.
+- No change under `src/`, `benchmarks/` or `tests/`: Phase 4B's runtime and Phase 5A's oracle are unchanged.
+- Decision 0011 is new.
 
 ## Next
 
 The next phase is **not started**. It needs the user's go-ahead. The candidates:
 
-1. **Exact structural reuse** (the guide's §7): a shared exact expert base plus exact per-expert deltas, which reduces
-   bytes without certification. The likely next investigation; outside Phase 5A2's scope.
-2. **Native runtime and a host-RAM expert tier** (the Phase 4B report's engineering path): it attacks the measured
-   bottleneck (drive reads, two thirds of decode) with no change to exactness.
-3. **No expert-AWPMI runtime (Phase 5B)**, and no more verifier work on norm metadata: Phase 5A2 shows that the
-   uncertainty sets themselves, not the verifier, keep decisions open until ~0.82–0.91 of the routed bytes.
+1. **The engineering path with exact compression** (recommended): Phase 4B's native runtime and host-RAM expert tier,
+   with the routed experts stored as exact bit-plane (or byte-split) zstd pages: a third fewer drive bytes per decode
+   token, about 1.5 times as many experts per byte of cache. Its open question is decode cost (a device-side plane merge, or
+   GPU decompression).
+2. **No more expert AWPMI on BF16 Moonlight** unless the rounding model for certificates changes: three representations
+   (Phase 5A's decompositions, Phase 5A2's verifier, Phase 5C's exact bit planes optimized exactly) agree that deciding a
+   token needs almost all of an expert's information, and the faithful floor decides 92% of tokens anyway.
+3. **Exact structural reuse on another model** only if its experts were upcycled from a shared dense model (the census
+   would show shared structure; Moonlight's show none).
 
 Open decisions for the user:
 
 - the next milestone;
 - the rounding model for certificates (RN-even, still open from Phase 2);
 - the reference for FP8 experts;
-- Phase 2 on a larger model.
+- Phase 2 on a larger model;
+- whether the Phase 5C brief (left untracked in the working tree's `.context/state`) is added to the repository.
 
 ## Blockers
 

@@ -23,6 +23,13 @@ wsift = "awpmi.cli:main"
 dev = [
     "pytest",
 ]
+# Phase 5C (research/expert_deltas): mature lossless codecs, used as published (no custom compression), and SciPy for
+# hierarchical clustering of experts (no clustering code of Weightsift's).
+research = [
+    "zstandard>=0.25",
+    "lz4>=4.4",
+    "scipy>=1.16",
+]
 
 [build-system]
 requires = ["uv_build>=0.12,<0.13"]
@@ -30,6 +37,7 @@ build-backend = "uv_build"
 
 [tool.uv]
 environments = ["sys_platform == 'win32'", "sys_platform == 'linux'"]
+default-groups = ["dev", "research"]
 
 [tool.uv.sources]
 torch = { index = "pytorch-cu130" }

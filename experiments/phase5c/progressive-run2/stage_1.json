@@ -1,0 +1,41 @@
+{
+ "shard": 1,
+ "shards": 2,
+ "samples": [
+  [
+   17,
+   1
+  ],
+  [
+   16,
+   1
+  ],
+  [
+   17,
+   2
+  ],
+  [
+   18,
+   9
+  ],
+  [
+   18,
+   1
+  ],
+  [
+   21,
+   16
+  ]
+ ],
+ "system": {
+  "process_memory": {
+   "resident_bytes": 3557056512,
+   "peak_resident_bytes": 4867588096,
+   "private_bytes": 8229371904
+  },
+  "peak_device_bytes": 5472330240
+ },
+ "timings": {
+  "total_s": 2835.2606149001513
+ }
+}

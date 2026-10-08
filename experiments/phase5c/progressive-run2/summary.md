@@ -1,0 +1,31 @@
+# Phase 5C2-B: structural certification oracle (real arithmetic; NOT a certified BF16 result)
+
+Samples: 12; soundness violations: 0; verdict: **STRUCTURAL FAIL**.
+
+| Cell | coverage (certified with bytes unread) | mean bytes / best independent | mean bytes / BF16 | median distance share vs Phase 5A | pass |
+| --- | --- | --- | --- | --- | --- |
+| sequential/linf | 0.917 | 0.9355 | 0.6189 | 0.383 | False |
+| greedy/linf | 0.917 | 0.9198 | 0.6085 | 0.328 | False |
+| greedy/sketch-0.01 | 0.917 | 0.9271 | 0.6133 | 0.348 | False |
+| greedy/sketch-0.1 | 0.917 | 1.0730 | 0.7099 | 1.383 | False |
+
+Modelled 4 KiB reads at the certifying state (amplification = physical / logical bytes; extents per token):
+
+- sequential/linf: page_major 1.042, 341 extents; plane_major 1.000, 6 extents
+- greedy/linf: page_major 1.041, 414 extents; plane_major 1.007, 69 extents
+- greedy/sketch-0.01: page_major 1.044, 449 extents; plane_major 1.006, 60 extents
+- greedy/sketch-0.1: page_major 1.048, 503 extents; plane_major 1.006, 56 extents
+
+Per sample (best independent fraction at certification; − never):
+
+- sequential/linf: 5/2 (gap 0.25) 0.994, 17/1 (gap 0.12) 1.005, 7/8 (gap 0.62) 0.994, 16/1 (gap 0.56) 0.994, 6/2 (gap 1.75) 0.946, 17/2 (gap 1.62) 0.970, 5/7 (gap 3.50) 0.946, 18/9 (gap 3.81) 0.875, 5/15 (gap 6.38) 0.828, 18/1 (gap 4.25) 0.970, 8/15 (gap 8.25) 0.852, 21/16 (gap 8.56) 0.852
+- greedy/linf: 5/2 (gap 0.25) 0.994, 17/1 (gap 0.12) 1.005, 7/8 (gap 0.62) 0.994, 16/1 (gap 0.56) 0.994, 6/2 (gap 1.75) 0.923, 17/2 (gap 1.62) 0.946, 5/7 (gap 3.50) 0.876, 18/9 (gap 3.81) 0.875, 5/15 (gap 6.38) 0.828, 18/1 (gap 4.25) 0.946, 8/15 (gap 8.25) 0.828, 21/16 (gap 8.56) 0.828
+- greedy/sketch-0.01: 5/2 (gap 0.25) 1.011, 17/1 (gap 0.12) 1.022, 7/8 (gap 0.62) 1.011, 16/1 (gap 0.56) 1.011, 6/2 (gap 1.75) 0.916, 17/2 (gap 1.62) 0.963, 5/7 (gap 3.50) 0.869, 18/9 (gap 3.81) 0.869, 5/15 (gap 6.38) 0.822, 18/1 (gap 4.25) 0.963, 8/15 (gap 8.25) 0.845, 21/16 (gap 8.56) 0.822
+- greedy/sketch-0.1: 5/2 (gap 0.25) 1.169, 17/1 (gap 0.12) 1.180, 7/8 (gap 0.62) 1.169, 16/1 (gap 0.56) 1.169, 6/2 (gap 1.75) 1.027, 17/2 (gap 1.62) 1.121, 5/7 (gap 3.50) 1.027, 18/9 (gap 3.81) 1.003, 5/15 (gap 6.38) 0.956, 18/1 (gap 4.25) 1.121, 8/15 (gap 8.25) 0.980, 21/16 (gap 8.56) 0.956
+
+Uncertainty left by the last planes (comparison rows; samples whose set still flips a pair, median gap truth − minimum; share of the box terms in the largest 10% of columns, down rows, neurons):
+
+- planes_unread_1: flipping {'all': 8, 'gate_up_only': 7, 'down_only': 5}, median gap {"all": 9.768, "gate_up_only": 5.075, "down_only": 4.614}, top-10% shares {"gate_up_columns": 0.257, "down_rows": 0.432, "down_neurons": 0.531}
+- planes_unread_2: flipping {'all': 12, 'gate_up_only': 8, 'down_only': 9}, median gap {"all": 32.241, "gate_up_only": 15.508, "down_only": 13.849}, top-10% shares {"gate_up_columns": 0.257, "down_rows": 0.429, "down_neurons": 0.484}
+
+Phase 5A realistic (D-q6+q4, real tier) decides the comparison pairs from (fraction of BF16): 5/2 1.493, 17/1 1.618, 7/8 1.524, 16/1 1.555, 6/2 1.055, 17/2 1.368, 5/7 1.024, 18/9 0.868, 5/15 0.758, 18/1 1.196, 8/15 0.758, 21/16 0.743

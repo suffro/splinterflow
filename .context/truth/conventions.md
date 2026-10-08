@@ -78,6 +78,14 @@
   UTF-8 (set `PYTHONIOENCODING=utf-8` on a Windows console) and end with `crown_oracle.graph.leave`, because a process
   that ran auto_LiRPA on CUDA otherwise fails fast while unloading (0xC0000409, shown by Git Bash as 127); the run's
   outcome is its `verifier_<part>_<shard>.json` (`failures`) in any case.
+- Phase 5C (exact shared bases and progressive expert deltas, decision 0011) is research code in
+  `research/expert_deltas`, run in the Weightsift environment; the codecs and SciPy come from the root dependency group
+  `research` (a default group: `python -m uv sync` installs it). Tests: `python -m uv run python -m pytest
+  research/expert_deltas/tests` (`uv run pytest` can fail on Windows with "uv trampoline failed to canonicalize script
+  path"; `python -m pytest` avoids the trampoline). The pipeline is in that directory's README: `probe_codec.py`
+  (5C1-A), `structure_run.py` (5C1-B: `--stage prepare`, one `--stage layer --layer L` per process, `replay`, `report`),
+  `progressive_probe.py` (5C2-A), `progressive_run.py` (5C2-B, `--shard i --shards n`, then `--report`). Its records
+  digest everything but timings and throughputs, which are measured only when nothing else runs on the machine.
 - Keep a benchmark's peak device memory well under the card, and record it (`peak_device_bytes`). Under
   Windows' WDDM, allocations beyond the GPU's memory do not fail: the driver pages device memory to the host
   and kernels slow down. Phase 5A's first development runs peaked at 8.03 GB on the 8 GB card and ran
@@ -151,3 +159,10 @@
   whose results are `would_certify`, never `certified`.
 - A certificate against an LM head checks every vocabulary row. A filter on the nearest rows may
   only reject early (a necessary condition), never accept.
+- A derived exact representation (a delta, a bit plane, a compressed page) is checked bit for bit against an independent
+  read of the checkpoint (safetensors' own loader), never by a numeric tolerance. Deltas are integer operations on the
+  BF16 patterns (XOR, modular); `BF16(base + delta)` is not exact (Phase 5C: wrong on 36–38% of weights with a BF16
+  delta, and on a few even with a float32 one).
+- A structural diagnostic (real arithmetic, decision 0009's real tier) is never reported as a certified BF16 result. A set
+  of weights "consistent with what is read" is built from a read view whose unread bits are poisoned, and its claimed
+  optimum is checked against enumeration on toys and against attained points (witnesses) on real samples.

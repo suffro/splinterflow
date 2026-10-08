@@ -1,0 +1,118 @@
+# Phase 5C1-B: exact structural reuse (summary)
+
+Layers [1, 9, 17, 26]; every reconstruction exact: True; files equal to the publisher's sha256: True.
+
+## Shared structure (census)
+
+| Layer/kind | bits/weight alone | top eigenvalue share (independent 1/E) | mean absolute correlation (max) | sign agreement (expected) | exponent agreement (expected) | best exponent context saving − its cost (bits) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1/gate | 10.516 | 0.0180 (0.0156) | 0.00054 (0.0025) | 0.50009 (0.50000) | 0.21186 (0.21185) | +0.0040 |
+| 1/up | 10.515 | 0.0173 (0.0156) | 0.00048 (0.0020) | 0.49999 (0.50000) | 0.21189 (0.21188) | +0.0031 |
+| 1/down | 10.515 | 0.0170 (0.0156) | 0.00049 (0.0022) | 0.50000 (0.50000) | 0.21194 (0.21192) | +0.0026 |
+| 9/gate | 10.531 | 0.0185 (0.0156) | 0.00110 (0.0046) | 0.50031 (0.50000) | 0.21007 (0.21006) | +0.0179 |
+| 9/up | 10.517 | 0.0181 (0.0156) | 0.00050 (0.0020) | 0.50000 (0.50000) | 0.21162 (0.21160) | +0.0041 |
+| 9/down | 10.517 | 0.0177 (0.0156) | 0.00050 (0.0023) | 0.50000 (0.50000) | 0.21170 (0.21163) | +0.0036 |
+| 17/gate | 10.530 | 0.0201 (0.0156) | 0.00140 (0.0054) | 0.50040 (0.50000) | 0.21011 (0.21010) | +0.0184 |
+| 17/up | 10.516 | 0.0175 (0.0156) | 0.00048 (0.0020) | 0.50000 (0.50000) | 0.21177 (0.21176) | +0.0036 |
+| 17/down | 10.516 | 0.0172 (0.0156) | 0.00050 (0.0026) | 0.50000 (0.50000) | 0.21183 (0.21180) | +0.0031 |
+| 26/gate | 10.534 | 0.0206 (0.0156) | 0.00403 (0.0184) | 0.50123 (0.50000) | 0.21015 (0.20987) | +0.0200 |
+| 26/up | 10.522 | 0.0219 (0.0156) | 0.00050 (0.0023) | 0.50000 (0.50000) | 0.21189 (0.21160) | +0.0074 |
+| 26/down | 10.523 | 0.0208 (0.0156) | 0.00048 (0.0025) | 0.50001 (0.50000) | 0.21204 (0.21196) | +0.0072 |
+
+Neuron-permutation diagnostic (best absolute cosine of a neuron against another expert's, mean; Gaussian null):
+
+- layer 1: mean 0.0469, max 0.2917; null mean 0.0450, max 0.0640
+- layer 9: mean 0.0520, max 0.3981; null mean 0.0450, max 0.0640
+- layer 17: mean 0.0500, max 0.2914; null mean 0.0450, max 0.0640
+- layer 26: mean 0.0493, max 0.7382; null mean 0.0450, max 0.0640
+
+## Proxy cost of base strategies (extra bits per weight against storing every expert alone; > 0 is worse)
+
+- A1-first/modular: +0.6650
+- A1-first/xor: +0.5507
+- A2-medoid/modular: +0.6636
+- A2-medoid/xor: +0.5432
+- A3-best-of-3/modular: +0.6422
+- A3-best-of-3/xor: +0.5262
+- C2-clusters/modular: +0.6532
+- C2-clusters/xor: +0.5345
+- C4-clusters/modular: +0.6323
+- C4-clusters/xor: +0.5171
+- C8-clusters/modular: +0.5904
+- C8-clusters/xor: +0.4822
+- best_pair_bound/modular: +0.0000
+- best_pair_bound/xor: +0.0000
+- synthetic-median/modular: +0.6323
+- synthetic-median/xor: +0.7893
+- every expert at its best actual-expert base: 0 of 1536 (expert, kind, encoding) have a cheaper delta than alone; largest saving -0.4739 bits
+
+## Stored bytes (derived on disk / BF16, mean over layers; bases and index included)
+
+- independent/expert/planes/zstd-19: 0.6611
+- independent/rows16/planes/zstd-19: 0.6669
+- independent/expert/byte_split/zstd-19: 0.6724
+- independent/expert/planes/zstd-1: 0.6800
+- independent/expert/byte_split/zstd-1: 0.6851
+- independent/rows16/planes/zstd-1: 0.6887
+- dictionary/rows16/byte_split: 0.6924
+- base/C-best/xor/expert/planes/zstd-19: 0.7017
+- dictionary/row/byte_split: 0.7031
+- base/A2/xor/expert/planes/zstd-19: 0.7052
+- base/A1/xor/expert/planes/zstd-19: 0.7055
+- base/A2/xor/rows16/planes/zstd-19: 0.7100
+- base/A2/modular/expert/planes/zstd-19: 0.7124
+- base/A3/xor/expert/planes/zstd-19: 0.7146
+- base/synthetic-median/xor/expert/planes/zstd-19: 0.7213
+- independent/rows16/byte_split/zstd-9: 0.7364
+- independent/expert/planes/lz4hc-9: 0.7476
+- independent/expert/raw/zstd-3: 0.7829
+- independent/rows16/planes/lz4hc-9: 0.7899
+- independent/expert/byte_split/lz4-0: 0.8465
+- bf16: 1.0000
+
+Best independent: independent/expert/planes/zstd-19 0.6611; best shared base: base/C-best/xor/expert/planes/zstd-19 0.7017 (+6.15%).
+
+## Replay (steady-state drive bytes per decode token, sampled layers; projection to 26 layers)
+
+| Host budget (GB) | BF16 | best independent | best shared base (host) | reduction | best shared base (GPU) | reduction |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | 415.2 MB | 274.5 MB | 524.5 MB | -91.1% | 287.0 MB | -4.5% |
+| 0.5 | 415.2 MB | 274.5 MB | 287.0 MB | -4.5% | 287.0 MB | -4.5% |
+| 1 | 415.1 MB | 273.6 MB | 287.0 MB | -4.9% | 286.1 MB | -4.5% |
+| 2 | 406.3 MB | 193.9 MB | 274.4 MB | -41.5% | 202.6 MB | -4.5% |
+| 4 | 249.3 MB | 130.9 MB | 149.2 MB | -13.9% | 142.5 MB | -8.9% |
+| 8 | 161.0 MB | 73.0 MB | 84.0 MB | -15.1% | 80.0 MB | -9.6% |
+| 16 | 71.3 MB | 9.8 MB | 15.8 MB | -61.1% | 13.1 MB | -33.6% |
+
+## Decode throughput (one step's routed experts of a layer, GB/s of BF16 out)
+
+- independent/expert/planes/zstd-19: decompress_gb_s 3.31, cpu_restore_gb_s 0.32, gpu_restore_gb_s 1.14
+- A2-xor/expert/planes/zstd-19: decompress_gb_s 3.68, cpu_restore_gb_s 0.32, gpu_restore_gb_s 1.12
+- independent/rows16/planes/zstd-19: decompress_gb_s 4.82, cpu_restore_gb_s 0.07, gpu_restore_gb_s 1.03
+- A2-xor/rows16/planes/zstd-19: decompress_gb_s 4.91, cpu_restore_gb_s 0.07, gpu_restore_gb_s 1.03
+- independent/expert/byte_split/zstd-1: decompress_gb_s 2.54, cpu_restore_gb_s 4.93, gpu_restore_gb_s 2.51
+- A2-xor/expert/byte_split/zstd-1: decompress_gb_s 3.03, cpu_restore_gb_s 2.87, gpu_restore_gb_s 2.49
+- independent/expert/planes/lz4hc-9: decompress_gb_s 2.53, cpu_restore_gb_s 0.32, gpu_restore_gb_s 1.16
+- A2-xor/expert/planes/lz4hc-9: decompress_gb_s 2.52, cpu_restore_gb_s 0.32, gpu_restore_gb_s 1.11
+
+## Gate 5C1
+
+```
+{
+ "exact": true,
+ "best_budget_gb": 0.5,
+ "reduction_vs_best_independent": -0.04544512721574123,
+ "reduction_met": false,
+ "base_residency_gb_projected": 0.449839104,
+ "residency_met": true,
+ "decode_throughput_gb_s": {
+  "setting": "expert/planes/zstd-19",
+  "decompress": 3.683520460976018,
+  "restore_best": 1.119447765753807
+ },
+ "throughput_met": false,
+ "pass": false
+}
+```
+
+Strategy D trigger: {"best_strategy_saving": -0.06150575003267322, "max_top_eigenvalue_share": 0.021897322944200295, "max_net_context_saving_bits": 0.02003778558394842, "triggered": false}

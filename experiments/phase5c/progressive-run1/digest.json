@@ -1,0 +1,10 @@
+{
+ "samples": "2ccf4204fe915a378a36c4585476c01d7f907826ddf83c8430fa20e4e84eb90c",
+ "excluded_fields": [
+  "timings",
+  "timings_ms",
+  "system",
+  "throughput",
+  "peak_device_bytes"
+ ]
+}

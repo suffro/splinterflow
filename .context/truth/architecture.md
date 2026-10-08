@@ -59,6 +59,13 @@ Implemented so far:
   sets themselves keep decisions open until about 0.82–0.91 of the routed bytes even in real arithmetic. Nothing in
   `src/` uses it.
 
+- **Phase 5C**: research code in `research/expert_deltas` (decision 0011), run in the Weightsift environment with the
+  root's `research` dependency group (zstandard, lz4, SciPy). Two questions kept apart: exact structural reuse (a shared
+  expert base plus exact XOR or modular deltas of the BF16 patterns, compressed with zstd/LZ4 as published, against
+  competent independent compression, through a replay of Phase 5A's routing trace) and progressive materialization (the
+  experts' bit planes read page by page; the set of weights consistent with what is read is a box, and the exact minimum
+  of the real-arithmetic decision over it has a closed form, with witnesses). Nothing in `src/` uses it.
+
 ## Major components (`src/awpmi/`)
 
 | Module | Role |
@@ -160,6 +167,15 @@ schedules, enclosures and bounds for chosen samples, written as an artifact of s
 file's sha256), and in the verifier environment `crown_oracle/` (graphs as PyTorch modules, sets from a read view,
 L2 graphs, the sets' optima and witnesses), `probe.py`, `probe_l2.py`, `run.py`, `report.py`;
 `configs/phase5a2-crown-oracle.yaml` and `experiments/phase5a2/<run>/` (the artifact's tensors are gitignored).
+Phase 5C adds `research/expert_deltas/` (the Weightsift environment; no separate lockfile): `expert_deltas/` (`bits`: exact
+BF16 pattern transforms and prefix intervals; `codecs`: zstd and LZ4 frames, dictionaries, independently decodable
+pages; `source`: the checkpoint tensor by tensor, two independent read paths; `compression`: blocks × transforms ×
+codecs with every reconstruction compared bit for bit, decode throughput; `census`, `structure`: shared-structure
+measurements and base strategies; `replay`: the routing trace through host-RAM caches of experts, deltas and bases;
+`progressive`: box sets from read bit-plane prefixes, their exact decision minimum, witnesses, a sketch relaxation;
+`oracle`: pages, schedules and the per-sample checkpoint walk), drivers `probe_codec.py`, `structure_run.py`,
+`structure_report.py`, `progressive_probe.py`, `progressive_run.py`, tests under `research/expert_deltas/tests`;
+`configs/phase5c-expert-deltas.yaml` and `experiments/phase5c/<run>/`.
 
 ## Data flow (one input)
 
@@ -323,6 +339,10 @@ Phase 5A, the expert oracle (`awpmi.oracle.experts`), for one decode token:
 - The verifier environment (`research/crown_expert_oracle`, decision 0010) and Weightsift's share no code: the root
   cannot import auto_LiRPA (`tests/test_crown_boundary.py`), the verifier imports no `awpmi`, and they exchange only an
   artifact whose files are checked by sha256. auto_LiRPA is used unmodified; no verification algorithm is written there.
+- Exact structural reuse means bitwise reconstruction of the BF16 patterns (integer XOR or modular deltas), checked
+  against an independent read of the checkpoint; floating-point base + delta is not exact. Bit-plane prefixes of an
+  expert (or of its XOR delta against any resident base) give the same per-weight intervals, so a base changes only
+  what the planes cost, never what a partial read proves (decision 0011).
 - auto_LiRPA 0.7.2 and L2-perturbed weights: one root per group of rows with one linear map per group is bounded exactly
   when the weight's input is exact; when the input is uncertain, its default interval mode gives unsound bounds (an L2
   root's interval bounds are its centre), and only the experimental `AUTOLIRPA_L2_DEBUG=1` mode is sound, on a graph

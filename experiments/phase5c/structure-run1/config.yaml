@@ -1,0 +1,217 @@
+model:
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  profile: BF16_REFERENCE
+probe:
+  layer: 26
+  experts:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  dictionary_train_experts:
+  - 0
+  - 1
+  - 2
+  - 3
+  dictionary_eval_experts:
+  - 4
+  - 5
+  - 6
+  - 7
+  dictionary_sizes:
+  - 16384
+  - 65536
+  dictionary_samples: 4096
+  codecs:
+  - - zstd
+    - 1
+  - - zstd
+    - 3
+  - - zstd
+    - 9
+  - - zstd
+    - 19
+  - - lz4
+    - 0
+  - - lz4hc
+    - 9
+  transforms:
+  - raw
+  - byte_split
+  - planes
+  blocks:
+  - row
+  - rows16
+  - rows64
+  - tensor
+  - expert
+  threads: 6
+  seed: 5
+structure:
+  layers:
+  - 1
+  - 9
+  - 17
+  - 26
+  threads: 6
+  seed: 5
+  independent:
+    configurations:
+    - - expert
+      - raw
+      - zstd
+      - 3
+    - - expert
+      - byte_split
+      - lz4
+      - 0
+    - - expert
+      - byte_split
+      - zstd
+      - 1
+    - - expert
+      - byte_split
+      - zstd
+      - 19
+    - - expert
+      - planes
+      - zstd
+      - 1
+    - - expert
+      - planes
+      - zstd
+      - 19
+    - - expert
+      - planes
+      - lz4hc
+      - 9
+    - - rows16
+      - byte_split
+      - zstd
+      - 9
+    - - rows16
+      - planes
+      - zstd
+      - 1
+    - - rows16
+      - planes
+      - zstd
+      - 19
+    - - rows16
+      - planes
+      - lz4hc
+      - 9
+    dictionary:
+      size: 65536
+      codec:
+      - zstd
+      - 19
+      blocks:
+      - row
+      - rows16
+      transforms:
+      - byte_split
+      train_experts: 32
+      samples: 4096
+  bases:
+    candidates: 3
+    clusters:
+    - 2
+    - 4
+    - 8
+    encodings:
+    - xor
+    - modular
+    measure:
+    - A1
+    - A2
+    - A3
+    - C-best
+    - synthetic-median
+    all_encodings:
+    - A2
+    transforms:
+    - planes
+    codecs:
+    - - zstd
+      - 19
+    blocks:
+    - expert
+    page_blocks:
+    - A2
+  predictor_trigger:
+    min_saving: 0.05
+    min_shared_variance: 0.1
+    min_context_bits: 0.1
+  permutation_pairs: 16
+  traces: experiments/phase5a/oracle-run1/capture.jsonl.gz
+  warmup_prompts: 1
+  host_budgets_gb:
+  - 0
+  - 0.5
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  throughput_experts: 6
+  throughput_configurations:
+  - - expert
+    - planes
+    - zstd
+    - 19
+  - - rows16
+    - planes
+    - zstd
+    - 19
+  - - expert
+    - byte_split
+    - zstd
+    - 1
+  - - expert
+    - planes
+    - lz4hc
+    - 9
+  drive_rate_gb_s: 3.19
+gate_5c1:
+  exact: true
+  min_steady_ssd_reduction_vs_best_independent: 0.15
+  max_base_residency_gb: 4.0
+  min_decode_throughput_gb_s: 3.19
+progressive:
+  capture: experiments/phase5a2/capture
+  phase5a_run: experiments/phase5a/oracle-run1
+  phase5a2_run: experiments/phase5a2/l2
+  probe_samples:
+  - - 12
+    - 7
+  - - 12
+    - 9
+  - - 23
+    - 4
+  near_rows: 64
+  chunk_rows: 4096
+  page_rows: 16
+  metadata_budgets:
+  - 0.005
+  - 0.01
+  - 0.02
+  - 0.05
+  - 0.1
+  calibration_prompts: 24
+  budget_step: 0.015625
+gate_5c2:
+  soundness_violations: 0
+  min_structural_coverage: 0.2
+  max_mean_fraction_of_best_independent: 0.9
+  max_distance_share_vs_phase5a: 0.5
+  strong_max_mean_fraction_of_bf16: 0.7
+  probe_proceed_max_fraction_of_best_independent: 0.9
+  stop_metadata_share: 0.1
+  stop_flip_fraction: 0.9

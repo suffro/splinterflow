@@ -1,0 +1,4518 @@
+{
+ "stage": "5C1-A",
+ "config": {
+  "layer": 26,
+  "experts": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "dictionary_train_experts": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "dictionary_eval_experts": [
+   4,
+   5,
+   6,
+   7
+  ],
+  "dictionary_sizes": [
+   16384,
+   65536
+  ],
+  "dictionary_samples": 4096,
+  "codecs": [
+   [
+    "zstd",
+    1
+   ],
+   [
+    "zstd",
+    3
+   ],
+   [
+    "zstd",
+    9
+   ],
+   [
+    "zstd",
+    19
+   ],
+   [
+    "lz4",
+    0
+   ],
+   [
+    "lz4hc",
+    9
+   ]
+  ],
+  "transforms": [
+   "raw",
+   "byte_split",
+   "planes"
+  ],
+  "blocks": [
+   "row",
+   "rows16",
+   "rows64",
+   "tensor",
+   "expert"
+  ],
+  "threads": 6,
+  "seed": 5
+ },
+ "environment": {
+  "model": {
+   "repository": "moonshotai/Moonlight-16B-A3B",
+   "revision": "476b36a473d4467f94469414bef6cee75c9c8172",
+   "dtype": "bfloat16",
+   "profile": "BF16_REFERENCE"
+  },
+  "python": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+  "os": "Windows-11-10.0.26200-SP0",
+  "packages": {
+   "torch": "2.14.1+cu130",
+   "transformers": "5.18.0",
+   "safetensors": "0.8.0",
+   "numpy": "2.5.3",
+   "huggingface-hub": "1.33.0",
+   "tokenizers": "0.23.2",
+   "pyarrow": "25.0.1"
+  },
+  "cuda_version": "13.0",
+  "cudnn_version": 92400,
+  "gpu": "NVIDIA GeForce RTX 4060 Ti",
+  "numerics": {},
+  "git_commit": "31abf071f5132a021c5e00eff07bea66bbff04a8",
+  "git_dirty": true,
+  "source_tree_sha256": "694af187340e8090d44536bfb117517a948292ced80631d8515cc8f7ce29f630",
+  "uv_lock_sha256": "59ac749df01e194310fcc3ff085470275786d68dbae72e5161dbbc0d2b1fd878",
+  "codecs": {
+   "zstandard": "0.25.0",
+   "libzstd": "1.5.7",
+   "zstandard_backend": "cext",
+   "lz4": "4.4.5",
+   "liblz4": "1.9.4"
+  },
+  "research_tree_sha256": "fdbff83afd23d358d35ab7487abfebee500ef96d6eeca11f901c2c367940707e",
+  "python_hash_seed": "2",
+  "cpu_count": 6,
+  "started_at": "2026-10-08T10:30:27+0200"
+ },
+ "timings": {
+  "layout_and_verify_s": 8.620911800069734,
+  "read_s": 0.6221590000204742,
+  "baselines_s": 309.55274039995857,
+  "dictionary_s": 181.50492189987563,
+  "deltas_s": 101.51107210014015
+ },
+ "layout": {
+  "layer": 26,
+  "experts": 64,
+  "file": "model-27-of-27.safetensors",
+  "dtype": [
+   "BF16"
+  ],
+  "shapes": {
+   "gate": [
+    1408,
+    2048
+   ],
+   "up": [
+    1408,
+    2048
+   ],
+   "down": [
+    2048,
+    1408
+   ]
+  },
+  "expert_bytes": 17301504,
+  "file_order_down_gate_up_adjacent": true,
+  "first_expert": [
+   {
+    "layer": 26,
+    "expert": 0,
+    "matrix": "down",
+    "name": "model.layers.26.mlp.experts.0.down_proj.weight",
+    "file": "model-27-of-27.safetensors",
+    "offset": 671118416,
+    "nbytes": 5767168,
+    "shape": [
+     2048,
+     1408
+    ],
+    "dtype": "BF16"
+   },
+   {
+    "layer": 26,
+    "expert": 0,
+    "matrix": "gate",
+    "name": "model.layers.26.mlp.experts.0.gate_proj.weight",
+    "file": "model-27-of-27.safetensors",
+    "offset": 676885584,
+    "nbytes": 5767168,
+    "shape": [
+     1408,
+     2048
+    ],
+    "dtype": "BF16"
+   },
+   {
+    "layer": 26,
+    "expert": 0,
+    "matrix": "up",
+    "name": "model.layers.26.mlp.experts.0.up_proj.weight",
+    "file": "model-27-of-27.safetensors",
+    "offset": 682652752,
+    "nbytes": 5767168,
+    "shape": [
+     1408,
+     2048
+    ],
+    "dtype": "BF16"
+   }
+  ]
+ },
+ "verification": {
+  "model-27-of-27.safetensors": {
+   "declared": "dd596f8630bf8c18e286af6f0205d65438e5950e92ee642d04fbf755e323a78e",
+   "actual": "dd596f8630bf8c18e286af6f0205d65438e5950e92ee642d04fbf755e323a78e",
+   "equal": true
+  }
+ },
+ "read_paths_equal": true,
+ "finite": true,
+ "sample_sha256": {
+  "0.gate": "2fa1f141de0a78d6a423838191bdef59f168739f3cac6b75d3d21211d2a1d470",
+  "0.up": "f74f63070eb1e8932b11983e79ecc5896b5cc9ea351325a0e55b8797522638bc",
+  "0.down": "57b88827b7eaf8d08d1c2e8b08a6b8ef13fbca6ad1220e728d8ec722c87c8654",
+  "1.gate": "6300f00569f2847d67c4bfa3ec3dc0f669f58afd487418e066d82c59acd34daa",
+  "1.up": "57986abef5c78af4d7a419804bef7d045a99b18d29debf47d3bc4774df73e560",
+  "1.down": "47ba9be9057efa7ae6a066eb3c14cc1120c07ee90169bf0e13f7477b545b0092",
+  "2.gate": "b9e244a33fc96800c87b72c047ec93f4b3986c3a8e616d8c4856e039c48965b1",
+  "2.up": "2a63a726bcc6f730b449883f256db9f3a9a43e5176f377ec096690375206b27b",
+  "2.down": "c78b15fe2475c70dfbbb22be335c17e5d23e102ace3d0b5a913b4b6ebff9c300",
+  "3.gate": "2d2f54139466d84a57b8589d67f273846e156eb336c257e08df78206a8e1bff8",
+  "3.up": "d5ee6463bfbaf13e38094f908bf93260fd850142648d4e538ddc986ab72ce4a3",
+  "3.down": "40e951c5247d6e412ebd641e86454e87d0e6d9f0966784a0e863c73db7d76366",
+  "4.gate": "7e054159b7daba7bfc0deb61a702d594eb7f382048c34b78ba1c754d45adbce0",
+  "4.up": "0517344a5f7ea6bfb45ba1dce155d6807bc814a1a615a1506315efc0175d9328",
+  "4.down": "b45ef350eaee129a7759dc7f7326a7d94afe8459e3b1fee14bbb58f5c9875207",
+  "5.gate": "cc25a35a3f5b8723f8c03c9254f157d4c81c86889d9e66b846485a15037629cd",
+  "5.up": "8665e448c22b36facf84fcfb59752c6087f2d734260467cfae590cb9260f3cb3",
+  "5.down": "c9b33245f1023ccd1b1b0a28952e9362526be55267fb5b9033411ce5864d64c0",
+  "6.gate": "be091ec5721f582956440cc8de854a540367b125cf381826c5366dc54642935e",
+  "6.up": "ac5ab50afede2acfd7cb7721c4042beb323c1d536fca69efcb726a56b0affd0e",
+  "6.down": "a49860814c2eee2066b46e6bd221481706ea2e48c6d1b6cac5789060c6b7dbe2",
+  "7.gate": "1e1209e9bee02cbea0237a18fc689707879052fd86a9753eb6725fb7286e92f1",
+  "7.up": "c934efaa0cc85c9794220e9de9111767c197b339576eb2f46834502f849ead1a",
+  "7.down": "eb68d369dfefdea50d20a5bc0487a1c4333526aa0c72c2d953c08bd1d2dd6250"
+ },
+ "census": {
+  "gate": {
+   "pattern": 10.484145573663522,
+   "high_byte": 2.7186589568178468,
+   "low_byte": 7.970312861010443,
+   "sign": 0.9999994282374429,
+   "exponent": 2.5611937673494936,
+   "mantissa": 6.9721623509669834,
+   "m6": 0.9797568064598767,
+   "m5": 0.9946388349190596,
+   "m4": 0.9987002575670492,
+   "m3": 0.9997213200797295,
+   "m2": 0.9999473221902648,
+   "m1": 0.9999937847741158,
+   "m0": 0.9999999989550671,
+   "byte_split_total": 10.688971817828289,
+   "planes_total": 10.5339515205321
+  },
+  "up": {
+   "pattern": 10.472607740422244,
+   "high_byte": 2.7194464094821944,
+   "low_byte": 7.970100675459014,
+   "sign": 0.9999999899714727,
+   "exponent": 2.5507995284921336,
+   "mantissa": 6.97220468014396,
+   "m6": 0.979818229103519,
+   "m5": 0.9946132767131395,
+   "m4": 0.9987043072367714,
+   "m3": 0.9997146669438222,
+   "m2": 0.9999479870638772,
+   "m1": 0.9999929968726073,
+   "m0": 0.9999999712677268,
+   "byte_split_total": 10.689547084941207,
+   "planes_total": 10.52359095366507
+  },
+  "down": {
+   "pattern": 10.469520222875396,
+   "high_byte": 2.7137696880482745,
+   "low_byte": 7.970089060869444,
+   "sign": 0.9999999892358105,
+   "exponent": 2.548877831819733,
+   "mantissa": 6.97226537510148,
+   "m6": 0.9798783158937663,
+   "m5": 0.9946098758976035,
+   "m4": 0.998710488927521,
+   "m3": 0.9997202569117121,
+   "m2": 0.9999453076790139,
+   "m1": 0.9999936273858543,
+   "m0": 0.9999999787006353,
+   "byte_split_total": 10.683858748917718,
+   "planes_total": 10.521735672451651
+  }
+ },
+ "baselines": [
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 110849708,
+   "ratio": 0.8008675719752456,
+   "per_object_stored": [
+    13854962,
+    13852499,
+    13859261,
+    13858216,
+    13856859,
+    13851692,
+    13859616,
+    13856603
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.2020151000469923,
+    "decompress_s": 0.13087690016254783,
+    "decompress_1t_s": 0.04083129996433854,
+    "restore_and_check_s": 0.21451779990456998
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0575741924517894,
+    "decompress_1t_gb_s": 0.4237314025052075,
+    "compress_mb_s": 685.1568618771711
+   }
+  },
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 110861149,
+   "ratio": 0.8009502309741396,
+   "per_object_stored": [
+    13856494,
+    13853870,
+    13860638,
+    13859682,
+    13858253,
+    13853237,
+    13861010,
+    13857965
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.17964220000430942,
+    "decompress_s": 0.1812547999434173,
+    "decompress_1t_s": 0.04254890000447631,
+    "restore_and_check_s": 0.21446289983578026
+   },
+   "throughput": {
+    "decompress_gb_s": 0.7636323674915554,
+    "decompress_1t_gb_s": 0.40662635222484755,
+    "compress_mb_s": 770.4872908296584
+   }
+  },
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 110881006,
+   "ratio": 0.8010936939355099,
+   "per_object_stored": [
+    13858742,
+    13856396,
+    13863297,
+    13862058,
+    13860747,
+    13855648,
+    13863626,
+    13860492
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.2788368999026716,
+    "decompress_s": 0.1377401000354439,
+    "decompress_1t_s": 0.04226160002872348,
+    "restore_and_check_s": 0.2270237000193447
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0048782595945784,
+    "decompress_1t_gb_s": 0.40939065222899457,
+    "compress_mb_s": 496.3906572204501
+   }
+  },
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 111298646,
+   "ratio": 0.8041110616741758,
+   "per_object_stored": [
+    13909904,
+    13901763,
+    13917551,
+    13916790,
+    13914473,
+    13906691,
+    13919475,
+    13911999
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 2.0452476998325437,
+    "decompress_s": 0.134483200032264,
+    "decompress_1t_s": 0.04501980007626116,
+    "restore_and_check_s": 0.20694050006568432
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0292142956651347,
+    "decompress_1t_gb_s": 0.3843087701565126,
+    "compress_mb_s": 67.67494813040621
+   }
+  },
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 139013974,
+   "ratio": 1.004348913828532,
+   "per_object_stored": [
+    17376745,
+    17376752,
+    17376750,
+    17376748,
+    17376758,
+    17376733,
+    17376743,
+    17376745
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.8504611998796463,
+    "decompress_s": 0.8756051999516785,
+    "decompress_1t_s": 0.013914800016209483,
+    "restore_and_check_s": 0.21930080000311136
+   },
+   "throughput": {
+    "decompress_gb_s": 0.15807584514989,
+    "decompress_1t_gb_s": 1.2433886207380138,
+    "compress_mb_s": 162.74937883067153
+   }
+  },
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 138954800,
+   "ratio": 1.0039213931921758,
+   "per_object_stored": [
+    17369428,
+    17369356,
+    17369331,
+    17369296,
+    17369411,
+    17369344,
+    17369359,
+    17369275
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.098369900137186,
+    "decompress_s": 0.8379222000949085,
+    "decompress_1t_s": 0.01407049992121756,
+    "restore_and_check_s": 0.21089810016565025
+   },
+   "throughput": {
+    "decompress_gb_s": 0.165184825016359,
+    "decompress_1t_gb_s": 1.2296296575724548,
+    "compress_mb_s": 126.01586403880185
+   }
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 110787779,
+   "ratio": 0.8004201469999371,
+   "per_object_stored": [
+    13843536,
+    13857188,
+    13844614,
+    13845659,
+    13849755,
+    13852581,
+    13847565,
+    13846881
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.20564650022424757,
+    "decompress_s": 0.149251600028947,
+    "decompress_1t_s": 0.0496543999761343,
+    "restore_and_check_s": 0.32574249990284443
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9273738571188203,
+    "decompress_1t_gb_s": 0.3484384869883782,
+    "compress_mb_s": 673.0580479077853
+   }
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108857408,
+   "ratio": 0.7864735921223959,
+   "per_object_stored": [
+    13603000,
+    13617634,
+    13601857,
+    13603310,
+    13608294,
+    13612243,
+    13605728,
+    13605342
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.30661590001545846,
+    "decompress_s": 0.15491150016896427,
+    "decompress_1t_s": 0.05308010010048747,
+    "restore_and_check_s": 0.33010909985750914
+   },
+   "throughput": {
+    "decompress_gb_s": 0.8934910051805833,
+    "decompress_1t_gb_s": 0.3259508547882544,
+    "compress_mb_s": 451.4183119434503
+   }
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108263572,
+   "ratio": 0.7821832425666578,
+   "per_object_stored": [
+    13527653,
+    13544727,
+    13527254,
+    13529425,
+    13534096,
+    13538632,
+    13531125,
+    13530660
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.571491900132969,
+    "decompress_s": 0.15047569992020726,
+    "decompress_1t_s": 0.05451879999600351,
+    "restore_and_check_s": 0.3454357997979969
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9198297936038559,
+    "decompress_1t_gb_s": 0.31734931805667554,
+    "compress_mb_s": 242.19421476979056
+   }
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 110889533,
+   "ratio": 0.8011552998513887,
+   "per_object_stored": [
+    13860048,
+    13851295,
+    13866290,
+    13865219,
+    13861519,
+    13855545,
+    13867917,
+    13861700
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 2.8968326000031084,
+    "decompress_s": 0.17809499986469746,
+    "decompress_1t_s": 0.043503399938344955,
+    "restore_and_check_s": 0.33023550012148917
+   },
+   "throughput": {
+    "decompress_gb_s": 0.7771808984258657,
+    "decompress_1t_gb_s": 0.39770463974127307,
+    "compress_mb_s": 47.78047305869572
+   }
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 130928899,
+   "ratio": 0.9459358200882421,
+   "per_object_stored": [
+    16364157,
+    16352371,
+    16371686,
+    16371016,
+    16370955,
+    16358711,
+    16371682,
+    16368321
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.1564043001271784,
+    "decompress_s": 0.8125660000368953,
+    "decompress_1t_s": 0.014620499918237329,
+    "restore_and_check_s": 0.3281189000699669
+   },
+   "throughput": {
+    "decompress_gb_s": 0.17033943334291035,
+    "decompress_1t_gb_s": 1.1833729418799448,
+    "compress_mb_s": 119.69173063847808
+   }
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 38912,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 123852801,
+   "ratio": 0.8948123888535933,
+   "per_object_stored": [
+    15477934,
+    15480857,
+    15481382,
+    15482334,
+    15483843,
+    15481007,
+    15483857,
+    15481587
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.175333500141278,
+    "decompress_s": 0.811497800052166,
+    "decompress_1t_s": 0.01683990005403757,
+    "restore_and_check_s": 0.3272943999618292
+   },
+   "throughput": {
+    "decompress_gb_s": 0.17056365647707533,
+    "decompress_1t_gb_s": 1.0274113233737248,
+    "compress_mb_s": 117.76404908339849
+   }
+  },
+  {
+   "block": "row",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 350208,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 99699291,
+   "ratio": 0.7203079787167636,
+   "per_object_stored": [
+    12461627,
+    12463632,
+    12460435,
+    12462078,
+    12462302,
+    12463996,
+    12461589,
+    12463632
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.31378689990378916,
+    "decompress_s": 0.23212449997663498,
+    "decompress_1t_s": 0.0541144001763314,
+    "restore_and_check_s": 2.577821700135246
+   },
+   "throughput": {
+    "decompress_gb_s": 0.596283597870678,
+    "decompress_1t_gb_s": 0.31972088655927383,
+    "compress_mb_s": 441.10200917386544
+   }
+  },
+  {
+   "block": "row",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 350208,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 101685883,
+   "ratio": 0.7346607193802343,
+   "per_object_stored": [
+    12710426,
+    12710796,
+    12709647,
+    12711157,
+    12709604,
+    12711576,
+    12710224,
+    12712453
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.40787209989503026,
+    "decompress_s": 0.22384680015966296,
+    "decompress_1t_s": 0.05371230002492666,
+    "restore_and_check_s": 2.5729253001045436
+   },
+   "throughput": {
+    "decompress_gb_s": 0.6183337528223545,
+    "decompress_1t_gb_s": 0.32211437588728775,
+    "compress_mb_s": 339.3515566169435
+   }
+  },
+  {
+   "block": "row",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 350208,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 101142689,
+   "ratio": 0.7307362484209465,
+   "per_object_stored": [
+    12642538,
+    12642533,
+    12641708,
+    12643309,
+    12641969,
+    12643020,
+    12642502,
+    12645110
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.9181995000690222,
+    "decompress_s": 0.19471430010162294,
+    "decompress_1t_s": 0.056001099990680814,
+    "restore_and_check_s": 2.575502800056711
+   },
+   "throughput": {
+    "decompress_gb_s": 0.7108467735947573,
+    "decompress_1t_gb_s": 0.30894935997469974,
+    "compress_mb_s": 150.74287449469904
+   }
+  },
+  {
+   "block": "row",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 350208,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 96255557,
+   "ratio": 0.6954276706233169,
+   "per_object_stored": [
+    12032380,
+    12029328,
+    12033099,
+    12033238,
+    12030010,
+    12030406,
+    12031963,
+    12035133
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 3.1528161000460386,
+    "decompress_s": 0.18236129987053573,
+    "decompress_1t_s": 0.041289100190624595,
+    "restore_and_check_s": 2.576527899829671
+   },
+   "throughput": {
+    "decompress_gb_s": 0.7589989328781009,
+    "decompress_1t_gb_s": 0.4190332053767693,
+    "compress_mb_s": 43.90108005283875
+   }
+  },
+  {
+   "block": "row",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 350208,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 127159805,
+   "ratio": 0.9187048493009625,
+   "per_object_stored": [
+    15896574,
+    15893432,
+    15892093,
+    15896480,
+    15892453,
+    15891847,
+    15892568,
+    15904358
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 7.427819000091404,
+    "decompress_s": 6.837129299994558,
+    "decompress_1t_s": 0.02916219993494451,
+    "restore_and_check_s": 2.6137795001268387
+   },
+   "throughput": {
+    "decompress_gb_s": 0.020244173530564964,
+    "decompress_1t_gb_s": 0.5932852815835727,
+    "compress_mb_s": 18.63427636003203
+   }
+  },
+  {
+   "block": "row",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 38912,
+   "frames": 350208,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 121026959,
+   "ratio": 0.8743962302352443,
+   "per_object_stored": [
+    15128749,
+    15125983,
+    15127052,
+    15130160,
+    15125819,
+    15125861,
+    15128222,
+    15135113
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 10.761722199851647,
+    "decompress_s": 6.566332699963823,
+    "decompress_1t_s": 0.030547200003638864,
+    "restore_and_check_s": 2.5707558998838067
+   },
+   "throughput": {
+    "decompress_gb_s": 0.02107904645172222,
+    "decompress_1t_gb_s": 0.5663859207370561,
+    "compress_mb_s": 12.861513188094378
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108454703,
+   "ratio": 0.7835641268527869,
+   "per_object_stored": [
+    13557069,
+    13555210,
+    13556335,
+    13557207,
+    13555547,
+    13558024,
+    13556858,
+    13558453
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.10274799983017147,
+    "decompress_s": 0.13872819999232888,
+    "decompress_1t_s": 0.032524599926546216,
+    "restore_and_check_s": 0.13783909985795617
+   },
+   "throughput": {
+    "decompress_gb_s": 0.997720953689687,
+    "decompress_1t_gb_s": 0.5319513241999545,
+    "compress_mb_s": 1347.1019604155442
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108455136,
+   "ratio": 0.783567255193537,
+   "per_object_stored": [
+    13557106,
+    13555275,
+    13556412,
+    13557248,
+    13555600,
+    13558074,
+    13556918,
+    13558503
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.1000314000993967,
+    "decompress_s": 0.12221519998274744,
+    "decompress_1t_s": 0.031895500142127275,
+    "restore_and_check_s": 0.15634950017556548
+   },
+   "throughput": {
+    "decompress_gb_s": 1.1325271489924247,
+    "decompress_1t_gb_s": 0.5424434143657881,
+    "compress_mb_s": 1383.6858412705028
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108485675,
+   "ratio": 0.7837878935264818,
+   "per_object_stored": [
+    13561341,
+    13559096,
+    13560468,
+    13561254,
+    13559054,
+    13561228,
+    13560731,
+    13562503
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.19804179994389415,
+    "decompress_s": 0.13245359994471073,
+    "decompress_1t_s": 0.032727599842473865,
+    "restore_and_check_s": 0.13624479994177818
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0449850518051338,
+    "decompress_1t_gb_s": 0.5286517826933986,
+    "compress_mb_s": 698.9031206503504
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108669594,
+   "ratio": 0.7851166725158691,
+   "per_object_stored": [
+    13582610,
+    13585738,
+    13580940,
+    13580932,
+    13584173,
+    13588200,
+    13581405,
+    13585596
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 3.171746199950576,
+    "decompress_s": 0.11578069999814034,
+    "decompress_1t_s": 0.03885090001858771,
+    "restore_and_check_s": 0.1352587000001222
+   },
+   "throughput": {
+    "decompress_gb_s": 1.195467223831115,
+    "decompress_1t_gb_s": 0.4453308415434989,
+    "compress_mb_s": 43.63906292444106
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 138957446,
+   "ratio": 1.0039405100273364,
+   "per_object_stored": [
+    17369676,
+    17369684,
+    17369686,
+    17369685,
+    17369672,
+    17369689,
+    17369678,
+    17369676
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.14262049994431436,
+    "decompress_s": 0.12531989999115467,
+    "decompress_1t_s": 0.010727999964728951,
+    "restore_and_check_s": 0.14977880008518696
+   },
+   "throughput": {
+    "decompress_gb_s": 1.1044696972290067,
+    "decompress_1t_gb_s": 1.6127427346087926,
+    "compress_mb_s": 970.4918441180788
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 138220398,
+   "ratio": 0.998615481636741,
+   "per_object_stored": [
+    17277965,
+    17276901,
+    17277008,
+    17277378,
+    17277758,
+    17278327,
+    17277190,
+    17277871
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.4900609999895096,
+    "decompress_s": 0.16985319997183979,
+    "decompress_1t_s": 0.012633000034838915,
+    "restore_and_check_s": 0.15179160004481673
+   },
+   "throughput": {
+    "decompress_gb_s": 0.8148921069661774,
+    "decompress_1t_gb_s": 1.3695483220364462,
+    "compress_mb_s": 282.4383740043849
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 106718666,
+   "ratio": 0.7710215973131584,
+   "per_object_stored": [
+    13335202,
+    13354376,
+    13331874,
+    13335087,
+    13339580,
+    13348470,
+    13335872,
+    13338205
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.15836960007436574,
+    "decompress_s": 0.1342809998895973,
+    "decompress_1t_s": 0.04149279999546707,
+    "restore_and_check_s": 0.1990446001291275
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0307640851185138,
+    "decompress_1t_gb_s": 0.4169760537223356,
+    "compress_mb_s": 873.9810666630829
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 103754296,
+   "ratio": 0.7496046008485736,
+   "per_object_stored": [
+    12964941,
+    12985617,
+    12960028,
+    12963970,
+    12968895,
+    12978751,
+    12965100,
+    12966994
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.23873570002615452,
+    "decompress_s": 0.12106499983929098,
+    "decompress_1t_s": 0.04122440004721284,
+    "restore_and_check_s": 0.19952280004508793
+   },
+   "throughput": {
+    "decompress_gb_s": 1.1432869300271469,
+    "decompress_1t_gb_s": 0.4196908622123112,
+    "compress_mb_s": 579.7709851724579
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 101667855,
+   "ratio": 0.7345304705879905,
+   "per_object_stored": [
+    12702958,
+    12728159,
+    12698842,
+    12702467,
+    12707877,
+    12718939,
+    12703298,
+    12705315
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.6133965998888016,
+    "decompress_s": 0.11609370005317032,
+    "decompress_1t_s": 0.031080800108611584,
+    "restore_and_check_s": 0.19819610007107258
+   },
+   "throughput": {
+    "decompress_gb_s": 1.192244126396247,
+    "decompress_1t_gb_s": 0.5566621174339156,
+    "compress_mb_s": 225.64851521037411
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108422310,
+   "ratio": 0.7833300937305797,
+   "per_object_stored": [
+    13553444,
+    13552540,
+    13552629,
+    13552689,
+    13550883,
+    13552688,
+    13552673,
+    13554764
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 4.2913285999093205,
+    "decompress_s": 0.12140950001776218,
+    "decompress_1t_s": 0.03984920005314052,
+    "restore_and_check_s": 0.19497840013355017
+   },
+   "throughput": {
+    "decompress_gb_s": 1.1400428465626689,
+    "decompress_1t_gb_s": 0.43417443705087544,
+    "compress_mb_s": 32.2538879923865
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 119417229,
+   "ratio": 0.8627662441947244,
+   "per_object_stored": [
+    14921107,
+    14942524,
+    14916010,
+    14923410,
+    14926586,
+    14937781,
+    14924231,
+    14925580
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.15423719980753958,
+    "decompress_s": 0.15410890011116862,
+    "decompress_1t_s": 0.013830400072038174,
+    "restore_and_check_s": 0.208371999906376
+   },
+   "throughput": {
+    "decompress_gb_s": 0.8981443115884581,
+    "decompress_1t_gb_s": 1.2509763932989606,
+    "compress_mb_s": 897.3972049072042
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 2432,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 111529389,
+   "ratio": 0.805778134952892,
+   "per_object_stored": [
+    13938185,
+    13950415,
+    13933969,
+    13938063,
+    13940462,
+    13948392,
+    13938323,
+    13941580
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.7672101000789553,
+    "decompress_s": 0.1654391000047326,
+    "decompress_1t_s": 0.0145002999342978,
+    "restore_and_check_s": 0.19317439990118146
+   },
+   "throughput": {
+    "decompress_gb_s": 0.8366343385332762,
+    "decompress_1t_gb_s": 1.1931824912860227,
+    "compress_mb_s": 180.40955402666845
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 21888,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 94947996,
+   "ratio": 0.6859807968139648,
+   "per_object_stored": [
+    11868168,
+    11873274,
+    11864606,
+    11867489,
+    11865733,
+    11872187,
+    11866149,
+    11870390
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.15055459993891418,
+    "decompress_s": 0.10525929997675121,
+    "decompress_1t_s": 0.025572099955752492,
+    "restore_and_check_s": 1.0868315999396145
+   },
+   "throughput": {
+    "decompress_gb_s": 1.3149624976659668,
+    "decompress_1t_gb_s": 0.6765773647818076,
+    "compress_mb_s": 919.3477453107319
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 21888,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 96719622,
+   "ratio": 0.6987804499539462,
+   "per_object_stored": [
+    12090888,
+    12090361,
+    12087592,
+    12090179,
+    12087342,
+    12092054,
+    12088001,
+    12093205
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.18697319994680583,
+    "decompress_s": 0.1116327999625355,
+    "decompress_1t_s": 0.03113030013628304,
+    "restore_and_check_s": 1.082222699886188
+   },
+   "throughput": {
+    "decompress_gb_s": 1.2398867720459554,
+    "decompress_1t_gb_s": 0.555776973696271,
+    "compress_mb_s": 740.2773875581015
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 21888,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 96479742,
+   "ratio": 0.6970473636280407,
+   "per_object_stored": [
+    12060723,
+    12060492,
+    12056965,
+    12060108,
+    12057025,
+    12062525,
+    12057491,
+    12064413
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.7160026000346988,
+    "decompress_s": 0.11465780017897487,
+    "decompress_1t_s": 0.03035749983973801,
+    "restore_and_check_s": 1.0934741001110524
+   },
+   "throughput": {
+    "decompress_gb_s": 1.207175018044529,
+    "decompress_1t_gb_s": 0.5699251944770598,
+    "compress_mb_s": 193.3121918737338
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 21888,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 92011263,
+   "ratio": 0.6647634722969749,
+   "per_object_stored": [
+    11502954,
+    11500050,
+    11499691,
+    11501801,
+    11496979,
+    11505309,
+    11498543,
+    11505936
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 4.514429500093684,
+    "decompress_s": 0.09895609994418919,
+    "decompress_1t_s": 0.019552799873054028,
+    "restore_and_check_s": 1.0756288999691606
+   },
+   "throughput": {
+    "decompress_gb_s": 1.3987215753052493,
+    "decompress_1t_gb_s": 0.8848606906596242,
+    "compress_mb_s": 30.65991660676674
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 21888,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 116486805,
+   "ratio": 0.8415945009751753,
+   "per_object_stored": [
+    14561726,
+    14560678,
+    14555602,
+    14561245,
+    14555848,
+    14565555,
+    14557437,
+    14568714
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.4313911001663655,
+    "decompress_s": 0.42624310008250177,
+    "decompress_1t_s": 0.01515550003387034,
+    "restore_and_check_s": 1.1165044999215752
+   },
+   "throughput": {
+    "decompress_gb_s": 0.3247255661691874,
+    "decompress_1t_gb_s": 1.1415990209055231,
+    "compress_mb_s": 320.8504578481604
+   }
+  },
+  {
+   "block": "rows16",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 2432,
+   "frames": 21888,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 109049629,
+   "ratio": 0.7878623514464407,
+   "per_object_stored": [
+    13633080,
+    13633383,
+    13625007,
+    13630471,
+    13625516,
+    13637097,
+    13626415,
+    13638660
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.219861599849537,
+    "decompress_s": 0.46738229994662106,
+    "decompress_1t_s": 0.015031100017949939,
+    "restore_and_check_s": 1.0782669000327587
+   },
+   "throughput": {
+    "decompress_gb_s": 0.2961430760553145,
+    "decompress_1t_gb_s": 1.1510470943137079,
+    "compress_mb_s": 113.46535706761517
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108391463,
+   "ratio": 0.7831072301575632,
+   "per_object_stored": [
+    13549153,
+    13547716,
+    13548391,
+    13549254,
+    13547484,
+    13550197,
+    13548737,
+    13550531
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.09874160005711019,
+    "decompress_s": 0.1345549998804927,
+    "decompress_1t_s": 0.03570799995213747,
+    "restore_and_check_s": 0.12433309992775321
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0286650969710007,
+    "decompress_1t_gb_s": 0.4845273894698865,
+    "compress_mb_s": 1401.7600678938281
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108424498,
+   "ratio": 0.7833459016048547,
+   "per_object_stored": [
+    13552978,
+    13552319,
+    13553029,
+    13553480,
+    13551780,
+    13554675,
+    13551836,
+    13554401
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.11467979988083243,
+    "decompress_s": 0.0988447000272572,
+    "decompress_1t_s": 0.03289070003665984,
+    "restore_and_check_s": 0.11076520010828972
+   },
+   "throughput": {
+    "decompress_gb_s": 1.4002979619729918,
+    "decompress_1t_gb_s": 0.5260302754491639,
+    "compress_mb_s": 1206.9434385465315
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108283850,
+   "ratio": 0.782329747171113,
+   "per_object_stored": [
+    13534245,
+    13534634,
+    13531643,
+    13532850,
+    13536978,
+    13537185,
+    13538458,
+    13537857
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.48950709984637797,
+    "decompress_s": 0.13400129997171462,
+    "decompress_1t_s": 0.036113099893555045,
+    "restore_and_check_s": 0.11616589990444481
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0329155913354304,
+    "decompress_1t_gb_s": 0.4790921867963965,
+    "compress_mb_s": 282.7579662142548
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108244566,
+   "ratio": 0.7820459279147062,
+   "per_object_stored": [
+    13524061,
+    13516273,
+    13535081,
+    13529964,
+    13516655,
+    13539831,
+    13533393,
+    13549308
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 4.467269799904898,
+    "decompress_s": 0.14237549994140863,
+    "decompress_1t_s": 0.043438399909064174,
+    "restore_and_check_s": 0.11576670012436807
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9721618681371464,
+    "decompress_1t_gb_s": 0.39829975404756435,
+    "compress_mb_s": 30.983584650057765
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 138955431,
+   "ratio": 1.0039259520444004,
+   "per_object_stored": [
+    17369426,
+    17369428,
+    17369433,
+    17369433,
+    17369424,
+    17369432,
+    17369426,
+    17369429
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.07570310006849468,
+    "decompress_s": 0.06802650005556643,
+    "decompress_1t_s": 0.007676000008359551,
+    "restore_and_check_s": 0.11143590020947158
+   },
+   "throughput": {
+    "decompress_gb_s": 2.0346781311244913,
+    "decompress_1t_gb_s": 2.253973942308206,
+    "compress_mb_s": 1828.3535532199805
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 137590922,
+   "ratio": 0.9940676400155732,
+   "per_object_stored": [
+    17198996,
+    17197999,
+    17197907,
+    17198745,
+    17198688,
+    17200138,
+    17198388,
+    17200061
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.5964056998491287,
+    "decompress_s": 0.09063750016503036,
+    "decompress_1t_s": 0.01098620006814599,
+    "restore_and_check_s": 0.11344880005344748
+   },
+   "throughput": {
+    "decompress_gb_s": 1.5270945441785468,
+    "decompress_1t_gb_s": 1.574839698228777,
+    "compress_mb_s": 232.07697719021422
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 98433886,
+   "ratio": 0.7111656738050056,
+   "per_object_stored": [
+    12303038,
+    12307733,
+    12301312,
+    12304056,
+    12301958,
+    12307363,
+    12303016,
+    12305410
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.12674740003421903,
+    "decompress_s": 0.087693199981004,
+    "decompress_1t_s": 0.02747080009430647,
+    "restore_and_check_s": 0.17295440007001162
+   },
+   "throughput": {
+    "decompress_gb_s": 1.5783667608204814,
+    "decompress_1t_gb_s": 0.6298143461640882,
+    "compress_mb_s": 1092.0305423435257
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 99612259,
+   "ratio": 0.7196791894508131,
+   "per_object_stored": [
+    12448527,
+    12462441,
+    12445097,
+    12448086,
+    12450350,
+    12459016,
+    12448727,
+    12450015
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.19882709998637438,
+    "decompress_s": 0.09278710000216961,
+    "decompress_1t_s": 0.03230510000139475,
+    "restore_and_check_s": 0.1635598000138998
+   },
+   "throughput": {
+    "decompress_gb_s": 1.4917163269114302,
+    "decompress_1t_gb_s": 0.5355657156069172,
+    "compress_mb_s": 696.1426888461651
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 98118109,
+   "ratio": 0.7088842464215828,
+   "per_object_stored": [
+    12261303,
+    12275901,
+    12258304,
+    12261793,
+    12263621,
+    12271733,
+    12261941,
+    12263513
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.7552539999596775,
+    "decompress_s": 0.12022530008107424,
+    "decompress_1t_s": 0.0293182001914829,
+    "restore_and_check_s": 0.16394340014085174
+   },
+   "throughput": {
+    "decompress_gb_s": 1.1512720858809375,
+    "decompress_1t_gb_s": 0.5901284487792734,
+    "compress_mb_s": 183.26553981493606
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 96489400,
+   "ratio": 0.6971171407988577,
+   "per_object_stored": [
+    12060402,
+    12064853,
+    12058805,
+    12066633,
+    12056641,
+    12060404,
+    12065287,
+    12056375
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 5.578818199923262,
+    "decompress_s": 0.08262490015476942,
+    "decompress_1t_s": 0.021833499893546104,
+    "restore_and_check_s": 0.17218320001848042
+   },
+   "throughput": {
+    "decompress_gb_s": 1.6751854675858309,
+    "decompress_1t_gb_s": 0.792429252495348,
+    "compress_mb_s": 24.81027827755776
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 117612726,
+   "ratio": 0.849729061126709,
+   "per_object_stored": [
+    14695593,
+    14719536,
+    14688848,
+    14697324,
+    14701080,
+    14713641,
+    14697240,
+    14699464
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.07616479997523129,
+    "decompress_s": 0.08444739994592965,
+    "decompress_1t_s": 0.01136979996226728,
+    "restore_and_check_s": 0.16851619980297983
+   },
+   "throughput": {
+    "decompress_gb_s": 1.6390324875439986,
+    "decompress_1t_gb_s": 1.521706983185117,
+    "compress_mb_s": 1817.2703406955895
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 608,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 107383120,
+   "ratio": 0.775822148178563,
+   "per_object_stored": [
+    13420220,
+    13432133,
+    13415822,
+    13420737,
+    13422152,
+    13430355,
+    13419571,
+    13422130
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.7781676000449806,
+    "decompress_s": 0.12696889997459948,
+    "decompress_1t_s": 0.01201119995675981,
+    "restore_and_check_s": 0.16789650009013712
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0901254718887048,
+    "decompress_1t_gb_s": 1.4404475874421563,
+    "compress_mb_s": 77.83969969787928
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 5472,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 95117866,
+   "ratio": 0.6872080745119037,
+   "per_object_stored": [
+    11889366,
+    11893932,
+    11886224,
+    11888844,
+    11886998,
+    11893389,
+    11887446,
+    11891667
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.1589051999617368,
+    "decompress_s": 0.11532819992862642,
+    "decompress_1t_s": 0.024818899808451533,
+    "restore_and_check_s": 0.9219072998967022
+   },
+   "throughput": {
+    "decompress_gb_s": 1.2001577418676401,
+    "decompress_1t_gb_s": 0.6971100304014423,
+    "compress_mb_s": 871.0352589677908
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 5472,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 96986217,
+   "ratio": 0.7007065469568426,
+   "per_object_stored": [
+    12124116,
+    12124778,
+    12119648,
+    12122572,
+    12120564,
+    12126816,
+    12121130,
+    12126593
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.1737217998597771,
+    "decompress_s": 0.10242790007032454,
+    "decompress_1t_s": 0.02855810010805726,
+    "restore_and_check_s": 0.9340429999865592
+   },
+   "throughput": {
+    "decompress_gb_s": 1.351311819386804,
+    "decompress_1t_gb_s": 0.605835259857452,
+    "compress_mb_s": 796.7453256397409
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 5472,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 96175893,
+   "ratio": 0.6948521137237549,
+   "per_object_stored": [
+    12023158,
+    12022528,
+    12018406,
+    12022336,
+    12019102,
+    12024936,
+    12018995,
+    12026432
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.7769149001687765,
+    "decompress_s": 0.10729949991218746,
+    "decompress_1t_s": 0.02895550010725856,
+    "restore_and_check_s": 0.9197017000988126
+   },
+   "throughput": {
+    "decompress_gb_s": 1.2899597119583468,
+    "decompress_1t_gb_s": 0.5975204688543045,
+    "compress_mb_s": 178.15597560290254
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 5472,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 91658113,
+   "ratio": 0.6622120322603168,
+   "per_object_stored": [
+    11458488,
+    11459994,
+    11454480,
+    11456775,
+    11452181,
+    11461672,
+    11453451,
+    11461072
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 5.747254699934274,
+    "decompress_s": 0.09350110008381307,
+    "decompress_1t_s": 0.020691600162535906,
+    "restore_and_check_s": 0.9363133001606911
+   },
+   "throughput": {
+    "decompress_gb_s": 1.480325171318085,
+    "decompress_1t_gb_s": 0.8361607543202969,
+    "compress_mb_s": 24.083156085214544
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 5472,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 114818096,
+   "ratio": 0.8295384031353574,
+   "per_object_stored": [
+    14353743,
+    14353734,
+    14346184,
+    14352007,
+    14347600,
+    14357729,
+    14347693,
+    14359406
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.16452120011672378,
+    "decompress_s": 0.18956029997207224,
+    "decompress_1t_s": 0.01164250005967915,
+    "restore_and_check_s": 0.9234823998995125
+   },
+   "throughput": {
+    "decompress_gb_s": 0.7301741557720268,
+    "decompress_1t_gb_s": 1.4860643256442296,
+    "compress_mb_s": 841.3021051499749
+   }
+  },
+  {
+   "block": "rows64",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 608,
+   "frames": 5472,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 105204356,
+   "ratio": 0.7600810022065134,
+   "per_object_stored": [
+    13152096,
+    13152086,
+    13144875,
+    13150045,
+    13145493,
+    13156154,
+    13146487,
+    13157120
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 2.267952299909666,
+    "decompress_s": 0.145033200038597,
+    "decompress_1t_s": 0.010881399968639016,
+    "restore_and_check_s": 0.9149415998253971
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9543472250709842,
+    "decompress_1t_gb_s": 1.5900071727777851,
+    "compress_mb_s": 61.0295163639522
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108379625,
+   "ratio": 0.7830217029109146,
+   "per_object_stored": [
+    13547520,
+    13546451,
+    13546998,
+    13547642,
+    13546137,
+    13548916,
+    13547200,
+    13548761
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.0695619999896735,
+    "decompress_s": 0.08853890001773834,
+    "decompress_1t_s": 0.029999699909240007,
+    "restore_and_check_s": 0.05699079995974898
+   },
+   "throughput": {
+    "decompress_gb_s": 1.5632906210972783,
+    "decompress_1t_gb_s": 0.5767225689704676,
+    "compress_mb_s": 1989.764986926013
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108388779,
+   "ratio": 0.7830878387797963,
+   "per_object_stored": [
+    13548997,
+    13547394,
+    13548115,
+    13548954,
+    13546355,
+    13550282,
+    13548808,
+    13549874
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.07598970015533268,
+    "decompress_s": 0.1008977999445051,
+    "decompress_1t_s": 0.02930800011381507,
+    "restore_and_check_s": 0.054249199805781245
+   },
+   "throughput": {
+    "decompress_gb_s": 1.371804262096182,
+    "decompress_1t_gb_s": 0.5903338314730147,
+    "compress_mb_s": 1821.457799110512
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 107561701,
+   "ratio": 0.7771123611565792,
+   "per_object_stored": [
+    13449519,
+    13445598,
+    13440551,
+    13447723,
+    13446382,
+    13453510,
+    13435429,
+    13442989
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.1032967001665384,
+    "decompress_s": 0.12950500007718801,
+    "decompress_1t_s": 0.040943200001493096,
+    "restore_and_check_s": 0.055072200018912554
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0687775137446676,
+    "decompress_1t_gb_s": 0.4225733210733176,
+    "compress_mb_s": 125.45313692962849
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 107326308,
+   "ratio": 0.7754116925326261,
+   "per_object_stored": [
+    13426562,
+    13357309,
+    13433940,
+    13479360,
+    13338534,
+    13427051,
+    13396488,
+    13467064
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 7.1058952999301255,
+    "decompress_s": 0.11562830000184476,
+    "decompress_1t_s": 0.045394300017505884,
+    "restore_and_check_s": 0.05420540017075837
+   },
+   "throughput": {
+    "decompress_gb_s": 1.1970428692438766,
+    "decompress_1t_gb_s": 0.3811382484877581,
+    "compress_mb_s": 19.478478947101998
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 138954861,
+   "ratio": 1.0039218339053066,
+   "per_object_stored": [
+    17369355,
+    17369358,
+    17369358,
+    17369358,
+    17369358,
+    17369358,
+    17369358,
+    17369358
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.04801400005817413,
+    "decompress_s": 0.05700129992328584,
+    "decompress_1t_s": 0.008655800018459558,
+    "restore_and_check_s": 0.0870032999664545
+   },
+   "throughput": {
+    "decompress_gb_s": 2.428225885835574,
+    "decompress_1t_gb_s": 1.9988336101922888,
+    "compress_mb_s": 2882.7431964072753
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 137376738,
+   "ratio": 0.9925202022899281,
+   "per_object_stored": [
+    17172372,
+    17171304,
+    17170636,
+    17171863,
+    17171825,
+    17173447,
+    17171451,
+    17173840
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.6432165999431163,
+    "decompress_s": 0.04158620000816882,
+    "decompress_1t_s": 0.010918699903413653,
+    "restore_and_check_s": 0.05376780009828508
+   },
+   "throughput": {
+    "decompress_gb_s": 3.328316412002337,
+    "decompress_1t_gb_s": 1.5845754671387944,
+    "compress_mb_s": 215.18728218805398
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 94729691,
+   "ratio": 0.6844035856651537,
+   "per_object_stored": [
+    11838695,
+    11847609,
+    11839117,
+    11839996,
+    11840019,
+    11844025,
+    11839536,
+    11840694
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.09540650015696883,
+    "decompress_s": 0.06133960001170635,
+    "decompress_1t_s": 0.019309299997985363,
+    "restore_and_check_s": 0.11448500002734363
+   },
+   "throughput": {
+    "decompress_gb_s": 2.2564873584696468,
+    "decompress_1t_gb_s": 0.8960192239907793,
+    "compress_mb_s": 1450.7610254256863
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 98689974,
+   "ratio": 0.7130158597772772,
+   "per_object_stored": [
+    12333619,
+    12344004,
+    12331105,
+    12333501,
+    12335349,
+    12342173,
+    12334283,
+    12335940
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.18453349987976253,
+    "decompress_s": 0.07588959997519851,
+    "decompress_1t_s": 0.030426699900999665,
+    "restore_and_check_s": 0.11746670003049076
+   },
+   "throughput": {
+    "decompress_gb_s": 1.8238603450964883,
+    "decompress_1t_gb_s": 0.5686290020375019,
+    "compress_mb_s": 750.0645253581916
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 96881005,
+   "ratio": 0.6999464107282234,
+   "per_object_stored": [
+    12106472,
+    12120784,
+    12103844,
+    12106325,
+    12109746,
+    12117343,
+    12107185,
+    12109306
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.7464324000757188,
+    "decompress_s": 0.0709444999229163,
+    "decompress_1t_s": 0.024771800031885505,
+    "restore_and_check_s": 0.1200996998231858
+   },
+   "throughput": {
+    "decompress_gb_s": 1.9509903114461242,
+    "decompress_1t_gb_s": 0.698435478153789,
+    "compress_mb_s": 185.43143623717214
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 93084981,
+   "ratio": 0.6725208759307861,
+   "per_object_stored": [
+    11636946,
+    11634407,
+    11634845,
+    11637079,
+    11633291,
+    11635523,
+    11634841,
+    11638049
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 10.367262799991295,
+    "decompress_s": 0.054806800093501806,
+    "decompress_1t_s": 0.015206299955025315,
+    "restore_and_check_s": 0.12258460000157356
+   },
+   "throughput": {
+    "decompress_gb_s": 2.5254536255330637,
+    "decompress_1t_gb_s": 1.1377852634218404,
+    "compress_mb_s": 13.350875218492215
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 116997330,
+   "ratio": 0.8452829447659579,
+   "per_object_stored": [
+    14618461,
+    14644351,
+    14611350,
+    14618579,
+    14624461,
+    14636634,
+    14620416,
+    14623078
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.05950440000742674,
+    "decompress_s": 0.04121430008672178,
+    "decompress_1t_s": 0.014337199972942472,
+    "restore_and_check_s": 0.1386583000421524
+   },
+   "throughput": {
+    "decompress_gb_s": 3.358349691945707,
+    "decompress_1t_gb_s": 1.206756133181642,
+    "compress_mb_s": 2326.080625680199
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 24,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 105616736,
+   "ratio": 0.7630603674686316,
+   "per_object_stored": [
+    13199040,
+    13212107,
+    13195316,
+    13199635,
+    13201155,
+    13209799,
+    13198621,
+    13201063
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 2.2412717000115663,
+    "decompress_s": 0.04192049987614155,
+    "decompress_1t_s": 0.011457100044935942,
+    "restore_and_check_s": 0.12759679998271167
+   },
+   "throughput": {
+    "decompress_gb_s": 3.3017743683627976,
+    "decompress_1t_gb_s": 1.5101119770397131,
+    "compress_mb_s": 61.75602538473391
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 216,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 94068957,
+   "ratio": 0.6796299110759388,
+   "per_object_stored": [
+    11757872,
+    11765022,
+    11754983,
+    11757200,
+    11756160,
+    11762670,
+    11755770,
+    11759280
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.09740950004197657,
+    "decompress_s": 0.07203210005536675,
+    "decompress_1t_s": 0.02194539993070066,
+    "restore_and_check_s": 1.3569201999343932
+   },
+   "throughput": {
+    "decompress_gb_s": 1.9215326485498962,
+    "decompress_1t_gb_s": 0.7883886397438559,
+    "compress_mb_s": 1420.929498050542
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 216,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 97202642,
+   "ratio": 0.7022701754714503,
+   "per_object_stored": [
+    12152313,
+    12152757,
+    12145962,
+    12149596,
+    12146379,
+    12154032,
+    12146741,
+    12154862
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.17342450004070997,
+    "decompress_s": 0.0799185000360012,
+    "decompress_1t_s": 0.02667469996958971,
+    "restore_and_check_s": 1.3718191001098603
+   },
+   "throughput": {
+    "decompress_gb_s": 1.7319147874102865,
+    "decompress_1t_gb_s": 0.6486110066739064,
+    "compress_mb_s": 798.1111778757264
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 216,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 95532602,
+   "ratio": 0.6902044614156088,
+   "per_object_stored": [
+    11942304,
+    11942168,
+    11938340,
+    11941562,
+    11937871,
+    11945254,
+    11939145,
+    11945958
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.7194801999721676,
+    "decompress_s": 0.08047179994173348,
+    "decompress_1t_s": 0.026869000168517232,
+    "restore_and_check_s": 1.3602262998465449
+   },
+   "throughput": {
+    "decompress_gb_s": 1.7200066619638035,
+    "decompress_1t_gb_s": 0.643920648014004,
+    "compress_mb_s": 192.37781943874805
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 216,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 91562067,
+   "ratio": 0.6615181185982444,
+   "per_object_stored": [
+    11447365,
+    11443498,
+    11443706,
+    11445316,
+    11441090,
+    11449170,
+    11442104,
+    11449818
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 10.245524800149724,
+    "decompress_s": 0.06417890009470284,
+    "decompress_1t_s": 0.017795100109651685,
+    "restore_and_check_s": 1.3585602999664843
+   },
+   "throughput": {
+    "decompress_gb_s": 2.156659459662883,
+    "decompress_1t_gb_s": 0.9722622459772525,
+    "compress_mb_s": 13.50951119633982
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 216,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 114237633,
+   "ratio": 0.825344670902599,
+   "per_object_stored": [
+    14282512,
+    14281070,
+    14274842,
+    14277132,
+    14275158,
+    14285688,
+    14274824,
+    14286407
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.05889629991725087,
+    "decompress_s": 0.048770900117233396,
+    "decompress_1t_s": 0.01114040007814765,
+    "restore_and_check_s": 1.3586103999987245
+   },
+   "throughput": {
+    "decompress_gb_s": 2.8380044589558753,
+    "decompress_1t_gb_s": 1.5530415315997141,
+    "compress_mb_s": 2350.0972420078765
+   }
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 24,
+   "frames": 216,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 103589819,
+   "ratio": 0.7484162865263043,
+   "per_object_stored": [
+    12950645,
+    12949859,
+    12943575,
+    12948332,
+    12943598,
+    12953617,
+    12944824,
+    12955369
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 3.1777931000106037,
+    "decompress_s": 0.04775790008716285,
+    "decompress_1t_s": 0.011676599970087409,
+    "restore_and_check_s": 1.3561752999667078
+   },
+   "throughput": {
+    "decompress_gb_s": 2.89820180006626,
+    "decompress_1t_gb_s": 1.4817244783860213,
+    "compress_mb_s": 43.55602383287261
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108378849,
+   "ratio": 0.783016096461903,
+   "per_object_stored": [
+    13547488,
+    13546431,
+    13546980,
+    13547559,
+    13546103,
+    13548896,
+    13547060,
+    13548332
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.09970379993319511,
+    "decompress_s": 0.08992220018990338,
+    "decompress_1t_s": 0.02575490018352866,
+    "restore_and_check_s": 0.0531659999396652
+   },
+   "throughput": {
+    "decompress_gb_s": 1.5392420526598851,
+    "decompress_1t_gb_s": 0.671775230216774,
+    "compress_mb_s": 1388.232264896029
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 108391649,
+   "ratio": 0.7831085739713727,
+   "per_object_stored": [
+    13549358,
+    13548277,
+    13548139,
+    13549236,
+    13547267,
+    13550583,
+    13548971,
+    13549818
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.09722680016420782,
+    "decompress_s": 0.09554640017449856,
+    "decompress_1t_s": 0.028994900174438953,
+    "restore_and_check_s": 0.05510409991256893
+   },
+   "throughput": {
+    "decompress_gb_s": 1.448636806276479,
+    "decompress_1t_gb_s": 0.596708521012688,
+    "compress_mb_s": 1423.5995812495507
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 107193886,
+   "ratio": 0.7744549693483295,
+   "per_object_stored": [
+    13398460,
+    13403504,
+    13397770,
+    13398619,
+    13397665,
+    13406115,
+    13391136,
+    13400617
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.3496754998341203,
+    "decompress_s": 0.12848399998620152,
+    "decompress_1t_s": 0.03598550008609891,
+    "restore_and_check_s": 0.05331210000440478
+   },
+   "throughput": {
+    "decompress_gb_s": 1.077270570770405,
+    "decompress_1t_gb_s": 0.48079098410761056,
+    "compress_mb_s": 102.55208160554986
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 107248022,
+   "ratio": 0.7748460914149429,
+   "per_object_stored": [
+    13329120,
+    13311656,
+    13290334,
+    13551861,
+    13316532,
+    13566658,
+    13551219,
+    13330642
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 12.343214999884367,
+    "decompress_s": 0.14263939997181296,
+    "decompress_1t_s": 0.050098299980163574,
+    "restore_and_check_s": 0.05945030017755926
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9703632518599467,
+    "decompress_1t_gb_s": 0.3453511198354142,
+    "compress_mb_s": 11.213612660987973
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 138954832,
+   "ratio": 1.0039216243859492,
+   "per_object_stored": [
+    17369354,
+    17369354,
+    17369354,
+    17369354,
+    17369354,
+    17369354,
+    17369354,
+    17369354
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.04509090003557503,
+    "decompress_s": 0.03867589985020459,
+    "decompress_1t_s": 0.0073177998419851065,
+    "restore_and_check_s": 0.05354360002093017
+   },
+   "throughput": {
+    "decompress_gb_s": 3.5787669462399805,
+    "decompress_1t_gb_s": 2.364304076853051,
+    "compress_mb_s": 3069.6222938730007
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "raw",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 137370943,
+   "ratio": 0.9924783345424768,
+   "per_object_stored": [
+    17171671,
+    17170600,
+    17169870,
+    17171111,
+    17171117,
+    17172732,
+    17170701,
+    17173141
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.9090287000872195,
+    "decompress_s": 0.042306300019845366,
+    "decompress_1t_s": 0.010094700148329139,
+    "restore_and_check_s": 0.05829980014823377
+   },
+   "throughput": {
+    "decompress_gb_s": 3.2716647859792185,
+    "decompress_1t_gb_s": 1.7139195563786729,
+    "compress_mb_s": 152.26365458727503
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 94735941,
+   "ratio": 0.6844487406990745,
+   "per_object_stored": [
+    11839753,
+    11848333,
+    11839556,
+    11840771,
+    11840693,
+    11844797,
+    11840503,
+    11841535
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.11392239993438125,
+    "decompress_s": 0.06693480000831187,
+    "decompress_1t_s": 0.015146499965339899,
+    "restore_and_check_s": 0.11314649996347725
+   },
+   "throughput": {
+    "decompress_gb_s": 2.0678635326140093,
+    "decompress_1t_gb_s": 1.1422773604193344,
+    "compress_mb_s": 1214.9676628979432
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 98762688,
+   "ratio": 0.7135412042791193,
+   "per_object_stored": [
+    12342698,
+    12352987,
+    12340659,
+    12342490,
+    12344322,
+    12351175,
+    12343248,
+    12345109
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.23490620008669794,
+    "decompress_s": 0.09470540005713701,
+    "decompress_1t_s": 0.02448179991915822,
+    "restore_and_check_s": 0.11631879978813231
+   },
+   "throughput": {
+    "decompress_gb_s": 1.4615009483777504,
+    "decompress_1t_gb_s": 0.7067088227635059,
+    "compress_mb_s": 589.2225575524001
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 96948077,
+   "ratio": 0.7004309928778446,
+   "per_object_stored": [
+    12115168,
+    12129614,
+    12111968,
+    12114419,
+    12118201,
+    12125872,
+    12115360,
+    12117475
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.8919008001685143,
+    "decompress_s": 0.08266040007583797,
+    "decompress_1t_s": 0.02383210021071136,
+    "restore_and_check_s": 0.12540330016054213
+   },
+   "throughput": {
+    "decompress_gb_s": 1.6744660305661707,
+    "decompress_1t_gb_s": 0.7259747922771751,
+    "compress_mb_s": 155.18769797476205
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 93078747,
+   "ratio": 0.6724758364937522,
+   "per_object_stored": [
+    11637299,
+    11633656,
+    11633695,
+    11635917,
+    11633091,
+    11635427,
+    11633569,
+    11636093
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 17.847978200064972,
+    "decompress_s": 0.06071559991687536,
+    "decompress_1t_s": 0.012544400058686733,
+    "restore_and_check_s": 0.11547400010749698
+   },
+   "throughput": {
+    "decompress_gb_s": 2.2796782406745124,
+    "decompress_1t_gb_s": 1.3792213193981382,
+    "compress_mb_s": 7.755053846911139
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 116981917,
+   "ratio": 0.8451715888399066,
+   "per_object_stored": [
+    14616123,
+    14643161,
+    14608976,
+    14616450,
+    14622566,
+    14635491,
+    14618792,
+    14620358
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.0767669000197202,
+    "decompress_s": 0.04086219985038042,
+    "decompress_1t_s": 0.010460800025612116,
+    "restore_and_check_s": 0.11195129994302988
+   },
+   "throughput": {
+    "decompress_gb_s": 3.3872878236317323,
+    "decompress_1t_gb_s": 1.6539369797376084,
+    "compress_mb_s": 1803.017081117567
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "byte_split",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 8,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 105568245,
+   "ratio": 0.7627100294286554,
+   "per_object_stored": [
+    13193062,
+    13205934,
+    13189159,
+    13193616,
+    13195034,
+    13203801,
+    13192604,
+    13195035
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 3.1182734000030905,
+    "decompress_s": 0.043809100054204464,
+    "decompress_1t_s": 0.011247999966144562,
+    "restore_and_check_s": 0.11387190013192594
+   },
+   "throughput": {
+    "decompress_gb_s": 3.1594356384574094,
+    "decompress_1t_gb_s": 1.5381849263936633,
+    "compress_mb_s": 44.3873946395665
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 1
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 72,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 94075730,
+   "ratio": 0.679678844683098,
+   "per_object_stored": [
+    11759125,
+    11766230,
+    11755698,
+    11757941,
+    11756881,
+    11763310,
+    11756519,
+    11760026
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.11665400001220405,
+    "decompress_s": 0.07633140007965267,
+    "decompress_1t_s": 0.020969700068235397,
+    "restore_and_check_s": 1.3407944000791758
+   },
+   "throughput": {
+    "decompress_gb_s": 1.8133039857197104,
+    "decompress_1t_gb_s": 0.8250716006285693,
+    "compress_mb_s": 1186.5176675083553
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 72,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 97313335,
+   "ratio": 0.7030699108586167,
+   "per_object_stored": [
+    12165551,
+    12165837,
+    12159636,
+    12163626,
+    12161494,
+    12167930,
+    12160615,
+    12168646
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.18541710008867085,
+    "decompress_s": 0.0824297999497503,
+    "decompress_1t_s": 0.027388400165364146,
+    "restore_and_check_s": 1.4032783000729978
+   },
+   "throughput": {
+    "decompress_gb_s": 1.67915040536768,
+    "decompress_1t_gb_s": 0.6317091869381909,
+    "compress_mb_s": 746.4901130144312
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 72,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 95596333,
+   "ratio": 0.6906649054902972,
+   "per_object_stored": [
+    11950842,
+    11950225,
+    11946101,
+    11949655,
+    11945841,
+    11953195,
+    11946690,
+    11953784
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.8693798000458628,
+    "decompress_s": 0.08683939999900758,
+    "decompress_1t_s": 0.025944000110030174,
+    "restore_and_check_s": 1.3452025998849422
+   },
+   "throughput": {
+    "decompress_gb_s": 1.5938851719562985,
+    "decompress_1t_gb_s": 0.6668788130829173,
+    "compress_mb_s": 159.20778466752768
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 72,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 91555960,
+   "ratio": 0.6614739967114998,
+   "per_object_stored": [
+    11445899,
+    11442477,
+    11443695,
+    11444990,
+    11440185,
+    11447842,
+    11440949,
+    11449923
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 16.204244600143284,
+    "decompress_s": 0.06437649996951222,
+    "decompress_1t_s": 0.01704300008714199,
+    "restore_and_check_s": 1.4245032998733222
+   },
+   "throughput": {
+    "decompress_gb_s": 2.1500397204810753,
+    "decompress_1t_gb_s": 1.0151677469656903,
+    "compress_mb_s": 8.541714557849621
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4",
+    "level": 0
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 72,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 114223133,
+   "ratio": 0.8252399112239028,
+   "per_object_stored": [
+    14279836,
+    14279815,
+    14273046,
+    14275779,
+    14271994,
+    14284246,
+    14272959,
+    14285458
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.08158240001648664,
+    "decompress_s": 0.05251600011251867,
+    "decompress_1t_s": 0.012986599933356047,
+    "restore_and_check_s": 1.4292830000631511
+   },
+   "throughput": {
+    "decompress_gb_s": 2.635616416015004,
+    "decompress_1t_gb_s": 1.33225818064674,
+    "compress_mb_s": 1696.5918135777924
+   }
+  },
+  {
+   "block": "expert",
+   "transform": "planes",
+   "codec": {
+    "name": "lz4hc",
+    "level": 9
+   },
+   "dictionary": null,
+   "blocks": 8,
+   "frames": 72,
+   "bf16_bytes": 138412032,
+   "stream_bytes": 138412032,
+   "stored_bytes": 103545628,
+   "ratio": 0.7480970151496656,
+   "per_object_stored": [
+    12945222,
+    12944371,
+    12938045,
+    12942711,
+    12938124,
+    12948015,
+    12939251,
+    12949889
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 4.181759699946269,
+    "decompress_s": 0.047103899996727705,
+    "decompress_1t_s": 0.012765400111675262,
+    "restore_and_check_s": 1.3599378999788314
+   },
+   "throughput": {
+    "decompress_gb_s": 2.938441021011327,
+    "decompress_1t_gb_s": 1.3553436514830435,
+    "compress_mb_s": 33.09899227394114
+   }
+  }
+ ],
+ "dictionary": [
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": 16384,
+   "blocks": 19456,
+   "frames": 19456,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 54631788,
+   "ratio": 0.7894080768931996,
+   "per_object_stored": [
+    13656278,
+    13658774,
+    13657511,
+    13659225
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.0987585000693798,
+    "decompress_s": 0.06163139990530908,
+    "decompress_1t_s": 0.03526849998161197,
+    "restore_and_check_s": 0.09861920005641878
+   },
+   "throughput": {
+    "decompress_gb_s": 1.122901899134672,
+    "decompress_1t_gb_s": 0.4905653489380193,
+    "compress_mb_s": 700.7600961069822
+   },
+   "without_dictionary_ratio": 0.800948648741751,
+   "dictionary_bytes": 16384
+  },
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": 16384,
+   "blocks": 19456,
+   "frames": 19456,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 54680737,
+   "ratio": 0.7901153708949233,
+   "per_object_stored": [
+    13668509,
+    13671001,
+    13669733,
+    13671494
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.7639381000772119,
+    "decompress_s": 0.07366549992002547,
+    "decompress_1t_s": 0.03698499989695847,
+    "restore_and_check_s": 0.11009329999797046
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9394630603896413,
+    "decompress_1t_gb_s": 0.46779786530222006,
+    "compress_mb_s": 90.59113034551528
+   },
+   "without_dictionary_ratio": 0.8041589621341589,
+   "dictionary_bytes": 16384
+  },
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": 65536,
+   "blocks": 19456,
+   "frames": 19456,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 54643620,
+   "ratio": 0.7895790446888317,
+   "per_object_stored": [
+    13659276,
+    13661811,
+    13660317,
+    13662216
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.09625319996848702,
+    "decompress_s": 0.07184479990974069,
+    "decompress_1t_s": 0.03556420002132654,
+    "restore_and_check_s": 0.09981669997796416
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9632710521421757,
+    "decompress_1t_gb_s": 0.4864865226723763,
+    "compress_mb_s": 718.9996386889768
+   },
+   "without_dictionary_ratio": 0.800948648741751,
+   "dictionary_bytes": 65536
+  },
+  {
+   "block": "row",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": 65536,
+   "blocks": 19456,
+   "frames": 19456,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 54684515,
+   "ratio": 0.7901699615247322,
+   "per_object_stored": [
+    13669451,
+    13672076,
+    13670569,
+    13672419
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.8914866000413895,
+    "decompress_s": 0.0767860000487417,
+    "decompress_1t_s": 0.03698830003850162,
+    "restore_and_check_s": 0.10294019989669323
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9012842960444596,
+    "decompress_1t_gb_s": 0.46775612780232206,
+    "compress_mb_s": 77.6299004346077
+   },
+   "without_dictionary_ratio": 0.8041589621341589,
+   "dictionary_bytes": 65536
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": 16384,
+   "blocks": 19456,
+   "frames": 19456,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 52653939,
+   "ratio": 0.7608289285139604,
+   "per_object_stored": [
+    13162286,
+    13171809,
+    13159696,
+    13160148
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.15659389994107187,
+    "decompress_s": 0.07519020000472665,
+    "decompress_1t_s": 0.05197599995881319,
+    "restore_and_check_s": 0.1594283999875188
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9204127133010622,
+    "decompress_1t_gb_s": 0.33287486558623314,
+    "compress_mb_s": 441.94579754411274
+   },
+   "without_dictionary_ratio": 0.7865155393427069,
+   "dictionary_bytes": 16384
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": 16384,
+   "blocks": 19456,
+   "frames": 19456,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 50465843,
+   "ratio": 0.7292117928013657,
+   "per_object_stored": [
+    12615482,
+    12629720,
+    12610033,
+    12610608
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.4838713000062853,
+    "decompress_s": 0.06825180002488196,
+    "decompress_1t_s": 0.043558199889957905,
+    "restore_and_check_s": 0.16082890005782247
+   },
+   "throughput": {
+    "decompress_gb_s": 1.013980817718656,
+    "decompress_1t_gb_s": 0.39720429319184886,
+    "compress_mb_s": 46.6388264263261
+   },
+   "without_dictionary_ratio": 0.8011829636313699,
+   "dictionary_bytes": 16384
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": 65536,
+   "blocks": 19456,
+   "frames": 19456,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 52175663,
+   "ratio": 0.7539180264328466,
+   "per_object_stored": [
+    13041723,
+    13046926,
+    13044312,
+    13042702
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.1446996999438852,
+    "decompress_s": 0.06907569989562035,
+    "decompress_1t_s": 0.03967750002630055,
+    "restore_and_check_s": 0.16668440005742013
+   },
+   "throughput": {
+    "decompress_gb_s": 1.0018865694386967,
+    "decompress_1t_gb_s": 0.43605327927746357,
+    "compress_mb_s": 478.27338983313865
+   },
+   "without_dictionary_ratio": 0.7865155393427069,
+   "dictionary_bytes": 65536
+  },
+  {
+   "block": "row",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": 65536,
+   "blocks": 19456,
+   "frames": 19456,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 48831221,
+   "ratio": 0.7055921410069321,
+   "per_object_stored": [
+    12205517,
+    12219045,
+    12202767,
+    12203892
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.604837599908933,
+    "decompress_s": 0.06102120014838874,
+    "decompress_1t_s": 0.04194949986413121,
+    "restore_and_check_s": 0.16010090010240674
+   },
+   "throughput": {
+    "decompress_gb_s": 1.134130692803612,
+    "decompress_1t_gb_s": 0.41243647852864146,
+    "compress_mb_s": 43.12337647368626
+   },
+   "without_dictionary_ratio": 0.8011829636313699,
+   "dictionary_bytes": 65536
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": 16384,
+   "blocks": 1216,
+   "frames": 1216,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 54229878,
+   "ratio": 0.7836006337946112,
+   "per_object_stored": [
+    13555824,
+    13558282,
+    13557060,
+    13558712
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.04042490012943745,
+    "decompress_s": 0.04895809991285205,
+    "decompress_1t_s": 0.031666999915614724,
+    "restore_and_check_s": 0.06564349983818829
+   },
+   "throughput": {
+    "decompress_gb_s": 1.4135764280719696,
+    "decompress_1t_gb_s": 0.5463575345345164,
+    "compress_mb_s": 1711.9650457615878
+   },
+   "without_dictionary_ratio": 0.783589319749312,
+   "dictionary_bytes": 16384
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": 16384,
+   "blocks": 1216,
+   "frames": 1216,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 54291751,
+   "ratio": 0.7844946745670203,
+   "per_object_stored": [
+    13571217,
+    13573982,
+    13572490,
+    13574062
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.7947485998738557,
+    "decompress_s": 0.06927610002458096,
+    "decompress_1t_s": 0.03481530002318323,
+    "restore_and_check_s": 0.0732778999954462
+   },
+   "throughput": {
+    "decompress_gb_s": 0.9989883376149049,
+    "decompress_1t_gb_s": 0.49695116769004055,
+    "compress_mb_s": 87.07912918749972
+   },
+   "without_dictionary_ratio": 0.7851828083847509,
+   "dictionary_bytes": 16384
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": 65536,
+   "blocks": 1216,
+   "frames": 1216,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 54206753,
+   "ratio": 0.7832664865435977,
+   "per_object_stored": [
+    13549812,
+    13552935,
+    13551143,
+    13552863
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.06549960002303123,
+    "decompress_s": 0.05566489999182522,
+    "decompress_1t_s": 0.03145150002092123,
+    "restore_and_check_s": 0.06470230012200773
+   },
+   "throughput": {
+    "decompress_gb_s": 1.2432613012897424,
+    "decompress_1t_gb_s": 0.5501010758943519,
+    "compress_mb_s": 1056.5868490138184
+   },
+   "without_dictionary_ratio": 0.783589319749312,
+   "dictionary_bytes": 65536
+  },
+  {
+   "block": "rows16",
+   "transform": "raw",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": 65536,
+   "blocks": 1216,
+   "frames": 1216,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 54193215,
+   "ratio": 0.7830708677118475,
+   "per_object_stored": [
+    13546360,
+    13549872,
+    13547557,
+    13549426
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.1835652000736445,
+    "decompress_s": 0.05337039986625314,
+    "decompress_1t_s": 0.0331927000079304,
+    "restore_and_check_s": 0.06575679988600314
+   },
+   "throughput": {
+    "decompress_gb_s": 1.2967115886976883,
+    "decompress_1t_gb_s": 0.5212442493640567,
+    "compress_mb_s": 58.472499863711626
+   },
+   "without_dictionary_ratio": 0.7851828083847509,
+   "dictionary_bytes": 65536
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": 16384,
+   "blocks": 1216,
+   "frames": 1216,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 51300934,
+   "ratio": 0.741278532779578,
+   "per_object_stored": [
+    12823783,
+    12834909,
+    12819809,
+    12822433
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.09178019990213215,
+    "decompress_s": 0.0595295000821352,
+    "decompress_1t_s": 0.0419467999599874,
+    "restore_and_check_s": 0.09370289999060333
+   },
+   "throughput": {
+    "decompress_gb_s": 1.162549927422769,
+    "decompress_1t_gb_s": 0.41246302498649995,
+    "compress_mb_s": 754.0408069910105
+   },
+   "without_dictionary_ratio": 0.7496420542399088,
+   "dictionary_bytes": 16384
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": 16384,
+   "blocks": 1216,
+   "frames": 1216,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 48413378,
+   "ratio": 0.6995544722585967,
+   "per_object_stored": [
+    12100517,
+    12109222,
+    12100439,
+    12103200
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.442953099962324,
+    "decompress_s": 0.10978489997796714,
+    "decompress_1t_s": 0.040709299966692924,
+    "restore_and_check_s": 0.09564830013550818
+   },
+   "throughput": {
+    "decompress_gb_s": 0.6303782761917991,
+    "decompress_1t_gb_s": 0.42500126541491867,
+    "compress_mb_s": 47.96137587687846
+   },
+   "without_dictionary_ratio": 0.7833279696377841,
+   "dictionary_bytes": 16384
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": 65536,
+   "blocks": 1216,
+   "frames": 1216,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 51130654,
+   "ratio": 0.7388180530432499,
+   "per_object_stored": [
+    12780834,
+    12792211,
+    12777595,
+    12780014
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.094501500017941,
+    "decompress_s": 0.05965259997174144,
+    "decompress_1t_s": 0.046753899892792106,
+    "restore_and_check_s": 0.0954741002060473
+   },
+   "throughput": {
+    "decompress_gb_s": 1.1601508741074855,
+    "decompress_1t_gb_s": 0.3700547770276446,
+    "compress_mb_s": 732.327169270978
+   },
+   "without_dictionary_ratio": 0.7496420542399088,
+   "dictionary_bytes": 65536
+  },
+  {
+   "block": "rows16",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": 65536,
+   "blocks": 1216,
+   "frames": 1216,
+   "bf16_bytes": 69206016,
+   "stream_bytes": 69206016,
+   "stored_bytes": 48147040,
+   "ratio": 0.6957059918027936,
+   "per_object_stored": [
+    12035334,
+    12043011,
+    12033065,
+    12035630
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 1.8385908999480307,
+    "decompress_s": 0.053312000120058656,
+    "decompress_1t_s": 0.040046999929472804,
+    "restore_and_check_s": 0.09182829991914332
+   },
+   "throughput": {
+    "decompress_gb_s": 1.2981320498977345,
+    "decompress_1t_gb_s": 0.4320299655522227,
+    "compress_mb_s": 37.64079110908042
+   },
+   "without_dictionary_ratio": 0.7833279696377841,
+   "dictionary_bytes": 65536
+  }
+ ],
+ "deltas": [
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 21,
+   "frames": 21,
+   "bf16_bytes": 121110528,
+   "stream_bytes": 121110528,
+   "stored_bytes": 88645957,
+   "ratio": 0.7319426185640938,
+   "per_object_stored": [
+    12674029,
+    12657995,
+    12660849,
+    12662258,
+    12668435,
+    12660447,
+    12661944
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.18830389995127916,
+    "decompress_s": 0.06374150002375245,
+    "decompress_1t_s": 0.026580899953842163,
+    "restore_and_check_s": 0.10135899996384978
+   },
+   "throughput": {
+    "decompress_gb_s": 1.9000263243706177,
+    "decompress_1t_gb_s": 0.6508998577942857,
+    "compress_mb_s": 643.1652665257361
+   },
+   "encoding": "xor",
+   "base": 0,
+   "restored_exact": true,
+   "independent_ratio": 0.7130375569000905
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 21,
+   "frames": 21,
+   "bf16_bytes": 121110528,
+   "stream_bytes": 121110528,
+   "stored_bytes": 84407691,
+   "ratio": 0.6969475931935496,
+   "per_object_stored": [
+    12067223,
+    12053333,
+    12055031,
+    12056618,
+    12063331,
+    12055084,
+    12057071
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 9.523569900076836,
+    "decompress_s": 0.04730820003896952,
+    "decompress_1t_s": 0.015515999868512154,
+    "restore_and_check_s": 0.10526999994181097
+   },
+   "throughput": {
+    "decompress_gb_s": 2.560032465835453,
+    "decompress_1t_gb_s": 1.115075028784404,
+    "compress_mb_s": 12.716925404099033
+   },
+   "encoding": "xor",
+   "base": 0,
+   "restored_exact": true,
+   "independent_ratio": 0.6725099489286348
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 21,
+   "frames": 189,
+   "bf16_bytes": 121110528,
+   "stream_bytes": 121110528,
+   "stored_bytes": 88557765,
+   "ratio": 0.7312144242323838,
+   "per_object_stored": [
+    12661986,
+    12645098,
+    12647348,
+    12649826,
+    12656445,
+    12647679,
+    12649383
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.15617479989305139,
+    "decompress_s": 0.06853460008278489,
+    "decompress_1t_s": 0.04031129996292293,
+    "restore_and_check_s": 1.21923299995251
+   },
+   "throughput": {
+    "decompress_gb_s": 1.767144301618557,
+    "decompress_1t_gb_s": 0.42919737185140094,
+    "compress_mb_s": 775.480603035423
+   },
+   "encoding": "xor",
+   "base": 0,
+   "restored_exact": true,
+   "independent_ratio": 0.702253804062352
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 21,
+   "frames": 189,
+   "bf16_bytes": 121110528,
+   "stream_bytes": 121110528,
+   "stored_bytes": 84094023,
+   "ratio": 0.6943576614578049,
+   "per_object_stored": [
+    12025604,
+    12006686,
+    12009387,
+    12011183,
+    12020521,
+    12009076,
+    12011566
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 9.5782888000831,
+    "decompress_s": 0.060084500117227435,
+    "decompress_1t_s": 0.01721510011702776,
+    "restore_and_check_s": 1.1984282999765128
+   },
+   "throughput": {
+    "decompress_gb_s": 2.01567006072628,
+    "decompress_1t_gb_s": 1.0050190752528227,
+    "compress_mb_s": 12.64427608394406
+   },
+   "encoding": "xor",
+   "base": 0,
+   "restored_exact": true,
+   "independent_ratio": 0.6615007243631206
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 21,
+   "frames": 21,
+   "bf16_bytes": 121110528,
+   "stream_bytes": 121110528,
+   "stored_bytes": 89928364,
+   "ratio": 0.7425313511968175,
+   "per_object_stored": [
+    12846615,
+    12845975,
+    12846432,
+    12847088,
+    12848081,
+    12846170,
+    12848003
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.20665660011582077,
+    "decompress_s": 0.06443919986486435,
+    "decompress_1t_s": 0.027259499998763204,
+    "restore_and_check_s": 0.10886320006102324
+   },
+   "throughput": {
+    "decompress_gb_s": 1.879454249183436,
+    "decompress_1t_gb_s": 0.6346963077380359,
+    "compress_mb_s": 586.0472297140453
+   },
+   "encoding": "modular",
+   "base": 0,
+   "restored_exact": true,
+   "independent_ratio": 0.7130375569000905
+  },
+  {
+   "block": "tensor",
+   "transform": "byte_split",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 21,
+   "frames": 21,
+   "bf16_bytes": 121110528,
+   "stream_bytes": 121110528,
+   "stored_bytes": 85701304,
+   "ratio": 0.707628852877266,
+   "per_object_stored": [
+    12239146,
+    12243122,
+    12245712,
+    12240649,
+    12243339,
+    12243069,
+    12246267
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 9.352657800074667,
+    "decompress_s": 0.0628106000367552,
+    "decompress_1t_s": 0.015691700158640742,
+    "restore_and_check_s": 0.09859920013695955
+   },
+   "throughput": {
+    "decompress_gb_s": 1.928186133059215,
+    "decompress_1t_gb_s": 1.1025895107021153,
+    "compress_mb_s": 12.94931671711897
+   },
+   "encoding": "modular",
+   "base": 0,
+   "restored_exact": true,
+   "independent_ratio": 0.6725099489286348
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 3
+   },
+   "dictionary": null,
+   "blocks": 21,
+   "frames": 189,
+   "bf16_bytes": 121110528,
+   "stream_bytes": 121110528,
+   "stored_bytes": 89654507,
+   "ratio": 0.7402701357226351,
+   "per_object_stored": [
+    12807463,
+    12806864,
+    12808276,
+    12806741,
+    12809519,
+    12807085,
+    12808559
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 0.15894680004566908,
+    "decompress_s": 0.0690164000261575,
+    "decompress_1t_s": 0.03488379996269941,
+    "restore_and_check_s": 1.242197300074622
+   },
+   "throughput": {
+    "decompress_gb_s": 1.7548079580230005,
+    "decompress_1t_gb_s": 0.49597532431960306,
+    "compress_mb_s": 761.9563776383177
+   },
+   "encoding": "modular",
+   "base": 0,
+   "restored_exact": true,
+   "independent_ratio": 0.702253804062352
+  },
+  {
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "dictionary": null,
+   "blocks": 21,
+   "frames": 189,
+   "bf16_bytes": 121110528,
+   "stream_bytes": 121110528,
+   "stored_bytes": 85117823,
+   "ratio": 0.7028110966537938,
+   "per_object_stored": [
+    12163581,
+    12158217,
+    12158293,
+    12158179,
+    12162217,
+    12156717,
+    12160619
+   ],
+   "exact": true,
+   "timings": {
+    "compress_s": 9.224111600080505,
+    "decompress_s": 0.05290669994428754,
+    "decompress_1t_s": 0.016255599912256002,
+    "restore_and_check_s": 1.1746804998256266
+   },
+   "throughput": {
+    "decompress_gb_s": 2.2891340440347494,
+    "decompress_1t_gb_s": 1.0643411558717948,
+    "compress_mb_s": 13.12977696398892
+   },
+   "encoding": "modular",
+   "base": 0,
+   "restored_exact": true,
+   "independent_ratio": 0.6615007243631206
+  }
+ ],
+ "float_delta": {
+  "gate": {
+   "weights": 2883584,
+   "bf16_delta_mismatches": 1096459,
+   "fp32_delta_mismatches": 19,
+   "bf16_delta_mismatch_share": 0.3802417516708374
+  },
+  "up": {
+   "weights": 2883584,
+   "bf16_delta_mismatches": 1080948,
+   "fp32_delta_mismatches": 9,
+   "bf16_delta_mismatch_share": 0.3748626708984375
+  },
+  "down": {
+   "weights": 2883584,
+   "bf16_delta_mismatches": 1026652,
+   "fp32_delta_mismatches": 14,
+   "bf16_delta_mismatch_share": 0.3560333251953125
+  }
+ },
+ "system": {
+  "process_memory": {
+   "resident_bytes": 1401819136,
+   "peak_resident_bytes": 3402088448,
+   "private_bytes": 1994563584
+  }
+ },
+ "digest": "41ec8052e50ad38bcc02dac4472ef002fa8eb742cdef58bfb46225e13bafc6d4"
+}

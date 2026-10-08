@@ -1,0 +1,28 @@
+layer 1 independent expert/raw/zstd-3: 0.7827 exact True
+layer 1 independent expert/byte_split/lz4-0: 0.8469 exact True
+layer 1 independent expert/byte_split/zstd-1: 0.6852 exact True
+layer 1 independent expert/byte_split/zstd-19: 0.6723 exact True
+layer 1 independent expert/planes/zstd-1: 0.6799 exact True
+layer 1 independent expert/planes/zstd-19: 0.6606 exact True
+layer 1 independent expert/planes/lz4hc-9: 0.7472 exact True
+layer 1 independent rows16/byte_split/zstd-9: 0.7365 exact True
+layer 1 independent rows16/planes/zstd-1: 0.6861 exact True
+layer 1 independent rows16/planes/zstd-19: 0.6639 exact True
+layer 1 independent rows16/planes/lz4hc-9: 0.7869 exact True
+layer 1 dictionary row/byte_split: 0.7030 exact True
+layer 1 dictionary rows16/byte_split: 0.6925 exact True
+layer 1 base A1/xor expert/planes/zstd-19: 0.6957 (+3 base objects, 0.0103) exact True
+layer 1 base A2/xor expert/planes/zstd-19: 0.6954 (+3 base objects, 0.0103) exact True
+layer 1 base A2/xor rows16/planes/zstd-19: 0.6977 (+3 base objects, 0.0103) exact True
+layer 1 base A2/modular expert/planes/zstd-19: 0.7020 (+3 base objects, 0.0103) exact True
+layer 1 base A3/xor expert/planes/zstd-19: 0.6944 (+7 base objects, 0.0241) exact True
+layer 1 base C-best/xor expert/planes/zstd-19: 0.6918 (+3 base objects, 0.0103) exact True
+layer 1 base synthetic-median/xor expert/planes/zstd-19: 0.7117 (+3 base objects, 0.0103) exact True
+layer 1 throughput independent expert/planes/zstd-19 (GB/s): decompress_gb_s 3.35, cpu_restore_gb_s 0.32, gpu_restore_gb_s 1.16
+layer 1 throughput A2-xor expert/planes/zstd-19 (GB/s): decompress_gb_s 4.76, cpu_restore_gb_s 0.32, gpu_restore_gb_s 1.12
+layer 1 throughput independent rows16/planes/zstd-19 (GB/s): decompress_gb_s 4.68, cpu_restore_gb_s 0.07, gpu_restore_gb_s 1.07
+layer 1 throughput A2-xor rows16/planes/zstd-19 (GB/s): decompress_gb_s 3.54, cpu_restore_gb_s 0.07, gpu_restore_gb_s 1.07
+layer 1 throughput independent expert/byte_split/zstd-1 (GB/s): decompress_gb_s 2.57, cpu_restore_gb_s 4.68, gpu_restore_gb_s 2.51
+layer 1 throughput A2-xor expert/byte_split/zstd-1 (GB/s): decompress_gb_s 3.10, cpu_restore_gb_s 2.96, gpu_restore_gb_s 2.50
+layer 1 throughput independent expert/planes/lz4hc-9 (GB/s): decompress_gb_s 2.56, cpu_restore_gb_s 0.34, gpu_restore_gb_s 1.15
+layer 1 throughput A2-xor expert/planes/lz4hc-9 (GB/s): decompress_gb_s 2.50, cpu_restore_gb_s 0.31, gpu_restore_gb_s 1.00
