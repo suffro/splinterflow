@@ -72,6 +72,8 @@ money.
 
 ## Long-running processes
 
+### EXTRIMELY IMPORTANT
+
 - **Do not waste user credits or context on repetitive polling.** Builds, downloads, CI jobs,
   environment solves, migrations and similar tasks may take a long time.
 - Avoid verbose watch commands or repeated status calls that inject unchanged output into context.
