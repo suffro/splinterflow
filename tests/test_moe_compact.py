@@ -12,14 +12,12 @@ import pytest
 import torch
 import transformers
 
-from awpmi.materialization.backend import MaterializationBackend
 from awpmi.materialization.weights import ExpertStore, WeightStore
 from awpmi.models import checkpoint, olmoe
 from awpmi.models.moe import ExpertCall, FullLayerOffload, RoutingRecord, StreamedExperts, find_expert_modules, groups_from_pack, write_expert_pack
 from awpmi.storage.cache import HotnessPolicy, LRUPolicy, PageCache, ReplacementPolicy
 from awpmi.storage.pack import SourceFile, open_pack
-from awpmi.streaming.streamer import PageStreamer
-from tests.conftest import BACKENDS, DEVICES, page_store
+from tests.conftest import BACKENDS, DEVICES, materialization_backend
 from tests.test_moe import ARCHITECTURES, COMMON, tiny_model
 
 # Architectures whose checkpoints split each expert into separate tensors (save_pretrained reverses the fusion).
@@ -52,7 +50,7 @@ def assert_same_run(got, expected) -> None:
 
 
 def expert_store(pack, device, cache: PageCache | None = None, backend: str = "python") -> ExpertStore:
-    backend = MaterializationBackend(page_store(pack, backend, direct=True), device, PageStreamer(device), cache)
+    backend = materialization_backend(pack, backend, device, cache, direct=True)
     return ExpertStore(WeightStore(backend), groups_from_pack(pack))
 
 

@@ -1,0 +1,51 @@
+{
+ "numerics": {
+  "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+  "deterministic_algorithms": true,
+  "float32_matmul_precision": "highest",
+  "cuda_matmul_allow_tf32": false,
+  "cudnn_allow_tf32": false,
+  "cuda_matmul_allow_bf16_reduced_precision_reduction": false,
+  "cuda_matmul_allow_fp16_reduced_precision_reduction": false,
+  "cuda_matmul_allow_bf16_reduced_precision_reduction_split_k": true,
+  "cuda_matmul_allow_fp16_accumulation": false
+ },
+ "attention": "sdpa",
+ "experts": "grouped_mm",
+ "q_lora_rank": null,
+ "rope_interleave": true,
+ "layers": 27,
+ "eager_vs_step_mismatches": [],
+ "graph_memory_bytes": 68485632,
+ "replay_vs_eager_mismatches": [],
+ "kernels_per_token": {
+  "eager": 2146,
+  "graphs": 245
+ },
+ "per_token": {
+  "eager": {
+   "issue_ms": 59.872669994365424,
+   "issue_ms_median": 58.75879991799593,
+   "wall_ms": 62.471965001896024,
+   "wall_ms_median": 61.55434995889664
+  },
+  "graphs": {
+   "issue_ms": 4.091179999522865,
+   "issue_ms_median": 4.130749963223934,
+   "wall_ms": 12.512564996723086,
+   "wall_ms_median": 12.363499961793423
+  },
+  "eager-again": {
+   "issue_ms": 61.99656997341663,
+   "issue_ms_median": 59.271850041113794,
+   "wall_ms": 64.46142997592688,
+   "wall_ms_median": 61.7181999841705
+  },
+  "graphs-again": {
+   "issue_ms": 4.129629989620298,
+   "issue_ms_median": 3.8587000453844666,
+   "wall_ms": 12.077374989166856,
+   "wall_ms_median": 11.865100008435547
+  }
+ }
+}

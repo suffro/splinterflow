@@ -92,6 +92,26 @@ def load_adapter(model_config: dict):
     return importlib.import_module(f"awpmi.models.{model_config['adapter']}")
 
 
+def device_cache(entry: dict, capacity: int, half_life: float, encoded=None, device=None):
+    """A configuration's device cache: Phase 4B's page cache of BF16 rows, or for encoded rows (Phase 6B, decision
+    0013) fixed slots of the encoded pack's stored row sizes, each size's share of `capacity` in proportion to its
+    rows' bytes (no allocator blocks, so the budget is the memory held); `device_cache: pages` keeps encoded rows in a
+    page cache of copies instead (the exploratory runs)."""
+    from collections import Counter
+
+    from awpmi.storage.cache import POLICIES, PageCache, SlotCache
+
+    policy_class = POLICIES[entry["policy"]]
+    policy = (lambda: policy_class(half_life)) if entry["policy"] == "hotness" else policy_class
+    if entry.get("experts") == "encoded" and entry.get("device_cache", "slots") == "slots":
+        sizes = Counter()
+        for name in encoded.encodings:
+            segment = encoded.pack.segments[name]
+            sizes[segment.row_bytes] += segment.nbytes
+        return SlotCache.sized(capacity, sizes, device, policy)
+    return PageCache(capacity, policy())
+
+
 class _PerformanceInformation(ctypes.Structure):
     _fields_ = [(name, ctypes.c_size_t if name not in ("cb", "HandleCount", "ProcessCount", "ThreadCount") else ctypes.c_uint32)
                 for name in ("cb", "CommitTotal", "CommitLimit", "CommitPeak", "PhysicalTotal", "PhysicalAvailable", "SystemCache",
@@ -188,6 +208,9 @@ class StepRecorder:
         self.handles = []
         self.on_experts_call = None  # an extra observer (memory sampling)
         self.pending: list = []  # chunked calls whose per-assignment outputs are checked after the step, or not at all
+        # Whether this step checks its chunked calls (`resolve_pending`): a call the step will not check is not kept, so
+        # that a long prefill does not hold every layer's inputs and outputs (Phase 6B: the device cache leaves no room).
+        self.keep_chunked = True
         for name in self.attention:
             self.handles.append(model.get_submodule(name).register_forward_hook(self._capture("attention", name)))
         for name in self.dense:
@@ -238,7 +261,8 @@ class StepRecorder:
         else:
             entry["expert_outputs"] = None
             entry["chunks"] = len(call.chunks)
-            self.pending.append(call)
+            if self.keep_chunked:
+                self.pending.append(call)
         if self.on_experts_call is not None:
             self.on_experts_call(call)
 
@@ -441,7 +465,14 @@ def audit_step(report: dict, requested: int) -> list[str]:
     served, storage, transfer = report["materialization"], report["storage"], report.get("transfer", {})
     if served["requested_bytes"] != requested:
         problems.append("requested bytes != served experts")
-    if served["cache_hit_bytes"] + served["fetched_bytes"] != served["requested_bytes"]:
+    if served.get("decoded_rows"):
+        # Phase 6B (decision 0013): encoded rows. Every requested row was decoded on the device; the store served their
+        # stored bytes (what crossed the bus); the decoder wrote the requested bytes.
+        if served["decoded_bytes"] != served["requested_bytes"] or report["decoder"]["decoded_bytes"] != served["decoded_bytes"]:
+            problems.append("decoded bytes != requested")
+        if served["cache_hit_bytes"] + served["fetched_bytes"] != served["stored_requested_bytes"]:
+            problems.append("cache hits + fetched != the requested rows' stored bytes")
+    elif served["cache_hit_bytes"] + served["fetched_bytes"] != served["requested_bytes"]:
         problems.append("cache hits + fetched != requested")
     if storage["logical_bytes"] != served["fetched_bytes"]:
         problems.append("storage logical != fetched")
@@ -466,7 +497,8 @@ def audit_step(report: dict, requested: int) -> list[str]:
             problems.append("host cache lookups != rows requested = hits + waits + misses")
         if native["cache_copied_bytes"] != cache["hit_bytes"] + cache["wait_bytes"]:
             problems.append("bytes copied from the host cache != its hits and waits")
-        if max(cache["resident_bytes"], cache["peak_resident_bytes"]) > cache["capacity_bytes"]:
+        held = (cache.get("held_bytes", 0), cache.get("peak_held_bytes", 0))  # rows and pooled blocks (decision 0013)
+        if max(cache["resident_bytes"], cache["peak_resident_bytes"], *held) > cache["capacity_bytes"]:
             problems.append("host cache above its budget")
         if cache["prefetch_wasted"] or cache["prefetch_used"] != cache["prefetch_fills"]:
             problems.append("prefetched rows unused or evicted before use")
@@ -494,14 +526,54 @@ def index_audit(pack, rows: dict[str, list[str]]) -> dict:
     return audit
 
 
+def encoded_audit(encoded, rows: dict[str, list[str]], device: torch.device) -> dict:
+    """Phase 6B (decision 0013): every row of the encoded pack read from the drive and decoded on the GPU by the runtime's
+    decoder, its sha256 against the reference's row digests (and the pack's own record), before any inference."""
+    import numpy as np
+
+    from awpmi.storage.native import NATIVE_AVAILABLE
+    from awpmi.streaming.codec import RowDecoder
+
+    decoder = RowDecoder(encoded.encodings, device)
+    store = encoded.pack.store(backend="native" if NATIVE_AVAILABLE else "python", direct=True)
+    audit = {"segments": 0, "rows": 0, "stored_bytes": 0, "logical_bytes": 0, "differing": [], "differing_from_pack": [],
+             "missing": sorted(set(encoded.encodings) ^ set(rows))}
+    try:
+        for name in sorted(encoded.encodings):
+            item = encoded.encodings[name]
+            expected = rows.get(name, [])
+            for first in range(0, item.logical.rows, 8):
+                chosen = torch.arange(first, min(first + 8, item.logical.rows))
+                stored = store.read_rows(name, chosen).to(device)
+                out = torch.empty(chosen.numel(), item.logical.row_bytes, dtype=torch.uint8, device=device)
+                sources = stored.data_ptr() + np.arange(chosen.numel(), dtype=np.int64) * item.stored_row_bytes
+                decoder.decode([(name, chosen, sources, out)])
+                decoded = out.cpu().numpy()
+                for offset in range(chosen.numel()):
+                    digest = hashlib.sha256(decoded[offset].tobytes()).hexdigest()
+                    if digest != expected[first + offset]:
+                        audit["differing"].append([name, first + offset])
+                    if digest != item.row_sha256[first + offset]:
+                        audit["differing_from_pack"].append([name, first + offset])
+            audit["segments"] += 1
+            audit["rows"] += item.logical.rows
+            audit["stored_bytes"] += item.logical.rows * item.stored_row_bytes
+            audit["logical_bytes"] += item.logical.nbytes
+        decoder.check()
+    finally:
+        store.close()
+    return audit
+
+
 def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: bool) -> int:
     from awpmi.materialization.backend import MaterializationBackend
     from awpmi.materialization.weights import ExpertStore, WeightStore
     from awpmi.models.checkpoint import checkpoint_sources, load_model_without_experts, parameter_segments
     from awpmi.storage.pack import sha256_file_direct
+    from awpmi.models.decode_graphs import DecodeGraphs
     from awpmi.models.moe import POISON_SPARE_SLOTS, ExpertCall, StreamedExperts, find_expert_modules, groups_from_pack
     from awpmi.models.streamed import StreamedParameters
-    from awpmi.storage.cache import POLICIES, PageCache
+    from awpmi.storage.cache import PageCache
     from awpmi.storage.pack import open_pack
     from awpmi.storage.store import FileBackedPageStore
     from awpmi.streaming.streamer import PageStreamer
@@ -547,12 +619,33 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
         json.dumps({"manifest": pack.manifest, "verification": verification, "other_files": other_files, "audit": audit}, indent=2),
         encoding="utf-8",
     )
+    encoded = None
+    if any(entry.get("experts") == "encoded" for entry in raw_config["configurations"]):
+        # Phase 6B (decision 0013): the encoded pack, its files re-hashed (direct reads), every row decoded on the GPU and
+        # compared with the reference's digests before any configuration runs.
+        from awpmi.storage.encoded import open_encoded
+
+        started = time.perf_counter()
+        encoded = open_encoded(REPO_ROOT / raw_config["encoded"]["directory"], verify="size" if skip else "files")
+        encoded_check = {"skipped": True, "differing": [], "differing_from_pack": [], "missing": []} if skip else encoded_audit(encoded, rows, device)
+        report["timings_ms"]["encoded_audit"] = (time.perf_counter() - started) * 1e3
+        index_info = json.loads((output / "index.json").read_text(encoding="utf-8"))
+        index_info["encoded"] = {
+            "manifest": {k: encoded.pack.manifest[k] for k in ("format", "format_version", "kind", "files", "packing")},
+            "encoding": encoded.metadata["encoding"],
+            "stored_ratio": encoded.stored_ratio,
+            "verification": "skipped (development run)" if skip else "files against the manifest's sha256",
+            "audit": encoded_check,
+        }
+        (output / "index.json").write_text(json.dumps(index_info, indent=2), encoding="utf-8")
     try:
         if audit["differing"] or audit["missing"]:
             fail("index_audit", {"differing": audit["differing"][:10], "missing": audit["missing"][:10]})
         unverified = [key for key, entry in other_files.items() if not skip and entry["sha256_direct_read"] != entry["sha256_declared"]]
         if unverified:
             fail("source_files", {"differing": unverified})
+        if encoded is not None and (encoded_check["differing"] or encoded_check["differing_from_pack"] or encoded_check["missing"]):
+            fail("encoded_audit", {k: encoded_check[k][:10] for k in ("differing", "differing_from_pack", "missing")})
     except HardFailure:
         (output / "failure.json").write_text(json.dumps(failures, indent=2), encoding="utf-8")
         return 1
@@ -592,13 +685,19 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
         return int(float(entry.get("host_cache_bytes", 0)))
 
     def build(cache: PageCache | None, entry: dict | None = None) -> MaterializationBackend:
-        """The configuration's backend: Phase 4B's Python store, or the native one with its host cache (decision 0012)."""
+        """The configuration's backend: Phase 4B's Python store, or the native one with its host cache (decision 0012); with
+        `experts: encoded`, the encoded pack's rows, decoded on the GPU (decision 0013)."""
         entry = entry or {}
+        source = encoded.pack if entry.get("experts") == "encoded" else pack
         if entry.get("backend", "python") == "native":
-            store = pack.store(backend="native", host_cache_bytes=host_cache_bytes(entry), **store_options)
+            store = source.store(backend="native", host_cache_bytes=host_cache_bytes(entry), **store_options)
         else:
-            store = pack.store(**store_options)
+            store = source.store(**store_options)
         streamer = PageStreamer(device, int(storage["slot_bytes"]), int(storage["slots"]), native_slots=int(storage.get("native_slots", 4)))
+        if entry.get("experts") == "encoded":
+            from awpmi.streaming.codec import RowDecoder
+
+            return MaterializationBackend(store, device, streamer, cache, decoder=RowDecoder(encoded.encodings, device))
         return MaterializationBackend(store, device, streamer, cache)
 
     def stream_shared() -> StreamedParameters:
@@ -633,17 +732,21 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
             for index, entry in enumerate(raw_config["configurations"]):
                 name = entry["name"]
                 capacity = int(entry.get("cache_experts", 0)) * expert_row
+                if "device_cache_bytes" in entry:  # Phase 6B: a device cache of encoded rows, in stored bytes
+                    capacity = int(float(entry["device_cache_bytes"]))
                 cache = None
                 if capacity:
-                    policy_class = POLICIES[entry["policy"]]
-                    policy = policy_class(float(raw_config["hotness_half_life"])) if entry["policy"] == "hotness" else policy_class()
-                    cache = PageCache(capacity, policy)
+                    cache = device_cache(entry, capacity, float(raw_config["hotness_half_life"]), encoded, device)
                 if "call_budget_experts" in entry:
                     call_budget = int(entry["call_budget_experts"]) * expert_row
                 else:
                     call_budget = entry.get("call_budget_bytes", default_call_budget)
                 backend = build(cache, entry)
                 native = entry.get("backend", "python") == "native"
+                # Phase 6B (decision 0013): PyTorch's NaN fill of uninitialized memory off for this configuration (no
+                # arithmetic changes: the digests say whether anything read such memory), and its decode graphs.
+                fill = bool(entry.get("fill_uninitialized_memory", True))
+                torch.utils.deterministic.fill_uninitialized_memory = fill
                 freeze_prefill = bool(entry.get("freeze_prefill", False))
                 poisoned_prompts = int(entry.get("poison_prompts", raw_config["poison_prompts"] if index == 0 else 0))
                 all_experts = bool(entry.get("all_experts", False))
@@ -652,6 +755,7 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                     max_call_bytes=call_budget, prefetch_chunks=bool(entry.get("prefetch_chunks", False)),
                 ).install()
                 shared = stream_shared() if entry.get("stream_shared") else None
+                graphs = DecodeGraphs(model).install() if entry.get("decode_graphs") else None
                 peaks = {"expert": 0}
                 calls_seen: list = []
 
@@ -676,6 +780,9 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                         backend="native", host_cache_bytes=backend.store.host_cache_bytes, freeze_prefill=freeze_prefill,
                         native_slots=backend.streamer.native_slots,
                     )
+                if cache is not None and cache.copies:  # Phase 6B: a device cache in fixed slots (all allocated up front)
+                    report["configurations"][name]["device_cache_slots"] = {str(size): count for size, count in cache.slots.items()}
+                report["configurations"][name]["fill_uninitialized_memory"] = fill
                 started = time.perf_counter()
                 for position, prompt in enumerate(prompts[:count]):
                     streamed.poison = position < poisoned_prompts
@@ -683,10 +790,13 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                     check_chunked = position < checked_prompts
                     timing = {}
 
-                    def before(step, record_ranges=record_ranges, shared=shared, freeze_prefill=freeze_prefill):
+                    def before(step, record_ranges=record_ranges, shared=shared, freeze_prefill=freeze_prefill, check_chunked=check_chunked):
                         if freeze_prefill:
                             backend.store.set_admit(step > 0)  # no admission into the host cache during a prefill
+                            if cache is not None and entry.get("experts") == "encoded":
+                                cache.admit = step > 0  # nor into a device cache of encoded rows (Phase 6B)
                         recorder.clear()
+                        recorder.keep_chunked = check_chunked
                         sampler.clear()
                         calls_seen.clear()
                         backend.reset_stats(record_ranges=record_ranges)
@@ -780,6 +890,12 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                                 "process": dict(sampler.step),
                             },
                         }
+                        if "decoder" in report_:
+                            # Phase 6B: encoded rows decoded on the GPU (counts only: deterministic).
+                            result["decoded"] = {
+                                "rows": served["decoded_rows"], "bytes": served["decoded_bytes"], "stored_bytes": served["stored_requested_bytes"],
+                                "chunks": report_["decoder"]["chunks"], "launches": report_["decoder"]["launches"],
+                            }
                         if native:
                             # Native steps only, so Python configurations' records stay as Phase 4B wrote them.
                             result["backend"] = "native"
@@ -787,7 +903,11 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                                 k: storage_stats["native"][k]
                                 for k in ("cache_copied_bytes", "gathered_bytes", "admitted_bytes", "fallback_rows", "prefetches", "prefetch_rows", "prefetch_bytes")
                             }
+                            if "submits" in storage_stats["native"]:
+                                result["native"]["submits"] = storage_stats["native"]["submits"]
                             result["timings_ms"]["drive_busy"] = storage_stats["native"]["busy_ms"]
+                            if "submit_ms" in storage_stats["native"]:
+                                result["timings_ms"]["submit"] = storage_stats["native"]["submit_ms"]
                             if "host_cache" in storage_stats:
                                 cache_stats = storage_stats["host_cache"]
                                 result["host_cache"] = {
@@ -796,6 +916,14 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                                               "prefetch_fills", "prefetch_used", "prefetch_wasted", "resident_bytes", "peak_resident_bytes",
                                               "capacity_bytes", "admit")
                                 }
+                                # Phase 6B (decision 0013): the cache's memory, rows in blocks reused across row sizes; what it
+                                # holds (rows and pooled blocks) and what it allocated, reused and gave back (deterministic).
+                                if "held_bytes" in cache_stats:
+                                    result["host_cache"].update({
+                                        k: cache_stats[k]
+                                        for k in ("block_bytes", "pool_bytes", "held_bytes", "peak_held_bytes", "recycled_bytes", "allocated_bytes",
+                                                  "released_bytes")
+                                    })
                                 # A row served from the cache was either there (a hit) or being loaded by a prefetch (a wait):
                                 # which, is a matter of timing, so the records hold their sum and the split goes with the timings.
                                 result["host_cache"]["served"] = cache_stats["hits"] + cache_stats["waits"]
@@ -820,6 +948,12 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                 report["configurations"][name]["calls"] = streamed.calls
                 report["configurations"][name]["chunked_calls"] = streamed.chunked_calls
                 print(f"stream {name}: {min(count, len(prompts))} prompts, {elapsed:.0f}s", flush=True)
+                if graphs is not None:
+                    report["configurations"][name]["decode_graphs"] = {
+                        "captures": graphs.captures, "replays": graphs.replays, "eager_steps": graphs.eager_steps, "memory_bytes": graphs.memory_bytes, "capture_ms": graphs.capture_ms,
+                    }
+                    graphs.remove()
+                torch.utils.deterministic.fill_uninitialized_memory = True
                 streamed.remove()
                 backend.store.close()
                 backend.streamer.close()
@@ -828,7 +962,11 @@ def run_stream(raw_config: dict, output: Path, prompts: list[dict], keep_going: 
                     shared.weights.backend.store.close()
                     shared.weights.backend.streamer.close()
                 recorder.on_experts_call = None
-                del streamed, backend, cache, shared
+                # Nothing of this configuration may outlive it (a device cache's slots are allocated when it is made).
+                before = after = account = None
+                del streamed, backend, cache, shared, graphs, before, after, account
+                gc.collect()  # reference cycles too: the next configuration's device cache needs this one's memory
+                torch.cuda.empty_cache()
         except HardFailure:
             pass
     check_backend.store.close()

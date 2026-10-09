@@ -35,6 +35,11 @@ research = [
 native = [
     "weightsift-native",
 ]
+# Phase 6B (decision 0013): NVIDIA's nvCOMP (the GPU decompressor of encoded expert rows), used through its C API; the
+# library only, under NVIDIA's SDK license. Optional: without it encoded packs cannot be read, nothing else changes.
+gpu = [
+    "nvidia-libnvcomp-cu13==5.3.0.16",
+]
 
 [build-system]
 requires = ["uv_build>=0.12,<0.13"]
@@ -42,7 +47,7 @@ build-backend = "uv_build"
 
 [tool.uv]
 environments = ["sys_platform == 'win32'", "sys_platform == 'linux'"]
-default-groups = ["dev", "research", "native"]
+default-groups = ["dev", "research", "native", "gpu"]
 
 [tool.uv.sources]
 torch = { index = "pytorch-cu130" }

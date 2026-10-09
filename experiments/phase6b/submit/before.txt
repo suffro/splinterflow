@@ -1,0 +1,12 @@
+workers 8, cache of everything: filling      submit  0.267 ms (median  0.244); transfer  18.89 ms; per transfer: hits  8.8 misses  3.1 evictions  0.0 recycled  0.0; main-thread CPU  0.78 ms
+workers 8, cache of everything: hits         submit  0.204 ms (median  0.198); transfer   7.71 ms; per transfer: hits 12.0 misses  0.0 evictions  0.0 recycled  0.0; main-thread CPU  0.31 ms
+workers 2, cache of everything: filling      submit  0.228 ms (median  0.212); transfer  17.62 ms; per transfer: hits  8.8 misses  3.1 evictions  0.0 recycled  0.0; main-thread CPU  0.78 ms
+workers 2, cache of everything: hits         submit  0.175 ms (median  0.167); transfer   7.41 ms; per transfer: hits 12.0 misses  0.0 evictions  0.0 recycled  0.0; main-thread CPU  0.47 ms
+workers 8, half cache, one row size: warm-up submit  0.181 ms (median  0.166); transfer  14.57 ms; per transfer: hits  2.7 misses  3.3 evictions  2.8 recycled  2.8; main-thread CPU  0.26 ms
+workers 8, half cache, one row size: evicting submit  0.169 ms (median  0.159); transfer  14.03 ms; per transfer: hits  2.9 misses  3.1 evictions  3.1 recycled  3.1; main-thread CPU  0.47 ms
+workers 8, half cache, two row sizes: warm-up submit  1.091 ms (median  0.931); transfer  21.14 ms; per transfer: hits  6.0 misses  6.0 evictions  4.9 recycled  2.6; main-thread CPU  1.04 ms
+workers 8, half cache, two row sizes: evicting submit  1.302 ms (median  1.406); transfer  21.97 ms; per transfer: hits  5.8 misses  6.2 evictions  6.2 recycled  3.1; main-thread CPU  2.50 ms
+workers 2, half cache, one row size: warm-up submit  0.166 ms (median  0.153); transfer  16.50 ms; per transfer: hits  2.8 misses  3.2 evictions  2.7 recycled  2.7; main-thread CPU  0.26 ms
+workers 2, half cache, one row size: evicting submit  0.160 ms (median  0.152); transfer  15.28 ms; per transfer: hits  3.0 misses  3.0 evictions  3.0 recycled  3.0; main-thread CPU  0.31 ms
+workers 2, half cache, two row sizes: warm-up submit  0.968 ms (median  0.807); transfer  25.14 ms; per transfer: hits  5.9 misses  6.1 evictions  5.0 recycled  2.8; main-thread CPU  1.82 ms
+workers 2, half cache, two row sizes: evicting submit  1.230 ms (median  1.354); transfer  25.53 ms; per transfer: hits  6.0 misses  6.0 evictions  6.0 recycled  3.0; main-thread CPU  1.41 ms

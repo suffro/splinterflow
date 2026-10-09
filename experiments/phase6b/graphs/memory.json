@@ -1,0 +1,253 @@
+{
+ "steps": [
+  {
+   "step": 0,
+   "allocated_at_start": 3212318208,
+   "allocated_after": 3246697984,
+   "peak": 3595709440,
+   "reserved": 3636461568
+  },
+  {
+   "step": 1,
+   "allocated_at_start": 3246370304,
+   "allocated_after": 3314764800,
+   "peak": 3419723264,
+   "reserved": 3458203648
+  },
+  {
+   "step": 2,
+   "allocated_at_start": 3314437120,
+   "allocated_after": 3314792448,
+   "peak": 3419741184,
+   "reserved": 3460300800
+  },
+  {
+   "step": 3,
+   "allocated_at_start": 3314464768,
+   "allocated_after": 3314820096,
+   "peak": 3419783168,
+   "reserved": 3460300800
+  }
+ ],
+ "captures": [
+  {
+   "allocated": 67116544,
+   "reserved": -283115520
+  },
+  {
+   "allocated": 20480,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  },
+  {
+   "allocated": 7680,
+   "reserved": 0
+  },
+  {
+   "allocated": 17920,
+   "reserved": 0
+  }
+ ],
+ "capture_allocated_total": 67802624,
+ "graphs_memory_bytes": 67802624,
+ "capture_ms": 233.40569995343685
+}

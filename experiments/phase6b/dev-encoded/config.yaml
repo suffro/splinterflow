@@ -1,0 +1,75 @@
+model:
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  adapter: moonlight
+  tokenizer_revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  trust_remote_code_tokenizer: true
+prompts:
+  dataset:
+    repository: Salesforce/wikitext
+    revision: b08601e04326c79dfdd32d625aee71d232d685c3
+    file: wikitext-2-raw-v1/test-00000-of-00001.parquet
+    text_column: text
+  seed: 4
+  lengths:
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  decode_steps: 8
+index:
+  directory: packs/moonlight-16b-a3b-expert-index
+encoded:
+  directory: packs/moonlight-16b-a3b-experts-ans
+  codec: ans
+  options:
+    data_type: float16
+  chunk_bytes: 1048576
+storage:
+  alignment: 4096
+  max_gap: 0
+  workers: 8
+  max_read_bytes: 1048576
+  max_extent_bytes: 8388608
+  slot_bytes: 33554432
+  slots: 2
+  native_slots: 4
+gpu_budget_bytes: 6000000000
+call_budget_bytes: 268435456
+reference:
+  residency_check_layers:
+  - 1
+  residency_check_prompts: 2
+hotness_half_life: 1024
+poison_prompts: 3
+record_ranges_prompts: 3
+per_assignment_prompts: 2
+timing:
+  settle_seconds: 3
+  warmup_prompts: 1
+configurations:
+- name: encoded-chunk-1
+  backend: native
+  experts: encoded
+  cache_experts: 0
+  call_budget_experts: 1
+  num_prompts: 4
+  per_assignment_prompts: all
+- name: encoded-host-tiny
+  backend: native
+  experts: encoded
+  host_cache_experts: 2
+  num_prompts: 4

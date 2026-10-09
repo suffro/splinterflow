@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import zlib
 
 import pytest
 import torch
@@ -10,7 +11,7 @@ from safetensors.torch import save_file
 
 from awpmi.materialization.backend import MaterializationBackend
 from awpmi.materialization.weights import ExpertGroup, ExpertStore, WeightStore
-from awpmi.storage.cache import HotnessPolicy, LRUPolicy, PageCache
+from awpmi.storage.cache import HotnessPolicy, LRUPolicy, PageCache, SlotCache
 from awpmi.storage.layout import row_bytes_of, safetensors_segments
 from awpmi.storage.pack import MANIFEST, PackWriter, SourceFile, open_pack
 from awpmi.storage.store import FileBackedPageStore, InMemoryPageStore
@@ -180,6 +181,68 @@ def test_pinned_pages_stay_and_a_frozen_cache_admits_nothing():
     assert cache.stats.bypassed == 2
     with pytest.raises(ValueError):
         cache.pin("other", torch.zeros(5, dtype=torch.uint8))
+
+
+def _page(key, nbytes: int) -> torch.Tensor:
+    """A page whose bytes say which key and size it is."""
+    generator = torch.Generator().manual_seed(zlib.crc32(f"{key}/{nbytes}".encode()))
+    return torch.randint(0, 256, (nbytes,), dtype=torch.uint8, generator=generator)
+
+
+def test_a_slot_cache_copies_pages_into_slots_of_their_size():
+    cache = SlotCache({8: 2, 4: 3}, "cpu")
+    assert cache.copies and cache.capacity_bytes == 2 * 8 + 3 * 4 and cache.slots == {4: 3, 8: 2}
+    source = _page("a", 8).clone()
+    assert cache.put("a", source)
+    source.zero_()  # the cache holds a copy, not the caller's tensor
+    assert torch.equal(cache.get("a", 8), _page("a", 8))
+    for key in "bcd":
+        assert cache.put(key, _page(key, 4))
+    assert cache.put("e", _page("e", 8)) and cache.put("f", _page("f", 8))  # evicts "a", the only page of its size
+    assert "a" not in cache and all(key in cache for key in "bcdef")  # the small pages were not touched
+    assert cache.resident_bytes == cache.capacity_bytes == cache.peak_resident_bytes
+    assert cache.stats.inserts == 6 and cache.stats.evictions == 1 and cache.stats.hits == 1
+    assert cache.get("x", 5) is None and not cache.can_admit(5) and not cache.put("x", torch.zeros(5, dtype=torch.uint8))
+    cache.admit = False
+    assert not cache.put("g", _page("g", 4)) and "g" not in cache and cache.stats.bypassed == 2
+    cache.clear()
+    assert len(cache) == 0 and cache.resident_bytes == 0
+    cache.admit = True
+    assert cache.put("g", _page("g", 4)) and torch.equal(cache.get("g", 4), _page("g", 4))
+    with pytest.raises(ValueError):
+        SlotCache({8: 0}, "cpu")
+
+
+def test_slot_cache_decisions_are_independent_lrus_and_every_hit_is_its_page():
+    """Random lookups and puts of two page sizes: hits, misses and evictions equal one LRU PageCache per size with the
+    same budget, and every hit returns its own page's bytes (slots freed by evictions, also within one call, reused)."""
+    slots = {12: 3, 6: 4}
+    cache = SlotCache(slots, "cpu")
+    reference = {size: PageCache(size * count, LRUPolicy()) for size, count in slots.items()}
+    generator = torch.Generator().manual_seed(3)
+    for step in range(400):
+        size = (12, 6)[step % 2]
+        keys = [("layer", int(k)) for k in torch.randint(0, 6, (3,), generator=generator).unique()]
+        found, expected = cache.get_many(keys, size), reference[size].get_many(keys, size)
+        assert [f is None for f in found] == [e is None for e in expected]
+        for key, entry in zip(keys, found):
+            if entry is not None:
+                assert torch.equal(entry, _page(key, size))
+        for key, entry in zip(keys, found):
+            if entry is None:
+                assert cache.put(key, _page(key, size)) == reference[size].put(key, _page(key, size))
+        assert sorted(map(str, (k for size_ in slots for k in reference[size_]._entries))) == sorted(
+            map(str, (k for pages in cache._sizes.values() for k in pages._entries))
+        )
+    assert cache.stats.evictions == sum(r.stats.evictions for r in reference.values()) > 100
+    assert cache.stats.hits == sum(r.stats.hits for r in reference.values()) > 100
+
+
+def test_a_slot_cache_shares_its_budget_in_proportion_to_the_pages_bytes():
+    cache = SlotCache.sized(1200, {8: 2 * 800, 4: 800}, "cpu")
+    assert cache.slots == {8: 100, 4: 100} and cache.capacity_bytes == 1200
+    with pytest.raises(ValueError):
+        SlotCache.sized(10, {8: 1, 4: 100}, "cpu")
 
 
 @pytest.mark.parametrize("device", DEVICES)

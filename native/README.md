@@ -6,8 +6,20 @@ is the only user; the Python backend (`FileBackedPageStore`) remains the referen
 
 | Crate | What it is |
 | --- | --- |
-| `core/` (`weightsift-io`) | Read plans (the same as Python's `plan_reads` and `PageStreamer._pieces`), positioned reads on a pool of threads (direct I/O), a host-RAM row cache under a strict byte budget, transfer jobs into caller-owned staging slots, byte accounting. No Python, no CUDA, no model knowledge. |
+| `core/` (`weightsift-io`) | Read plans (the same as Python's `plan_reads` and `PageStreamer._pieces`), positioned reads on a pool of threads (direct I/O), a host-RAM row cache under a strict byte budget, transfer jobs into caller-owned staging slots, byte accounting. No Python, no CUDA, no model knowledge: rows are bytes, whatever they encode (BF16 rows, or Phase 6B's encoded rows, which Python decodes on the GPU). |
 | `python/` (`weightsift-native`) | The PyO3 module `weightsift_native` (abi3, Python 3.11+): `Engine` and `Job`. |
+
+## The host cache's memory (Phase 6B, decision 0013)
+
+A cached row is held in blocks of one size (`HostCache::block_bytes`; by default the greatest common divisor of the
+segments' rows of at least 1 MiB, at least 1 MiB: 5.5 MiB for Moonlight's BF16 rows, 3.7 MiB for its encoded rows). An
+evicted row's blocks go to a pool from which any later row takes its blocks, whatever its size, so evictions and
+admissions neither free nor allocate on the critical path; the pool counts against the budget (rows, pooled blocks and
+reservations of loads in flight never exceed it; surplus blocks are freed). The LRU order, leases, load-once and the hits
+and misses do not depend on the block size (tested). A transfer's tasks are handed to the readers one wake-up at a time
+(a reader that takes a task wakes the next while tasks remain), and a request never waits for another request's load of
+a row: it reads the row itself without admitting it (counted as a miss and a bypass), so two jobs cannot wait on each
+other's staging slots; only prefetched loads are waited for.
 
 ## Building
 
@@ -52,9 +64,10 @@ path works as before Phase 6A: the native backend changes where bytes move, neve
 ## The `unsafe` boundary
 
 `core/src/buffer.rs` holds the only `unsafe` type, `RawBuffer`: writing into staging memory the caller owns (PyTorch's
-pinned buffers), so that reads land where the device copies from. Its invariants (the memory outlives every task; tasks
-write disjoint ranges; a slot is handed to the caller only after its writes finished and refilled only after the
-caller released it) are documented there and upheld by the engine and the binding (`Job` keeps its buffers referenced
-until no task can touch them). Seven `unsafe` blocks use it, six in `core/src/engine.rs` (the tasks that read into,
+pinned buffers), so that reads land where the device copies from, and (Phase 6B) into a loading row's blocks. Its
+invariants (the memory outlives every task; tasks write disjoint ranges; a slot is handed to the caller only after its
+writes finished and refilled only after the caller released it; a row becomes an entry only after its last admission)
+are documented there and upheld by the engine and the binding (`Job` keeps its buffers referenced until no task can
+touch them; a row's fill owns its blocks until it completes or gives them back). Seven `unsafe` blocks use it, six in `core/src/engine.rs` (the tasks that read into,
 copy into or out of, gather in and admit from a slot, and `read_rows`' copy out) and one in the binding (wrapping a
 Python buffer), each stating the invariant it relies on.

@@ -24,12 +24,21 @@ fragment the caching allocator: under a device budget, the first Phase 4A runs f
 1.6 GiB reserved but unusable. In their own pool, pages reuse each other's memory and stay
 within the cache's budget, and the rest of device memory remains contiguous for the working
 buffers.
+
+Encoded segments (Phase 6B, decision 0013): with a `decoder` (`awpmi.streaming.codec.RowDecoder`), a segment it knows
+is described by its logical rows (`segment`), and a request for them fetches their stored rows (compressed: fewer bytes
+from storage and over the bus) into device staging, then decodes them on the device into the caller's buffer, on the
+current stream after the copies. With a page cache, the cache holds stored rows (keyed by segment and row, its budget
+counting their stored bytes): a hit is decoded straight from its entry (nothing crosses the bus), the misses are fetched
+together, decoded, then offered to the cache (a copy on the device of each staging row). Counted: logical bytes
+requested and decoded, stored bytes served by the cache and fetched.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
+import numpy as np
 import torch
 
 from awpmi.storage.cache import PageCache
@@ -51,6 +60,9 @@ class MaterializationStats:
     fetched_bytes: int = 0
     device_copy_bytes: int = 0  # bytes copied on the device to assemble a request from cached pages
     largest_request_bytes: int = 0  # the largest single request (rows × row bytes)
+    decoded_rows: int = 0  # encoded rows decoded on the device (decision 0013)
+    decoded_bytes: int = 0  # their logical bytes
+    stored_requested_bytes: int = 0  # the stored bytes of the encoded rows requested
 
     def reset(self) -> None:
         self.__init__()
@@ -66,17 +78,22 @@ class MaterializationBackend:
         device: torch.device | str,
         streamer: PageStreamer | None = None,
         cache: PageCache | None = None,
+        decoder=None,
     ) -> None:
         self.store = store
         self.device = resolve_device(device)
         self.resident = store.in_memory and resolve_device(store.device) == self.device
         if not self.resident and streamer is None:
             raise ValueError("a store away from the compute device needs a streamer")
+        if decoder is not None and (self.resident or decoder.device != self.device):
+            raise ValueError("encoded rows are decoded on the compute device, from a streamer")
+        self.decoder = decoder
         if streamer is not None and streamer.device != self.device:
             raise ValueError("the streamer must deliver to the compute device")
         self.streamer = streamer
         self.cache = None if self.resident else cache
-        self._cache_pool = torch.cuda.MemPool() if self.cache is not None and self.device.type == "cuda" else None
+        # Copies kept by the cache come from a pool of their own; a slot cache copies into its own slots instead.
+        self._cache_pool = torch.cuda.MemPool() if self.cache is not None and not self.cache.copies and self.device.type == "cuda" else None
         self.stats = MaterializationStats()
 
     def _cache_copy(self, tensor: torch.Tensor) -> torch.Tensor:
@@ -87,7 +104,13 @@ class MaterializationBackend:
             return tensor.clone()
 
     def segment(self, name: str) -> AnySegment:
+        """The segment's description: for an encoded segment, the logical rows it decodes to."""
+        if self.decoder is not None and name in self.decoder:
+            return self.decoder.logical(name)
         return self.store.segment(name)
+
+    def _encoded(self, name: str) -> bool:
+        return self.decoder is not None and name in self.decoder
 
     # Requests
 
@@ -97,6 +120,8 @@ class MaterializationBackend:
         With `out` (contiguous uint8 [n, row_bytes] on the device), the rows are written into it
         and `out` is returned.
         """
+        if self._encoded(segment):
+            return self._decode_many([(segment, rows, out)])[0]
         info = self.store.segment(segment)
         count = info.rows if rows is None else rows.numel()
         if out is not None and (out.dtype != torch.uint8 or tuple(out.shape) != (count, info.row_bytes) or not out.is_contiguous()):
@@ -142,6 +167,12 @@ class MaterializationBackend:
         Without a device cache they go to the streamer together (`fetch_many`: one transfer for a native store, one
         fetch after the other otherwise); with one, request by request.
         """
+        if self.decoder is not None and any(self._encoded(segment) for segment, _, _ in requests):
+            encoded = [k for k, (segment, _, _) in enumerate(requests) if self._encoded(segment)]
+            plain = [k for k in range(len(requests)) if k not in encoded]
+            results = dict(zip(encoded, self._decode_many([requests[k] for k in encoded])))
+            results.update(zip(plain, self.materialize_many([requests[k] for k in plain]) if plain else []))
+            return [results[k] for k in range(len(requests))]
         if self.resident or self.cache is not None or len(requests) < 2:
             return [self.materialize(segment, rows, out) for segment, rows, out in requests]
         fetches = []
@@ -158,6 +189,60 @@ class MaterializationBackend:
             self.stats.fetched_bytes += count * info.row_bytes
             fetches.append((segment, rows, out, None))
         return self.streamer.fetch_many(self.store, fetches)
+
+    def _decode_many(self, requests: list[tuple[str, torch.Tensor | None, torch.Tensor | None]]) -> list[torch.Tensor]:
+        """Encoded requests: the rows the page cache holds decoded from their entries; the others fetched together into
+        device staging, decoded, then offered to the cache."""
+        fetches, items, results, offered, held = [], [], [], [], []
+        for segment, rows, out in requests:
+            logical, stored = self.decoder.logical(segment), self.store.segment(segment)
+            count = logical.rows if rows is None else rows.numel()
+            if out is None:
+                out = torch.empty(count, logical.row_bytes, dtype=torch.uint8, device=self.device)
+            elif out.dtype != torch.uint8 or tuple(out.shape) != (count, logical.row_bytes) or not out.is_contiguous():
+                raise ValueError(f"out must be contiguous uint8 [{count}, {logical.row_bytes}]")
+            self.stats.requests += 1
+            self.stats.rows += count
+            self.stats.requested_bytes += count * logical.row_bytes
+            self.stats.largest_request_bytes = max(self.stats.largest_request_bytes, count * logical.row_bytes)
+            self.stats.stored_requested_bytes += count * stored.row_bytes
+            self.stats.decoded_rows += count
+            self.stats.decoded_bytes += count * logical.row_bytes
+            indices = torch.arange(logical.rows) if rows is None else rows.reshape(-1).to("cpu", torch.int64)
+            sources = np.zeros(count, dtype=np.int64)
+            missing = list(range(count))
+            if self.cache is not None and count:
+                found = self.cache.get_many([(segment, row) for row in indices.tolist()], stored.row_bytes)
+                missing = [k for k, entry in enumerate(found) if entry is None]
+                for k, entry in enumerate(found):
+                    if entry is not None:
+                        sources[k] = entry.data_ptr()
+                        held.append(entry)  # until the decoding is queued (an eviction after it is stream-ordered)
+                self._hit(stored, count - len(missing))
+            if missing:
+                staging = torch.empty(len(missing), stored.row_bytes, dtype=torch.uint8, device=self.device)
+                chosen = indices[missing]
+                fetches.append((segment, chosen, staging, None))
+                sources[missing] = staging.data_ptr() + np.arange(len(missing), dtype=np.int64) * stored.row_bytes
+                self.stats.fetched_rows += len(missing)
+                self.stats.fetched_bytes += len(missing) * stored.row_bytes
+                offered.append((segment, chosen, staging))
+            items.append((segment, indices, sources, out))
+            results.append(out)
+        # The current stream waits for the copies; the decoding follows them on it.
+        if fetches:
+            self.streamer.fetch_many(self.store, fetches)
+        self.decoder.decode(items)
+        if self.cache is not None:
+            for segment, chosen, staging in offered:
+                nbytes = staging.shape[1]
+                if not self.cache.can_admit(nbytes):
+                    self.cache.bypass(chosen.numel(), chosen.numel() * nbytes)
+                    continue
+                for j, row in enumerate(chosen.tolist()):
+                    self.cache.put((segment, row), staging[j] if self.cache.copies else self._cache_copy(staging[j]))
+        del held
+        return results
 
     def prefetch_rows(self, requests: list[tuple[str, torch.Tensor | None]]):
         """A hint that the rows of `requests` ((segment, rows)) will be materialized soon.
@@ -235,6 +320,8 @@ class MaterializationBackend:
     def reset_stats(self, record_ranges: bool = False) -> None:
         self.stats.reset()
         self.store.stats.reset(record_ranges)
+        if self.decoder is not None:
+            self.decoder.stats.reset()
         if self.streamer is not None:
             self.streamer.stats.reset()
         if self.cache is not None:
@@ -250,6 +337,9 @@ class MaterializationBackend:
         if self.cache is not None:
             report["cache"] = self.cache.stats.as_dict()
             report["cache"]["resident_bytes"] = self.cache.resident_bytes
+        if self.decoder is not None:
+            self.decoder.check()  # raises if a chunk failed to decode since the last report
+            report["decoder"] = self.decoder.stats.as_dict()
         return report
 
     @property

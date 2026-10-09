@@ -37,7 +37,7 @@ use std::thread::JoinHandle;
 use std::time::Instant;
 
 use crate::buffer::RawBuffer;
-use crate::cache::{CacheStats, Entry, Fill, HostCache, Lookup, Pending, Probe};
+use crate::cache::{block_for, CacheStats, Entry, Fill, HostCache, Lookup, Pending, Probe, RowViews};
 use crate::error::{Error, Result};
 use crate::file::{AlignedBuffer, FileTable, Handles, DIRECT_ALIGNMENT};
 use crate::layout::Segment;
@@ -56,6 +56,9 @@ pub struct EngineConfig {
     pub workers: usize,
     /// The host-RAM cache's budget; 0: no cache.
     pub host_cache_bytes: u64,
+    /// The host cache holds rows in blocks of this size, reused by rows of any size (`cache`, decision 0013); 0: the
+    /// largest size dividing every segment's rows, at least a megabyte (`cache::block_for`).
+    pub cache_block_bytes: u64,
     /// Parts at least this long are copied to the device straight from staging (Python's `DIRECT_COPY_BYTES`).
     pub direct_copy_bytes: u64,
     /// Host copies (cache to slot, slot to cache entry) are split into tasks of at most this much.
@@ -74,6 +77,7 @@ impl Default for EngineConfig {
             max_read_bytes: 1 << 20,
             workers: 8,
             host_cache_bytes: 0,
+            cache_block_bytes: 0,
             direct_copy_bytes: 256 << 10,
             copy_chunk_bytes: 4 << 20,
         }
@@ -118,6 +122,14 @@ pub struct IoStats {
     pub prefetch_rows: u64,
     pub prefetch_bytes: u64,
     pub prefetch_blocks_4k: u64,
+    /// Transfers submitted, and the submitting thread's time in `submit`: all of it, the host cache's lookups and
+    /// admissions (evictions included), the planning of what the cache did not serve, and the job's start (its first
+    /// pieces' tasks queued, a worker woken).
+    pub submits: u64,
+    pub submit_ns: u64,
+    pub submit_cache_ns: u64,
+    pub submit_plan_ns: u64,
+    pub submit_start_ns: u64,
     pub ranges: Option<Vec<(u32, u64, u64)>>,
     pub by_segment: BTreeMap<u32, SegmentStats>,
 }
@@ -247,7 +259,11 @@ impl Engine {
                 return Err(Error::invalid(format!("{} extends beyond its file", segment.name)));
             }
         }
-        let cache = (config.host_cache_bytes > 0).then(|| HostCache::new(config.host_cache_bytes));
+        let block = match config.cache_block_bytes {
+            0 => block_for(segments.iter().map(|s| s.row_bytes)),
+            block => block,
+        };
+        let cache = (config.host_cache_bytes > 0).then(|| HostCache::with_block(config.host_cache_bytes, block));
         let shared = Arc::new(Shared {
             table: Arc::new(table),
             segments: segments.into_iter().map(Arc::new).collect(),
@@ -345,6 +361,7 @@ impl Engine {
     /// aligned with direct I/O); gather buffers, when every slot has one, at least as large. Pieces are delivered in
     /// order by `Job::next`; each slot must be released before the engine reuses it.
     pub fn submit(&self, requests: &[Request], slots: Vec<SlotBuffers>, use_cache: bool) -> Result<Job> {
+        let started = Instant::now();
         let shared = &self.shared;
         if shared.queue.lock().unwrap().closed {
             return Err(Error::Closed);
@@ -366,6 +383,7 @@ impl Engine {
             checked.push((segment, rows, positions));
         }
         let cache = if use_cache { shared.cache.clone() } else { None };
+        let cache_started = Instant::now();
         // First every row of every request is looked up (hits leased, so that the misses admitted next never evict a
         // row this job is about to copy), then the misses are admitted in order (ds4: protect every hit first).
         let mut cached_rows = Vec::new();
@@ -395,7 +413,8 @@ impl Engine {
                         source: CachedSource::Pending(pending, id, row),
                     }),
                     Some(Probe::Miss) => missed.push((row, position, true)),
-                    None => missed.push((row, position, false)),
+                    // Another job is loading the row: read it here rather than wait (`cache`'s cycle).
+                    Some(Probe::Busy) | None => missed.push((row, position, false)),
                 }
             }
             missing.push(missed);
@@ -438,6 +457,8 @@ impl Engine {
             }
             misses.push((missed_rows, missed_positions, fills));
         }
+        let plan_started = Instant::now();
+        let cache_ns = plan_started.duration_since(cache_started).as_nanos() as u64;
         let mut specs: Vec<PieceSpec> = Vec::new();
         let mut works: Vec<PieceWork> = Vec::new();
         // Hits first: the cached rows, back to back in slot-sized pieces (a row may continue in the next piece).
@@ -509,6 +530,8 @@ impl Engine {
                 });
             }
         }
+        let plan_ended = Instant::now();
+        let plan_ns = plan_ended.duration_since(plan_started).as_nanos() as u64;
         {
             let mut stats = shared.stats.lock().unwrap();
             for &(segment, rows, logical, blocks) in &counted {
@@ -545,6 +568,13 @@ impl Engine {
             prefetch: false,
         });
         core.start_pieces();
+        let mut stats = shared.stats.lock().unwrap();
+        stats.submits += 1;
+        stats.submit_ns += started.elapsed().as_nanos() as u64;
+        stats.submit_cache_ns += cache_ns;
+        stats.submit_plan_ns += plan_ns;
+        stats.submit_start_ns += plan_ended.elapsed().as_nanos() as u64;
+        drop(stats);
         Ok(Job { core })
     }
 
@@ -969,45 +999,45 @@ fn pack_cached(rows: Vec<CachedRow>, slot_bytes: u64, chunk: u64) -> Vec<(Vec<Op
     out
 }
 
-/// A row being loaded into the cache: written by admission copies (disjoint ranges), completed by the last one.
+/// A row being loaded into the cache: written by admission copies (disjoint ranges), completed by the last one. The fill
+/// owns the row's memory; an aborted one gives it back when this buffer goes, i.e. once no admission can write it.
 struct FillBuffer {
-    data: Mutex<Option<Box<[u8]>>>,
-    view: RawBuffer,
+    views: RowViews,
     remaining: AtomicU64,
     fill: Mutex<Option<Fill>>,
 }
 
 impl FillBuffer {
     fn new(mut fill: Fill) -> Arc<Self> {
-        // An evicted entry's memory when there is one (already touched: no page faults); new memory otherwise.
-        let mut data = fill
-            .take_buffer()
-            .unwrap_or_else(|| vec![0u8; fill.nbytes() as usize].into_boxed_slice());
-        let view = RawBuffer::from_slice(&mut data);
+        // Blocks of evicted rows where the pool has them (already touched: no page faults), new memory for the rest.
+        let views = fill.views();
         let remaining = AtomicU64::new(fill.nbytes());
         Arc::new(FillBuffer {
-            data: Mutex::new(Some(data)),
-            view,
+            views,
             remaining,
             fill: Mutex::new(Some(fill)),
         })
     }
 
-    /// Account `length` bytes written; the last write completes the fill.
+    /// Account `length` bytes written; the last write completes the fill (an aborted one is given back instead).
     fn wrote(&self, length: u64) -> Result<()> {
         if self.remaining.fetch_sub(length, Ordering::AcqRel) == length {
-            let data = self.data.lock().unwrap().take();
             let fill = self.fill.lock().unwrap().take();
-            if let (Some(data), Some(fill)) = (data, fill) {
-                fill.complete(data)?;
+            if let Some(mut fill) = fill {
+                if !fill.is_aborted() {
+                    fill.complete()?;
+                }
             }
         }
         Ok(())
     }
 
     fn abort(&self, error: Error) {
-        if let Some(fill) = self.fill.lock().unwrap().take() {
-            fill.abort(error);
+        // Waiters run their callbacks on the thread that fails them (they queue tasks, and may fail other jobs, which abort
+        // their own fills): never under this buffer's lock.
+        let detached = self.fill.lock().unwrap().as_mut().and_then(Fill::detach);
+        if let Some(pending) = detached {
+            pending.fail(error);
         }
     }
 }
@@ -1109,10 +1139,11 @@ impl JobCore {
             queue.tasks.extend(tasks);
         }
         drop(queue);
-        if count == 1 {
+        // One worker, which wakes the next if tasks remain, and so on: waking all of them from here cost the queueing
+        // thread (the caller's, for a job's first pieces and its released slots) about half a millisecond per push on
+        // Windows, measured in the model's process (decision 0013).
+        if count > 0 {
             self.shared.available.notify_one();
-        } else {
-            self.shared.available.notify_all();
         }
     }
 
@@ -1354,11 +1385,11 @@ impl JobCore {
 fn worker(shared: Arc<Shared>) {
     let mut handles = Handles::new(Arc::clone(&shared.table));
     loop {
-        let task = {
+        let (task, more) = {
             let mut queue = shared.queue.lock().unwrap();
             loop {
                 if let Some(task) = queue.tasks.pop_front().or_else(|| queue.background.pop_front()) {
-                    break task;
+                    break (task, !queue.tasks.is_empty() || !queue.background.is_empty());
                 }
                 if queue.closed {
                     return;
@@ -1366,6 +1397,10 @@ fn worker(shared: Arc<Shared>) {
                 queue = shared.available.wait(queue).unwrap();
             }
         };
+        if more {
+            // Wakes chain from worker to worker: whoever queues tasks wakes one worker (see `JobCore::push`).
+            shared.available.notify_one();
+        }
         let Task {
             job,
             piece,
@@ -1415,7 +1450,7 @@ fn run(shared: &Shared, handles: &mut Handles, job: &JobCore, slot: usize, work:
                     .staging
                     .slice_mut(copy.slot_offset as usize, copy.length as usize)
             };
-            target.copy_from_slice(&copy.entry.bytes()[copy.from as usize..(copy.from + copy.length) as usize]);
+            copy.entry.copy_to(copy.from, target);
             shared.stats.lock().unwrap().cache_copied_bytes += copy.length;
         }
         Work::Fallback(wait) => {
@@ -1442,13 +1477,13 @@ fn run(shared: &Shared, handles: &mut Handles, job: &JobCore, slot: usize, work:
         }
         Work::Admit(admit) => {
             // SAFETY: admissions read staging the piece's reads finished writing (nothing writes the slot until they
-            // end), and write disjoint ranges of a cache entry that nothing reads before the last of them completes it.
+            // end), and write disjoint ranges of a row's memory that nothing reads before the last of them completes it,
+            // and that its fill keeps alive while this task holds the fill's buffer.
             unsafe {
-                admit
-                    .buffer
-                    .view
-                    .slice_mut(admit.to as usize, admit.length as usize)
-                    .copy_from_slice(buffers.staging.slice(admit.from as usize, admit.length as usize));
+                let source = buffers.staging.slice(admit.from as usize, admit.length as usize);
+                for (part, within, n, at) in admit.buffer.views.spans(admit.to, admit.length) {
+                    part.slice_mut(within, n).copy_from_slice(&source[at..at + n]);
+                }
             }
             shared.stats.lock().unwrap().admitted_bytes += admit.length;
             admit.buffer.wrote(admit.length)?;

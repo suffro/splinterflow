@@ -3,6 +3,7 @@
     uv run weightsift pack lm-head [--config configs/phase3-storage.yaml] [--output DIR]
     uv run weightsift pack experts [--config configs/phase3-moe.yaml] [--output DIR]
     uv run weightsift pack expert-index [--config configs/phase4a-olmoe.yaml] [--output DIR]
+    uv run weightsift pack encoded-experts [--config configs/phase6b-gpu.yaml] [--output DIR]
 
 `wsift` is an alias for `weightsift` and accepts the same commands and options.
 
@@ -17,6 +18,9 @@ expert-index  the expert index of a checkpoint that stores each expert as separa
               ranges of the published tensors. Built from the safetensors headers and the model's
               skeleton on `meta` (through the configured adapter's layout); no weight byte is read
               or written. Source files carry the sha256 the Hub declares.
+encoded-experts  an encoded pack of an expert index (Phase 6B, decision 0013): every row compressed on the GPU by
+              nvCOMP in independent chunks, checked to decode to the source bytes, padded to its segment's slot; the
+              source files are first re-hashed against the publisher's sha256 (direct reads).
 
 Each writes `manifest.json` (files with sizes and sha256, segments with their location and,
 when computed, sha256; source model and revision; packing configuration) and prints a summary.
@@ -110,6 +114,22 @@ def pack_expert_index(config_path: Path, output: Path | None) -> dict:
     return pack.manifest
 
 
+def pack_encoded_experts(config_path: Path, output: Path | None) -> dict:
+    from awpmi.storage.native import NATIVE_AVAILABLE
+    from awpmi.storage.pack import open_pack
+    from awpmi.streaming.codec import write_encoded_pack
+
+    raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    settings = raw["encoded"]
+    source = open_pack(REPO_ROOT / raw["index"]["directory"], verify="files")
+    encoded = write_encoded_pack(
+        source, output or REPO_ROOT / settings["directory"], codec=settings["codec"], options=settings["options"],
+        chunk_bytes=int(settings["chunk_bytes"]), store_options={"backend": "native" if NATIVE_AVAILABLE else "python", "direct": True},
+        progress=lambda message: print(message, flush=True),
+    )
+    return encoded.pack.manifest
+
+
 def main(argv: list[str] | None = None) -> int:
     prog = Path(sys.argv[0]).stem
     parser = argparse.ArgumentParser(
@@ -118,14 +138,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     commands = parser.add_subparsers(dest="command", required=True)
     pack = commands.add_parser("pack", help="write a pack and its manifest")
-    pack.add_argument("kind", choices=["lm-head", "experts", "expert-index"])
+    pack.add_argument("kind", choices=["lm-head", "experts", "expert-index", "encoded-experts"])
     pack.add_argument("--config", default=None)
     pack.add_argument("--output", default=None, help="pack directory (default: the config's)")
     args = parser.parse_args(argv)
-    default = {"lm-head": "phase3-storage.yaml", "experts": "phase3-moe.yaml", "expert-index": "phase4a-olmoe.yaml"}[args.kind]
+    default = {"lm-head": "phase3-storage.yaml", "experts": "phase3-moe.yaml", "expert-index": "phase4a-olmoe.yaml",
+               "encoded-experts": "phase6b-gpu.yaml"}[args.kind]
     config = Path(args.config) if args.config else REPO_ROOT / "configs" / default
     output = Path(args.output) if args.output else None
-    writer = {"lm-head": pack_lm_head, "experts": pack_experts, "expert-index": pack_expert_index}[args.kind]
+    writer = {"lm-head": pack_lm_head, "experts": pack_experts, "expert-index": pack_expert_index, "encoded-experts": pack_encoded_experts}[args.kind]
     manifest = writer(config, output)
     summary = {
         "kind": manifest["kind"],

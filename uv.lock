@@ -54,6 +54,9 @@ dependencies = [
 dev = [
     { name = "pytest" },
 ]
+gpu = [
+    { name = "nvidia-libnvcomp-cu13" },
+]
 native = [
     { name = "weightsift-native" },
 ]
@@ -78,6 +81,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest" }]
+gpu = [{ name = "nvidia-libnvcomp-cu13", specifier = "==5.3.0.16" }]
 native = [{ name = "weightsift-native", directory = "native" }]
 research = [
     { name = "lz4", specifier = ">=4.4" },
@@ -830,6 +834,16 @@ source = { registry = "https://pypi.org/simple" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/46/e1/cdc1797eadf82d3a9a575a19b33fdc871a97edbec42c00b5b5e914f4aff4/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_aarch64.whl", hash = "sha256:4dca476c50bf4780d46cd0bfbd82e2bc10a08e4fef7950917ce8d7578d22a23f", size = 221051344, upload-time = "2025-09-05T18:49:51.289Z" },
     { url = "https://files.pythonhosted.org/packages/34/7d/2661f2fb3ac4302f3a246f5fc030213ac60c1fe0bce84f9783dbd831dbb7/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl", hash = "sha256:786ce87568c303fadb5afcc7102d454cd3040d75f6f8626f5db460d1871f4dd0", size = 170148586, upload-time = "2025-09-05T18:50:50.248Z" },
+]
+
+[[package]]
+name = "nvidia-libnvcomp-cu13"
+version = "5.3.0.16"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/72/3e/eafc9f8537b823fe0f2c3bc3dce31110b68d901024a57a472f0a5c975971/nvidia_libnvcomp_cu13-5.3.0.16-py3-none-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:2aa7a981b87159d4fcf9865af8270ff99cab94eb5aeac5be2c1cff91ddc6f6db", size = 28314127, upload-time = "2026-07-14T21:05:57.864Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/50/df4132c3e4171462130ddfc793e042fb8724d68249f14c16eff44236d5d2/nvidia_libnvcomp_cu13-5.3.0.16-py3-none-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:8bf2594c9a3d83bf485c95bffa8ac6406d98b5407ca9e8d9bef5e8fb5d6f5116", size = 28501375, upload-time = "2026-07-14T21:06:23.41Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/02/61dbc3791452e9aa402815e44073cc846c51e8ddca8b2d01b360095b5380/nvidia_libnvcomp_cu13-5.3.0.16-py3-none-win_amd64.whl", hash = "sha256:34824f687625a48f1fcaeed9b4bd08935d88583ff5fc4811beca1c9a50e343b9", size = 19880933, upload-time = "2026-07-14T21:06:51.311Z" },
 ]
 
 [[package]]

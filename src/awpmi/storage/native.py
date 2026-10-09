@@ -4,7 +4,10 @@
 and maturin): the same plans as `plan_reads`, the same extents and read calls (positioned reads on a pool of native
 threads, direct I/O), the same counters, with the GIL released while the core works. It adds an optional host-RAM
 cache of rows under a strict byte budget (least recently used first; rows in use never evicted; a row loaded once
-however many requests want it at the same time).
+however many requests want it at the same time). The cache holds rows in blocks that evicted rows hand to the rows
+admitted next, whatever their sizes (decision 0013); its pool of such blocks counts against the budget
+(`cache_stats()["held_bytes"]`). `cache_block_bytes` defaults to the largest size dividing every segment's rows, at
+least a megabyte (5.5 MiB for expert rows of 11 and 5.5 MiB).
 
 Three ways to read:
 
@@ -137,7 +140,8 @@ class NativeIOStats:
             key: engine[key]
             for key in (
                 "busy_ms", "read_ms", "cache_copied_bytes", "gathered_bytes", "admitted_bytes", "fallback_rows", "prefetches",
-                "prefetch_rows", "prefetch_bytes", "prefetch_blocks_4k",
+                "prefetch_rows", "prefetch_bytes", "prefetch_blocks_4k", "submits", "submit_ms", "submit_cache_ms",
+                "submit_plan_ms", "submit_start_ms",
             )
         }
         cache = self._native.cache_stats()
@@ -165,6 +169,7 @@ class NativePageStore(PageStore):
         max_read_bytes: int = DEFAULT_MAX_READ_BYTES,
         max_extent_bytes: int = DEFAULT_MAX_EXTENT_BYTES,
         host_cache_bytes: int = 0,
+        cache_block_bytes: int | None = None,
     ) -> None:
         if _native is None:
             raise RuntimeError("the native extension weightsift_native is not installed: `uv sync` builds it from native/")
@@ -196,10 +201,11 @@ class NativePageStore(PageStore):
                 specs.append((name, [file_ids[key] for key in segment.files], segment.rows, segment.row_bytes, None, list(segment.part_bytes), spans))
             else:
                 specs.append((name, [file_ids[segment.file]], segment.rows, segment.row_bytes, segment.offset, None, None))
+        blocks = {} if cache_block_bytes is None else {"cache_block_bytes": cache_block_bytes}
         self._engine = _native.Engine(
             [(key, str(path)) for key, path in self.files.items()], specs, direct=direct, alignment=alignment,
             max_gap=max_gap, max_read_bytes=max_read_bytes, max_extent_bytes=max_extent_bytes, workers=workers,
-            host_cache_bytes=host_cache_bytes,
+            host_cache_bytes=host_cache_bytes, **blocks,
         )
         self.device = torch.device("cpu")
         self.direct = direct

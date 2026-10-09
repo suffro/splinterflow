@@ -1,0 +1,165 @@
+model:
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  adapter: moonlight
+  tokenizer_revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  trust_remote_code_tokenizer: true
+prompts:
+  dataset:
+    repository: Salesforce/wikitext
+    revision: b08601e04326c79dfdd32d625aee71d232d685c3
+    file: wikitext-2-raw-v1/test-00000-of-00001.parquet
+    text_column: text
+  seed: 4
+  lengths:
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 768
+  - 1024
+  decode_steps: 8
+index:
+  directory: packs/moonlight-16b-a3b-expert-index
+encoded:
+  directory: packs/moonlight-16b-a3b-experts-ans
+  codec: ans
+  options:
+    data_type: float16
+  chunk_bytes: 1048576
+storage:
+  alignment: 4096
+  max_gap: 0
+  workers: 8
+  max_read_bytes: 1048576
+  max_extent_bytes: 8388608
+  slot_bytes: 33554432
+  slots: 2
+  native_slots: 4
+gpu_budget_bytes: 6000000000
+call_budget_bytes: 268435456
+reference:
+  residency_check_layers:
+  - 1
+  residency_check_prompts: 2
+hotness_half_life: 1024
+poison_prompts: 3
+record_ranges_prompts: 3
+per_assignment_prompts: 2
+timing:
+  settle_seconds: 3
+  warmup_prompts: 1
+configurations:
+- name: encoded-dev-tiny
+  backend: native
+  experts: encoded
+  cache_experts: 0
+  device_cache_bytes: 50000000
+  policy: lru
+  num_prompts: 4
+- name: encoded-host-12g-freeze-dev1.9g
+  backend: native
+  experts: encoded
+  host_cache_bytes: 12000000000
+  freeze_prefill: true
+  device_cache_bytes: 1900000000
+  policy: lru
+- name: encoded-host-12g-freeze-dev1.9g-fast
+  backend: native
+  experts: encoded
+  host_cache_bytes: 12000000000
+  freeze_prefill: true
+  device_cache_bytes: 1900000000
+  policy: lru
+  decode_graphs: true
+  fill_uninitialized_memory: false
+gates:
+  max_working_set_above_cache_bytes: 5e9
+  submit_ms_per_decode_token_max: 10
+  engine_configurations:
+  - native-host-4g
+  - native-host-12g-freeze
+  engine_decode_ratio_max: 0.99
+  encoded_pair:
+  - encoded-host-12g-freeze
+  - native-host-12g-freeze
+  encoded_decode_ratio_max: 0.9
+  device_cache_pair:
+  - encoded-host-12g-freeze-dev1.9g
+  - encoded-host-12g-freeze
+  device_cache_decode_ratio_max: 0.95
+  fast_pair:
+  - encoded-host-12g-freeze-dev1.9g-fast
+  - encoded-host-12g-freeze-dev1.9g
+  fast_decode_ratio_max: 0.97
+  phase6a_decode_ms: 807.0
+  best_decode_ratio_to_phase6a_max: 0.9
+  aspirational_decode_ratio_to_phase6a: 0.8
+profile:
+  prompts:
+  - 7
+  - 0
+  - 3
+  - 5
+  warm_prompts:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  configurations:
+  - name: native-host-4g
+    backend: native
+    host_cache_bytes: 4000000000
+  - name: encoded-host-4g
+    backend: native
+    experts: encoded
+    host_cache_bytes: 4000000000
+  - name: encoded-host-12g-freeze-dev1.9g-nofill
+    backend: native
+    experts: encoded
+    host_cache_bytes: 12000000000
+    freeze_prefill: true
+    device_cache_bytes: 1900000000
+    policy: lru
+    fill_uninitialized_memory: false
+  - name: encoded-host-12g-freeze-dev1.9g-graphs
+    backend: native
+    experts: encoded
+    host_cache_bytes: 12000000000
+    freeze_prefill: true
+    device_cache_bytes: 1900000000
+    policy: lru
+    decode_graphs: true
+  - name: encoded-host-12g-freeze-dev2g
+    backend: native
+    experts: encoded
+    host_cache_bytes: 12000000000
+    freeze_prefill: true
+    device_cache_bytes: 2000000000
+    policy: lru
+    device_cache: pages
+  - name: encoded-host-12g-freeze-dev2g-hot
+    backend: native
+    experts: encoded
+    host_cache_bytes: 12000000000
+    freeze_prefill: true
+    device_cache_bytes: 2000000000
+    policy: hotness
+    device_cache: pages
+development:
+  skip_audit: true

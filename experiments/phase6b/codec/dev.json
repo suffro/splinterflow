@@ -1,0 +1,298 @@
+{
+ "stage": "6B2-A",
+ "layers": [
+  26
+ ],
+ "experts": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "call_experts": 6,
+ "repeats": 3,
+ "environment": {
+  "model": {
+   "repository": "moonshotai/Moonlight-16B-A3B",
+   "revision": "476b36a473d4467f94469414bef6cee75c9c8172"
+  },
+  "python": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+  "os": "Windows-11-10.0.26200-SP0",
+  "packages": {
+   "torch": "2.14.1+cu130",
+   "transformers": "5.18.0",
+   "safetensors": "0.8.0",
+   "numpy": "2.5.3",
+   "huggingface-hub": "1.33.0",
+   "tokenizers": "0.23.2",
+   "pyarrow": "25.0.1"
+  },
+  "cuda_version": "13.0",
+  "cudnn_version": 92400,
+  "gpu": "NVIDIA GeForce RTX 4060 Ti",
+  "numerics": {
+   "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+   "deterministic_algorithms": true,
+   "float32_matmul_precision": "highest",
+   "cuda_matmul_allow_tf32": false,
+   "cudnn_allow_tf32": false,
+   "cuda_matmul_allow_bf16_reduced_precision_reduction": false,
+   "cuda_matmul_allow_fp16_reduced_precision_reduction": false,
+   "cuda_matmul_allow_bf16_reduced_precision_reduction_split_k": true,
+   "cuda_matmul_allow_fp16_accumulation": false
+  },
+  "git_commit": "4a708697bd4db34eefc719d99ced445cbc0fc447",
+  "git_dirty": true,
+  "source_tree_sha256": "db51eb800b6a194706525d1880d270b40d72e7375be438e9b50617062a58de31",
+  "native_tree_sha256": "3e942162470c9ed6da1235a3e8446cc7617b37d9d6408c5337ff505692575b5c",
+  "native_extension": "0.1.0",
+  "uv_lock_sha256": "33a437da7b0159f7f22259d79d0ad8b5b7fdc5d8a81c51654391cfb4848db767"
+ },
+ "nvcomp": {
+  "library": "nvcomp64_5.dll",
+  "version": 5300,
+  "cudart_version": 13030
+ },
+ "zstandard": {
+  "python": "0.25.0",
+  "libzstd": [
+   1,
+   5,
+   7
+  ]
+ },
+ "gpu": "NVIDIA GeForce RTX 4060 Ti",
+ "corpus": {
+  "files": "not verified (development)",
+  "rows_sha256": {
+   "26/0": {
+    "gate_up": "54cbe4a52e04df1b4fd7c5e878666983626fe5d5dd64552dd27409284159aa3b",
+    "down": "57b88827b7eaf8d08d1c2e8b08a6b8ef13fbca6ad1220e728d8ec722c87c8654"
+   },
+   "26/1": {
+    "gate_up": "eaa22b81e4da2aeb032ea2ea2c763fbf4aea5f0ffb365070bc1a1878add1ac56",
+    "down": "47ba9be9057efa7ae6a066eb3c14cc1120c07ee90169bf0e13f7477b545b0092"
+   },
+   "26/2": {
+    "gate_up": "9bb90e9c065faafa6e8e5a886e6157e0c92aa730345a3d51f1647ce0a3ef975d",
+    "down": "c78b15fe2475c70dfbbb22be335c17e5d23e102ace3d0b5a913b4b6ebff9c300"
+   },
+   "26/3": {
+    "gate_up": "ecf1ab6af185116897f329e2b8fc8c6f8b0d1e981c112a799064b90369971f5d",
+    "down": "40e951c5247d6e412ebd641e86454e87d0e6d9f0966784a0e863c73db7d76366"
+   },
+   "26/4": {
+    "gate_up": "43420710b0131888e63b7979fa0161de72dad0c878d6dae6cc188dc5a1cdbac2",
+    "down": "b45ef350eaee129a7759dc7f7326a7d94afe8459e3b1fee14bbb58f5c9875207"
+   },
+   "26/5": {
+    "gate_up": "50d77ad6bccc1af58d73ef4aa7d008cd100d1a9cb4ffe0b20a8a90f6adbcb7be",
+    "down": "c9b33245f1023ccd1b1b0a28952e9362526be55267fb5b9033411ce5864d64c0"
+   }
+  },
+  "load_s": 0.8207091998774558
+ },
+ "calls": [
+  [
+   [
+    26,
+    0
+   ],
+   [
+    26,
+    1
+   ],
+   [
+    26,
+    2
+   ],
+   [
+    26,
+    3
+   ],
+   [
+    26,
+    4
+   ],
+   [
+    26,
+    5
+   ]
+  ],
+  [
+   [
+    26,
+    0
+   ],
+   [
+    26,
+    1
+   ],
+   [
+    26,
+    2
+   ],
+   [
+    26,
+    3
+   ],
+   [
+    26,
+    4
+   ],
+   [
+    26,
+    5
+   ]
+  ]
+ ],
+ "h2d_bf16_call_ms": 16.005535125732422,
+ "formats": [
+  {
+   "format": "5c/tensor/planes/zstd-19",
+   "block": "tensor",
+   "transform": "planes",
+   "codec": {
+    "name": "zstd",
+    "level": 19
+   },
+   "compress_cpu_s": 7.524503099964932,
+   "frames": 162,
+   "frame_bytes": 68670145,
+   "stored_ratio": 0.6615170661849205,
+   "nvcomp_alignments": {
+    "input": 1,
+    "output": 1,
+    "temp": 8
+   },
+   "exact": true,
+   "decompress": {
+    "best_ms": 8.607647895812988,
+    "median_ms": 8.724783897399902,
+    "best_gb_s": 12.060091822586719,
+    "median_gb_s": 11.898177103382059
+   },
+   "merge": {
+    "best_ms": 50.351104736328125,
+    "median_ms": 51.00183868408203,
+    "best_gb_s": 2.0617030061924777,
+    "median_gb_s": 2.0353976773860785
+   },
+   "restore": {
+    "best_ms": 58.99836826324463,
+    "median_ms": 59.80308723449707,
+    "best_gb_s": 1.75952364541363,
+    "median_gb_s": 1.7358472413464026
+   },
+   "temp_scale": 1.0,
+   "call": {
+    "bf16_bytes": 103809024,
+    "stored_bytes": 68671441.0,
+    "h2d_bf16_ms": 16.005535125732422,
+    "h2d_stored_ms": 10.608256340026855,
+    "copy_saved_ms": 5.397278785705566,
+    "net_saved_ms_best": -53.60108947753906,
+    "net_saved_ms_median": -54.405808448791504
+   }
+  },
+  {
+   "format": "nvcomp/ans-float16/raw/64k",
+   "codec": "ans",
+   "layout": "raw",
+   "chunk_bytes": 65536,
+   "compressed_streams": [
+    "raw"
+   ],
+   "compress_gpu_s": 0.14236739999614656,
+   "chunks": 1584,
+   "stored_ratio": 0.6933020774764244,
+   "exact": true,
+   "decompress": {
+    "best_ms": 0.7233279943466187,
+    "median_ms": 0.7698720097541809,
+    "best_gb_s": 143.5158390264856,
+    "median_gb_s": 134.83932742683564
+   },
+   "restore": {
+    "best_ms": 0.7233279943466187,
+    "median_ms": 0.7698720097541809,
+    "best_gb_s": 143.5158390264856,
+    "median_gb_s": 134.83932742683564
+   },
+   "call": {
+    "bf16_bytes": 103809024,
+    "stored_bytes": 71971012.0,
+    "h2d_bf16_ms": 16.005535125732422,
+    "h2d_stored_ms": 11.130720138549805,
+    "copy_saved_ms": 4.874814987182617,
+    "net_saved_ms_best": 4.1514869928359985,
+    "net_saved_ms_median": 4.104942977428436
+   }
+  },
+  {
+   "format": "nvcomp/ans/split-high/64k",
+   "codec": "ans",
+   "layout": "split",
+   "chunk_bytes": 65536,
+   "compressed_streams": [
+    "high"
+   ],
+   "compress_gpu_s": 0.24318519979715347,
+   "chunks": 792,
+   "stored_ratio": 0.6984776005600438,
+   "exact": true,
+   "decompress": {
+    "best_ms": 0.29414400458335876,
+    "median_ms": 0.3127039968967438,
+    "best_gb_s": 352.9190545530263,
+    "median_gb_s": 331.9721686649186
+   },
+   "merge": {
+    "best_ms": 1.2976640462875366,
+    "median_ms": 1.3148800134658813,
+    "best_gb_s": 79.99684070540857,
+    "median_gb_s": 78.94942727615933
+   },
+   "restore": {
+    "best_ms": 1.609984040260315,
+    "median_ms": 1.6252480149269104,
+    "best_gb_s": 64.47829382408992,
+    "median_gb_s": 63.87272776005724
+   },
+   "call": {
+    "bf16_bytes": 103809024,
+    "stored_bytes": 72508278.0,
+    "h2d_bf16_ms": 16.005535125732422,
+    "h2d_stored_ms": 11.185343742370605,
+    "copy_saved_ms": 4.820191383361816,
+    "net_saved_ms_best": 3.2102073431015015,
+    "net_saved_ms_median": 3.194943368434906
+   }
+  },
+  {
+   "format": "cpu/tensor/planes/zstd-19",
+   "threads": 6,
+   "decompress": {
+    "best_ms": 49.49110001325607,
+    "median_ms": 57.174299960024655,
+    "best_gb_s": 2.0975291309385926,
+    "median_gb_s": 1.8156588549852222
+   },
+   "merge": {
+    "best_ms": 300.3622000105679,
+    "median_ms": 313.12955007888377,
+    "best_gb_s": 0.34561281012173833,
+    "median_gb_s": 0.33152100775493204
+   },
+   "restore": {
+    "best_ms": 349.853300023824,
+    "median_ms": 370.26565021369606,
+    "best_gb_s": 0.29672158013924954,
+    "median_gb_s": 0.28036363605451214
+   }
+  }
+ ],
+ "elapsed_s": 31.687048600055277
+}

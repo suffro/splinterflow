@@ -7,7 +7,11 @@
 //!     being loaded (its bytes are reserved when the load starts): resident bytes never exceed the capacity;
 //!   * a row is loaded once however many requests want it at the same time: the first lookup gets a `Fill` ticket
 //!     and loads it, the others `Wait` for that load (in-flight deduplication); a fill that fails or is dropped
-//!     unfinished hands its waiters the error, and they read the row themselves;
+//!     unfinished hands its waiters the error, and they read the row themselves. A request waits only for a prefetch's
+//!     load (Phase 6B, decision 0013): a prefetch never waits for anything, whereas two requests waiting for each other's
+//!     loads can each hold the staging the other's load needs (the engine's pieces start in order with a few slots: a
+//!     cycle, measured as an occasional hang of six concurrent jobs). A row another request is loading is `Busy`: the
+//!     caller reads it itself and does not admit it (counted as a miss and a bypass);
 //!   * a request looks up all its rows first (`probe`: hits are promoted and leased), and only then reserves room for
 //!     its misses (`fill`), so a miss never evicts a row the same request is about to use;
 //!   * entries in use (leased: an `Arc` held by a copy into a staging slot) are never evicted, as ds4 protects every
@@ -17,18 +21,53 @@
 //!   * a prefetch (`prefetch_probe`, `prefetch_fill`) loads rows a request will ask for soon without counting as a
 //!     lookup; every row it loads is counted once used by a request, or as wasted if evicted (or cleared) unused.
 //!
+//! Memory (Phase 6B, decision 0013). A row's bytes are held in blocks of the cache's block size, the last part (the
+//! row's tail) possibly shorter. An evicted row's whole blocks go to a pool, and the rows admitted next take their
+//! blocks from it, whatever the two rows' sizes: once the cache has filled, admitting rows whose size is a multiple of
+//! the block allocates and frees nothing. (In Phase 6A an entry was one allocation, reused only by a row of exactly its
+//! size: with two row sizes (an expert's gate/up and down rows), about half the evictions freed megabytes inline, a third of a millisecond
+//! each.) The pool counts against the budget like everything else the cache holds (`held_bytes`: entries, rows being
+//! loaded, aborted loads not yet given back, pooled blocks), and it is trimmed when a row's tail would take that above
+//! the capacity. Which rows stay, and every hit, miss, eviction and bypass, depend only on the rows' sizes and the
+//! requests, never on the block size or on the pool. Blocks are at least `MIN_BLOCK_BYTES` by default: smaller ones
+//! come from the allocator's heap, zeroed one by one (2.2 ms per 11.5 MB row in 512 KiB blocks, measured), where larger
+//! ones are fresh pages the system zeroes on first touch.
+//!
 //! The cache decides which rows stay resident, never what their bytes are: a hit's bytes are the bytes a read of the
 //! row returned (the engine tests compare them with direct reads).
 
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
 use lru::LruCache;
 
+use crate::buffer::RawBuffer;
 use crate::error::{Error, Result};
 
 /// A row: (segment id, row index).
 pub type Key = (u32, u64);
+
+/// The smallest block size chosen by default (`block_for`).
+pub const MIN_BLOCK_BYTES: u64 = 1 << 20;
+
+/// The block size for rows of these sizes: the largest size dividing every row of at least `MIN_BLOCK_BYTES` (those rows
+/// are then whole blocks, and an evicted row's memory serves any other; smaller rows are tails whatever the block), or
+/// `MIN_BLOCK_BYTES` when that is smaller. Rows of 11 and 5.5 MiB get blocks of 5.5 MiB.
+pub fn block_for(row_bytes: impl IntoIterator<Item = u64>) -> u64 {
+    fn gcd(a: u64, b: u64) -> u64 {
+        if b == 0 {
+            a
+        } else {
+            gcd(b, a % b)
+        }
+    }
+    let common = row_bytes.into_iter().filter(|&n| n >= MIN_BLOCK_BYTES).fold(0, gcd);
+    if common >= MIN_BLOCK_BYTES {
+        common
+    } else {
+        MIN_BLOCK_BYTES
+    }
+}
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct CacheStats {
@@ -49,8 +88,14 @@ pub struct CacheStats {
     pub bypassed_bytes: u64,
     /// Fills that did not complete (their request failed or was cancelled).
     pub aborted_fills: u64,
-    /// Fills given the memory of an entry evicted for them (same size): no allocation, no first-touch page faults.
+    /// Fills whose memory was all blocks of evicted rows (no allocation).
     pub recycled: u64,
+    /// Bytes of fills' memory taken from evicted rows' blocks, and newly allocated.
+    pub recycled_bytes: u64,
+    pub allocated_bytes: u64,
+    /// Memory given back to the system: rows' tails, blocks trimmed from the pool to keep it within the budget, a
+    /// cleared cache.
+    pub released_bytes: u64,
     /// Rows a prefetch admitted to load, and their bytes.
     pub prefetch_fills: u64,
     pub prefetch_fill_bytes: u64,
@@ -62,25 +107,148 @@ pub struct CacheStats {
     pub prefetch_wasted: u64,
 }
 
+/// The parts of a row of `len` bytes held in blocks of `block` bytes that cover `[offset, offset + length)`: (part,
+/// offset in the part, length, offset in the range).
+fn spans(block: u64, len: u64, offset: u64, length: u64) -> impl Iterator<Item = (usize, usize, usize, usize)> {
+    assert!(
+        offset.checked_add(length).is_some_and(|end| end <= len),
+        "range {offset}+{length} outside a row of {len} bytes"
+    );
+    let end = offset + length;
+    let mut at = offset;
+    std::iter::from_fn(move || {
+        if at >= end {
+            return None;
+        }
+        let within = at % block;
+        let n = (block - within).min(end - at);
+        let span = (
+            (at / block) as usize,
+            within as usize,
+            n as usize,
+            (at - offset) as usize,
+        );
+        at += n;
+        Some(span)
+    })
+}
+
+/// A row's bytes: whole blocks of the cache's block size, the last part (the tail) possibly shorter.
+#[derive(Debug)]
+pub struct RowMemory {
+    parts: Vec<Box<[u8]>>,
+    block: u64,
+    len: u64,
+}
+
+impl RowMemory {
+    pub fn len(&self) -> u64 {
+        self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+
+    /// The bytes held so far (all of them once allocated).
+    fn allocated(&self) -> u64 {
+        self.parts.iter().map(|p| p.len() as u64).sum()
+    }
+
+    /// Allocate the parts the pool did not give (whole blocks, then the tail); the bytes allocated.
+    fn allocate_rest(&mut self) -> u64 {
+        let whole = (self.len / self.block) as usize;
+        let mut allocated = 0;
+        while self.parts.len() < whole {
+            self.parts.push(vec![0u8; self.block as usize].into_boxed_slice());
+            allocated += self.block;
+        }
+        let tail = self.len % self.block;
+        if tail > 0 && self.parts.len() == whole {
+            self.parts.push(vec![0u8; tail as usize].into_boxed_slice());
+            allocated += tail;
+        }
+        allocated
+    }
+
+    /// Copy bytes `[from, from + dst.len())` of the row into `dst`.
+    pub fn copy_to(&self, from: u64, dst: &mut [u8]) {
+        for (part, within, n, at) in spans(self.block, self.len, from, dst.len() as u64) {
+            dst[at..at + n].copy_from_slice(&self.parts[part][within..within + n]);
+        }
+    }
+
+    /// Write `data` at byte `offset` of the row.
+    pub fn write(&mut self, offset: u64, data: &[u8]) {
+        for (part, within, n, at) in spans(self.block, self.len, offset, data.len() as u64) {
+            self.parts[part][within..within + n].copy_from_slice(&data[at..at + n]);
+        }
+    }
+
+    pub fn to_vec(&self) -> Vec<u8> {
+        let mut out = vec![0u8; self.len as usize];
+        self.copy_to(0, &mut out);
+        out
+    }
+
+    fn views(&mut self) -> RowViews {
+        RowViews {
+            parts: self.parts.iter_mut().map(|p| RawBuffer::from_slice(p)).collect(),
+            block: self.block,
+            len: self.len,
+        }
+    }
+}
+
+/// Views of a row's memory while it loads: several threads write disjoint ranges of it (the engine's admissions).
+#[derive(Clone, Debug)]
+pub struct RowViews {
+    parts: Vec<RawBuffer>,
+    block: u64,
+    len: u64,
+}
+
+impl RowViews {
+    /// The parts covering `[offset, offset + length)` of the row: (part, offset in the part, length, offset in the
+    /// range). Writing through a part is `RawBuffer`'s contract: the row's memory is alive while its fill is, and each
+    /// range is written by one task only.
+    pub fn spans(&self, offset: u64, length: u64) -> impl Iterator<Item = (RawBuffer, usize, usize, usize)> + '_ {
+        spans(self.block, self.len, offset, length).map(|(part, within, n, at)| (self.parts[part], within, n, at))
+    }
+
+    pub fn len(&self) -> u64 {
+        self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+}
+
 /// A cached row's bytes.
 #[derive(Debug)]
 pub struct Entry {
-    data: Box<[u8]>,
+    memory: RowMemory,
     /// Loaded by a prefetch and not used by a request yet.
     prefetched: AtomicBool,
 }
 
 impl Entry {
-    pub fn bytes(&self) -> &[u8] {
-        &self.data
-    }
-
     pub fn len(&self) -> u64 {
-        self.data.len() as u64
+        self.memory.len()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.data.is_empty()
+        self.memory.is_empty()
+    }
+
+    /// Copy bytes `[from, from + dst.len())` of the row into `dst`.
+    pub fn copy_to(&self, from: u64, dst: &mut [u8]) {
+        self.memory.copy_to(from, dst);
+    }
+
+    pub fn to_vec(&self) -> Vec<u8> {
+        self.memory.to_vec()
     }
 }
 
@@ -121,6 +289,11 @@ impl Pending {
         }
     }
 
+    /// The load failed: its waiters get `error`.
+    pub fn fail(&self, error: Error) {
+        self.finish(Err(error));
+    }
+
     fn finish(&self, outcome: Result<Arc<Entry>>) {
         let waiters = {
             let mut state = self.state.lock().unwrap();
@@ -153,8 +326,10 @@ fn claim(stats: &mut CacheStats, slot: &Slot) {
 pub enum Probe {
     /// The row's bytes (a lease: the entry is not evicted while this `Arc` lives).
     Hit(Arc<Entry>),
-    /// Another request is loading the row.
+    /// A prefetch is loading the row.
     Wait(Arc<Pending>),
+    /// Another request is loading the row: read it, and do not admit it (a miss and a bypass).
+    Busy,
     /// Not cached: admit it with `fill` once every row of the request was probed.
     Miss,
 }
@@ -173,33 +348,60 @@ pub enum Lookup {
 
 struct State {
     lru: LruCache<Key, Slot>,
+    /// Bytes of the rows in the LRU order (ready and loading) and of aborted loads not given back yet.
     used: u64,
     peak: u64,
+    /// Whole blocks of evicted rows, for the next rows admitted (counted against the budget).
+    pool: Vec<Box<[u8]>>,
+    peak_held: u64,
     admit: bool,
     stats: CacheStats,
 }
 
+impl State {
+    fn pool_bytes(&self, block: u64) -> u64 {
+        self.pool.len() as u64 * block
+    }
+}
+
 pub struct HostCache {
     capacity: u64,
+    block: u64,
     state: Mutex<State>,
+    /// Memory allocated by fills (outside the lock), since the last reset.
+    allocated: AtomicU64,
 }
 
 impl HostCache {
+    /// A cache of `capacity` bytes holding rows in blocks of `MIN_BLOCK_BYTES`.
     pub fn new(capacity: u64) -> Arc<Self> {
+        Self::with_block(capacity, MIN_BLOCK_BYTES)
+    }
+
+    /// A cache of `capacity` bytes holding rows in blocks of `block` bytes (at least one).
+    pub fn with_block(capacity: u64, block: u64) -> Arc<Self> {
         Arc::new(HostCache {
             capacity,
+            block: block.max(1),
             state: Mutex::new(State {
                 lru: LruCache::unbounded(),
                 used: 0,
                 peak: 0,
+                pool: Vec::new(),
+                peak_held: 0,
                 admit: true,
                 stats: CacheStats::default(),
             }),
+            allocated: AtomicU64::new(0),
         })
     }
 
     pub fn capacity(&self) -> u64 {
         self.capacity
+    }
+
+    pub fn block_bytes(&self) -> u64 {
+        self.block
     }
 
     /// Look up row `key` of `nbytes` for a request (counts one lookup and its outcome): a hit is promoted and leased.
@@ -215,12 +417,19 @@ impl HostCache {
                 state.stats.hit_bytes += nbytes;
                 Probe::Hit(entry)
             }
-            Some(slot @ Slot::Loading(pending)) => {
+            Some(slot @ Slot::Loading(pending)) if pending.prefetch => {
                 let pending = Arc::clone(pending);
                 claim(&mut state.stats, slot);
                 state.stats.waits += 1;
                 state.stats.wait_bytes += nbytes;
                 Probe::Wait(pending)
+            }
+            Some(Slot::Loading(_)) => {
+                state.stats.misses += 1;
+                state.stats.miss_bytes += nbytes;
+                state.stats.bypassed += 1;
+                state.stats.bypassed_bytes += nbytes;
+                Probe::Busy
             }
             None => {
                 state.stats.misses += 1;
@@ -235,13 +444,15 @@ impl HostCache {
         match self.probe(key, nbytes) {
             Probe::Hit(entry) => Lookup::Hit(entry),
             Probe::Wait(pending) => Lookup::Wait(pending),
+            Probe::Busy => Lookup::Bypass,
             Probe::Miss => self.fill(key, nbytes),
         }
     }
 
     /// Admit a row a probe missed: room is reserved (evicting least recently used rows nobody leases) and the caller
     /// gets the duty to load it (`Fill`), or `Bypass` when it is not admitted (no room, too large, admission frozen).
-    /// If another request admitted the row since the probe, its `Hit` or `Wait` (the probe's miss is counted as such).
+    /// If it was admitted since the probe: its `Hit`, or `Wait` for a prefetch's load (the probe's miss is counted as
+    /// such), or `Bypass` for another request's load (the miss stands).
     pub fn fill(self: &Arc<Self>, key: Key, nbytes: u64) -> Lookup {
         let mut guard = self.state.lock().unwrap();
         let state = &mut *guard;
@@ -251,10 +462,15 @@ impl HostCache {
                 claim(&mut state.stats, slot);
                 Some(found)
             }
-            Some(slot @ Slot::Loading(pending)) => {
+            Some(slot @ Slot::Loading(pending)) if pending.prefetch => {
                 let found = Lookup::Wait(Arc::clone(pending));
                 claim(&mut state.stats, slot);
                 Some(found)
+            }
+            Some(Slot::Loading(_)) => {
+                state.stats.bypassed += 1;
+                state.stats.bypassed_bytes += nbytes;
+                return Lookup::Bypass;
             }
             None => None,
         };
@@ -281,21 +497,37 @@ impl HostCache {
         }
     }
 
-    /// Reserve room for an absent row and hand out the duty to load it (None: not admitted).
+    /// Reserve room for an absent row and hand out the duty to load it (None: not admitted). The row's memory starts
+    /// with blocks from the pool (evicted rows'); the fill allocates the rest when it starts writing.
     fn admit_row(self: &Arc<Self>, state: &mut State, key: Key, nbytes: u64, prefetch: bool) -> Option<Fill> {
-        let buffer = Self::reserve(state, self.capacity, nbytes)?;
-        state.stats.recycled += buffer.is_some() as u64;
+        if !self.make_room(state, nbytes) {
+            return None;
+        }
+        let whole = (nbytes / self.block) as usize;
+        let taken = whole.min(state.pool.len());
+        let parts = state.pool.split_off(state.pool.len() - taken);
+        let recycled = taken as u64 * self.block;
+        state.stats.recycled_bytes += recycled;
+        state.stats.recycled += (recycled == nbytes) as u64;
+        state.used += nbytes;
+        // The fill allocates the rest of the row: what the cache holds must stay within its capacity.
+        self.trim(state);
+        state.peak = state.peak.max(state.used);
+        state.peak_held = state.peak_held.max(state.used + state.pool_bytes(self.block));
         let pending = Pending::new(prefetch);
         state.lru.push(key, Slot::Loading(Arc::clone(&pending)));
-        state.used += nbytes;
-        state.peak = state.peak.max(state.used);
         Some(Fill {
             cache: Arc::clone(self),
             key,
             nbytes,
             pending,
-            buffer,
-            settled: false,
+            memory: Some(RowMemory {
+                parts,
+                block: self.block,
+                len: nbytes,
+            }),
+            recycled,
+            outcome: Outcome::Open,
         })
     }
 
@@ -333,16 +565,16 @@ impl HostCache {
         fill
     }
 
-    /// Make room for `nbytes` by evicting least recently used ready entries that nobody leases (None: no room; evicts
-    /// nothing when that would not make room). An evicted entry of exactly `nbytes` gives the new row its memory.
-    fn reserve(state: &mut State, capacity: u64, nbytes: u64) -> Option<Option<Box<[u8]>>> {
-        if !state.admit || nbytes > capacity {
-            return None;
+    /// Make room for `nbytes` by evicting least recently used ready entries that nobody leases (false: no room; evicts
+    /// nothing when that would not make room). The victims' whole blocks go to the pool.
+    fn make_room(&self, state: &mut State, nbytes: u64) -> bool {
+        if !state.admit || nbytes > self.capacity {
+            return false;
         }
-        if state.used + nbytes <= capacity {
-            return Some(None);
+        if state.used + nbytes <= self.capacity {
+            return true;
         }
-        let need = state.used + nbytes - capacity;
+        let need = state.used + nbytes - self.capacity;
         let mut victims = Vec::new();
         let mut freed = 0;
         for (key, slot) in state.lru.iter().rev() {
@@ -357,9 +589,8 @@ impl HostCache {
             }
         }
         if freed < need {
-            return None;
+            return false;
         }
-        let mut recycled = None;
         for key in victims {
             if let Some(Slot::Ready(entry)) = state.lru.pop(&key) {
                 let len = entry.len();
@@ -367,37 +598,63 @@ impl HostCache {
                 state.stats.evictions += 1;
                 state.stats.evicted_bytes += len;
                 state.stats.prefetch_wasted += entry.prefetched.load(Ordering::Acquire) as u64;
-                if recycled.is_none() && len == nbytes {
-                    // Nobody else holds it (checked above, under this lock): its memory moves to the new row.
-                    recycled = Arc::try_unwrap(entry).ok().map(|entry| entry.data);
+                // Nobody else holds it (checked above, under this lock): its memory is the cache's to reuse.
+                if let Ok(entry) = Arc::try_unwrap(entry) {
+                    self.recycle(state, entry.memory);
                 }
             }
         }
-        Some(recycled)
+        true
     }
 
-    fn settle(&self, key: Key, nbytes: u64, data: Option<Box<[u8]>>, pending: &Pending) -> Option<Arc<Entry>> {
-        let mut state = self.state.lock().unwrap();
-        match data {
-            Some(data) => {
-                // Still unused when its prefetch's load completes (a request that waited for it has claimed it).
-                let prefetched = AtomicBool::new(pending.prefetch && !pending.claimed.load(Ordering::Acquire));
-                let entry = Arc::new(Entry { data, prefetched });
-                // The slot is still there: loading slots are never evicted, and only their fill settles them.
-                if let Some(slot) = state.lru.peek_mut(&key) {
-                    *slot = Slot::Ready(Arc::clone(&entry));
-                }
-                state.stats.inserts += 1;
-                state.stats.insert_bytes += nbytes;
-                Some(entry)
-            }
-            None => {
-                state.lru.pop(&key);
-                state.used -= nbytes;
-                state.stats.aborted_fills += 1;
-                None
+    /// A row's memory back to the cache: whole blocks to the pool, the tail to the system.
+    fn recycle(&self, state: &mut State, memory: RowMemory) {
+        for part in memory.parts {
+            if part.len() as u64 == self.block {
+                state.pool.push(part);
+            } else {
+                state.stats.released_bytes += part.len() as u64;
             }
         }
+    }
+
+    /// Give pooled blocks back to the system while the cache would hold more than its capacity.
+    fn trim(&self, state: &mut State) {
+        while state.used + state.pool_bytes(self.block) > self.capacity && state.pool.pop().is_some() {
+            state.stats.released_bytes += self.block;
+        }
+    }
+
+    fn complete(&self, key: Key, nbytes: u64, memory: RowMemory, pending: &Pending) -> Arc<Entry> {
+        let mut state = self.state.lock().unwrap();
+        // Still unused when its prefetch's load completes (a request that waited for it has claimed it).
+        let prefetched = AtomicBool::new(pending.prefetch && !pending.claimed.load(Ordering::Acquire));
+        let entry = Arc::new(Entry { memory, prefetched });
+        // The slot is still there: loading slots are never evicted, and only their fill settles them.
+        if let Some(slot) = state.lru.peek_mut(&key) {
+            *slot = Slot::Ready(Arc::clone(&entry));
+        }
+        state.stats.inserts += 1;
+        state.stats.insert_bytes += nbytes;
+        entry
+    }
+
+    /// An aborted load leaves the order (lookups miss it again); its bytes stay reserved until its memory comes back.
+    fn abort(&self, key: Key) {
+        let mut state = self.state.lock().unwrap();
+        state.lru.pop(&key);
+        state.stats.aborted_fills += 1;
+    }
+
+    /// The memory of a fill that did not complete, once nothing can write it any more.
+    fn give_back(&self, nbytes: u64, memory: Option<RowMemory>) {
+        let mut guard = self.state.lock().unwrap();
+        let state = &mut *guard;
+        state.used -= nbytes;
+        if let Some(memory) = memory {
+            self.recycle(state, memory);
+        }
+        self.trim(state);
     }
 
     pub fn set_admit(&self, admit: bool) {
@@ -409,22 +666,41 @@ impl HostCache {
     }
 
     pub fn stats(&self) -> CacheStats {
-        self.state.lock().unwrap().stats
+        let mut stats = self.state.lock().unwrap().stats;
+        stats.allocated_bytes = self.allocated.load(Ordering::Acquire);
+        stats
     }
 
     pub fn reset_stats(&self) {
         let mut state = self.state.lock().unwrap();
         state.stats = CacheStats::default();
         state.peak = state.used;
+        state.peak_held = state.used + state.pool_bytes(self.block);
+        self.allocated.store(0, Ordering::Release);
     }
 
-    /// Bytes held (ready entries and rows being loaded).
+    /// Bytes of the rows held (ready entries and rows being loaded).
     pub fn resident_bytes(&self) -> u64 {
         self.state.lock().unwrap().used
     }
 
     pub fn peak_resident_bytes(&self) -> u64 {
         self.state.lock().unwrap().peak
+    }
+
+    /// Bytes of the pooled blocks of evicted rows.
+    pub fn pool_bytes(&self) -> u64 {
+        self.state.lock().unwrap().pool_bytes(self.block)
+    }
+
+    /// Everything the cache holds: its rows and its pooled blocks (never above the capacity).
+    pub fn held_bytes(&self) -> u64 {
+        let state = self.state.lock().unwrap();
+        state.used + state.pool_bytes(self.block)
+    }
+
+    pub fn peak_held_bytes(&self) -> u64 {
+        self.state.lock().unwrap().peak_held
     }
 
     /// Ready entries and rows being loaded.
@@ -452,9 +728,11 @@ impl HostCache {
             .collect()
     }
 
-    /// Drop every ready entry nobody leases (rows being loaded stay).
+    /// Drop every ready entry nobody leases (rows being loaded stay), and give their memory and the pool back to the
+    /// system.
     pub fn clear(&self) {
-        let mut state = self.state.lock().unwrap();
+        let mut guard = self.state.lock().unwrap();
+        let state = &mut *guard;
         let keys: Vec<Key> = state
             .lru
             .iter()
@@ -464,28 +742,35 @@ impl HostCache {
         for key in keys {
             if let Some(Slot::Ready(entry)) = state.lru.pop(&key) {
                 state.used -= entry.len();
+                state.stats.released_bytes += entry.len();
                 state.stats.prefetch_wasted += entry.prefetched.load(Ordering::Acquire) as u64;
             }
         }
+        state.stats.released_bytes += state.pool_bytes(self.block);
+        state.pool = Vec::new();
     }
 }
 
-/// The right and duty to load a row into the cache.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Outcome {
+    Open,
+    Completed,
+    Aborted,
+}
+
+/// The right and duty to load a row into the cache. It owns the row's memory until the row is complete; a fill that
+/// does not complete gives its memory and its reserved bytes back when it is dropped (its loader's writes are over).
 pub struct Fill {
     cache: Arc<HostCache>,
     key: Key,
     nbytes: u64,
     pending: Arc<Pending>,
-    buffer: Option<Box<[u8]>>,
-    settled: bool,
+    memory: Option<RowMemory>,
+    recycled: u64,
+    outcome: Outcome,
 }
 
 impl Fill {
-    /// Memory of exactly `nbytes` left by an entry evicted for this row (its old bytes are all overwritten), if any.
-    pub fn take_buffer(&mut self) -> Option<Box<[u8]>> {
-        self.buffer.take()
-    }
-
     pub fn key(&self) -> Key {
         self.key
     }
@@ -494,44 +779,83 @@ impl Fill {
         self.nbytes
     }
 
-    /// The row's bytes are `data` (exactly `nbytes`): the entry becomes ready and its waiters are served.
-    pub fn complete(mut self, data: Box<[u8]>) -> Result<Arc<Entry>> {
-        if data.len() as u64 != self.nbytes {
+    /// Whether a prefetch holds this duty.
+    pub fn is_prefetch(&self) -> bool {
+        self.pending.prefetch
+    }
+
+    /// Bytes of the row's memory that came from evicted rows' blocks (the rest is allocated by the fill).
+    pub fn recycled_bytes(&self) -> u64 {
+        self.recycled
+    }
+
+    pub fn is_aborted(&self) -> bool {
+        self.outcome == Outcome::Aborted
+    }
+
+    fn memory(&mut self) -> &mut RowMemory {
+        let memory = self.memory.as_mut().expect("an open fill holds its row's memory");
+        if memory.allocated() < memory.len() {
+            let allocated = memory.allocate_rest();
+            self.cache.allocated.fetch_add(allocated, Ordering::AcqRel);
+        }
+        memory
+    }
+
+    /// Views of the row's memory for writes of disjoint ranges by several threads (what the pool did not give is
+    /// allocated now). They are valid until the fill completes or is dropped.
+    pub fn views(&mut self) -> RowViews {
+        self.memory().views()
+    }
+
+    /// Write `data` at byte `offset` of the row (one thread).
+    pub fn write(&mut self, offset: u64, data: &[u8]) {
+        self.memory().write(offset, data);
+    }
+
+    /// Every byte of the row was written: the entry becomes ready and its waiters are served.
+    pub fn complete(&mut self) -> Result<Arc<Entry>> {
+        if self.outcome != Outcome::Open {
             return Err(Error::Internal(format!(
-                "a fill of {} bytes completed with {}",
-                self.nbytes,
-                data.len()
+                "a fill completed after it was {:?}",
+                self.outcome
             )));
         }
-        self.settled = true;
-        let entry = self
-            .cache
-            .settle(self.key, self.nbytes, Some(data), &self.pending)
-            .expect("a completed fill has an entry");
+        self.memory();
+        let memory = self.memory.take().expect("an open fill holds its row's memory");
+        self.outcome = Outcome::Completed;
+        let entry = self.cache.complete(self.key, self.nbytes, memory, &self.pending);
         self.pending.finish(Ok(Arc::clone(&entry)));
         Ok(entry)
     }
 
-    /// The load failed: the reservation is released and the waiters get `error`.
-    pub fn abort(mut self, error: Error) {
-        self.settled = true;
-        self.cache.settle(self.key, self.nbytes, None, &self.pending);
-        self.pending.finish(Err(error));
+    /// The load failed: the row leaves the cache and its waiters get `error` (they read it themselves). The memory and
+    /// the bytes stay reserved until the fill is dropped: a write of its loader may still be running.
+    pub fn abort(&mut self, error: Error) {
+        if let Some(pending) = self.detach() {
+            pending.fail(error);
+        }
     }
 
-    /// Whether a prefetch holds this duty.
-    pub fn is_prefetch(&self) -> bool {
-        self.pending.prefetch
+    /// `abort`, but the waiters are told by the caller (`Pending::fail` on the result), once it holds no lock: they run
+    /// their callbacks on the thread that tells them. None if the fill is not open.
+    pub fn detach(&mut self) -> Option<Arc<Pending>> {
+        if self.outcome != Outcome::Open {
+            return None;
+        }
+        self.outcome = Outcome::Aborted;
+        self.cache.abort(self.key);
+        Some(Arc::clone(&self.pending))
     }
 }
 
 impl Drop for Fill {
     fn drop(&mut self) {
-        if !self.settled {
-            self.settled = true;
-            self.cache.settle(self.key, self.nbytes, None, &self.pending);
-            self.pending.finish(Err(Error::Cancelled));
+        if self.outcome == Outcome::Completed {
+            return;
         }
+        self.abort(Error::Cancelled);
+        self.cache.give_back(self.nbytes, self.memory.take());
     }
 }
 
@@ -542,9 +866,10 @@ mod tests {
 
     fn fill(cache: &Arc<HostCache>, key: Key, nbytes: u64) -> Arc<Entry> {
         match cache.lookup(key, nbytes) {
-            Lookup::Fill(ticket) => ticket
-                .complete(vec![key.1 as u8; nbytes as usize].into_boxed_slice())
-                .unwrap(),
+            Lookup::Fill(mut ticket) => {
+                ticket.write(0, &vec![key.1 as u8; nbytes as usize]);
+                ticket.complete().unwrap()
+            }
             _ => panic!("expected a fill"),
         }
     }
@@ -583,23 +908,22 @@ mod tests {
     #[test]
     fn loading_rows_count_against_the_budget_and_are_loaded_once() {
         let cache = HostCache::new(100);
-        let Lookup::Fill(ticket) = cache.lookup((1, 1), 70) else {
-            panic!()
-        };
+        let mut ticket = cache.prefetch_fill((1, 1), 70).expect("admitted");
         assert_eq!(cache.resident_bytes(), 70);
-        // A second request for the same row waits for this load instead of loading it again.
+        // A request for the row a prefetch is loading waits for that load instead of loading it again.
         let Lookup::Wait(pending) = cache.lookup((1, 1), 70) else {
             panic!()
         };
         let served = Arc::new(AtomicUsize::new(0));
         let counter = Arc::clone(&served);
         pending.on_done(move |outcome| {
-            assert_eq!(outcome.unwrap().bytes(), &[5u8; 70][..]);
+            assert_eq!(outcome.unwrap().to_vec(), vec![5u8; 70]);
             counter.fetch_add(1, Ordering::SeqCst);
         });
         // Another row cannot evict a loading one.
         assert!(matches!(cache.lookup((1, 2), 40), Lookup::Bypass));
-        ticket.complete(vec![5u8; 70].into_boxed_slice()).unwrap();
+        ticket.write(0, &[5u8; 70]);
+        ticket.complete().unwrap();
         assert_eq!(served.load(Ordering::SeqCst), 1);
         // A waiter registered after completion is served at once.
         let counter = Arc::clone(&served);
@@ -609,15 +933,40 @@ mod tests {
         });
         assert_eq!(served.load(Ordering::SeqCst), 2);
         let stats = cache.stats();
-        assert_eq!((stats.misses, stats.waits, stats.inserts, stats.bypassed), (2, 1, 1, 1));
+        assert_eq!((stats.misses, stats.waits, stats.inserts, stats.bypassed), (1, 1, 1, 1));
+    }
+
+    #[test]
+    fn a_row_another_request_is_loading_is_read_not_waited_for() {
+        // Two requests waiting for each other's loads could each hold what the other needs: a request reads a row another
+        // request is loading itself (a miss and a bypass), and the row is still admitted once.
+        let cache = HostCache::new(100);
+        let Lookup::Fill(mut ticket) = cache.lookup((1, 1), 40) else {
+            panic!()
+        };
+        assert!(matches!(cache.probe((1, 1), 40), Probe::Busy));
+        assert!(matches!(cache.lookup((1, 1), 40), Lookup::Bypass));
+        ticket.write(0, &[1u8; 40]);
+        ticket.complete().unwrap();
+        assert!(matches!(cache.lookup((1, 1), 40), Lookup::Hit(_)));
+        let stats = cache.stats();
+        assert_eq!(
+            (
+                stats.lookups,
+                stats.hits,
+                stats.waits,
+                stats.misses,
+                stats.bypassed,
+                stats.inserts
+            ),
+            (4, 1, 0, 3, 2, 1)
+        );
     }
 
     #[test]
     fn a_dropped_fill_releases_its_bytes_and_fails_its_waiters() {
         let cache = HostCache::new(100);
-        let Lookup::Fill(ticket) = cache.lookup((2, 1), 50) else {
-            panic!()
-        };
+        let ticket = cache.prefetch_fill((2, 1), 50).expect("admitted");
         let Lookup::Wait(pending) = cache.lookup((2, 1), 50) else {
             panic!()
         };
@@ -638,30 +987,103 @@ mod tests {
     }
 
     #[test]
-    fn an_evicted_entry_of_the_same_size_gives_its_memory_to_the_new_row() {
-        let cache = HostCache::new(100);
-        drop(fill(&cache, (0, 1), 50));
-        // Full: the next row evicts.
-        drop(fill(&cache, (0, 2), 50));
-        // The same size: the new row gets the evicted entry's memory (its old bytes, all to be overwritten).
-        let Lookup::Fill(mut same) = cache.lookup((0, 3), 50) else {
+    fn an_aborted_fill_keeps_its_bytes_until_its_memory_comes_back() {
+        // Its loader's writes may still be running when it is aborted: the bytes stay reserved, so what the cache holds
+        // never exceeds its capacity, until the fill is dropped.
+        let cache = HostCache::with_block(100, 10);
+        let Lookup::Fill(mut ticket) = cache.lookup((2, 1), 60) else {
             panic!()
         };
-        let buffer = same.take_buffer().expect("recycled");
-        assert_eq!(&buffer[..], &[1u8; 50][..]);
-        let entry = same.complete(vec![3u8; 50].into_boxed_slice()).unwrap();
-        assert_eq!(entry.bytes(), &[3u8; 50][..]);
-        drop(entry);
-        // Another size: the evicted entries' memory is freed, not reused.
-        let Lookup::Fill(mut other) = cache.lookup((0, 4), 60) else {
-            panic!()
-        };
-        assert!(other.take_buffer().is_none());
-        drop(other.complete(vec![4u8; 60].into_boxed_slice()).unwrap());
-        let stats = cache.stats();
-        assert_eq!((stats.evictions, stats.recycled), (3, 1));
+        let views = ticket.views();
+        assert_eq!(views.len(), 60);
+        ticket.abort(Error::Cancelled);
+        assert!(!cache.contains((2, 1)) && cache.is_empty());
         assert_eq!(cache.resident_bytes(), 60);
-        assert_eq!(cache.keys_lru_first(), vec![(0, 4)]);
+        // Room is not handed out twice: a row that needs those bytes is not admitted (nothing to evict).
+        assert!(matches!(cache.lookup((2, 2), 50), Lookup::Bypass));
+        drop(ticket);
+        assert_eq!((cache.resident_bytes(), cache.held_bytes()), (0, 60)); // its six blocks are pooled
+        drop(fill(&cache, (2, 2), 50)); // and serve the next row
+        assert_eq!(cache.stats().recycled, 1);
+    }
+
+    #[test]
+    fn evicted_blocks_serve_rows_of_other_sizes() {
+        // Rows of two sizes, both multiples of the block, evicting each other: memory is allocated only to grow the
+        // cache to its capacity (everything allocated is still held), every other row is served by evicted rows' blocks,
+        // nothing is freed, and what the cache holds never exceeds the budget.
+        let cache = HostCache::with_block(1000, 50);
+        let mut rng = 7u64;
+        for _ in 0..400u64 {
+            rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            let (segment, row) = ((rng >> 40) % 2, (rng >> 20) % 40);
+            let nbytes = if segment == 0 { 100 } else { 250 };
+            if let Lookup::Fill(mut ticket) = cache.lookup((segment as u32, row), nbytes) {
+                ticket.write(0, &vec![row as u8; nbytes as usize]);
+                assert_eq!(ticket.complete().unwrap().to_vec(), vec![row as u8; nbytes as usize]);
+            }
+            assert!(cache.held_bytes() <= cache.capacity() && cache.peak_held_bytes() <= cache.capacity());
+        }
+        let stats = cache.stats();
+        assert!(stats.evictions > 100, "{stats:?}");
+        assert_eq!(stats.allocated_bytes, cache.held_bytes(), "{stats:?}");
+        assert_eq!(stats.released_bytes, 0);
+        assert!(
+            stats.recycled_bytes > 20 * cache.capacity() && stats.recycled > 100,
+            "{stats:?}"
+        );
+    }
+
+    #[test]
+    fn pooled_blocks_count_against_the_budget() {
+        // Rows with tails: evicting a row of whole blocks for a row that is mostly tail leaves blocks in the pool; the
+        // pool is trimmed so that rows and pooled blocks together stay within the capacity.
+        let cache = HostCache::with_block(100, 40);
+        drop(fill(&cache, (0, 1), 80)); // two blocks
+        drop(fill(&cache, (0, 2), 30)); // a tail: evicts row 1, whose two blocks are pooled, then trimmed to fit
+        assert!(cache.held_bytes() <= cache.capacity());
+        assert_eq!(cache.resident_bytes(), 30);
+        assert!(cache.stats().released_bytes > 0);
+        drop(fill(&cache, (0, 3), 70)); // one block (pooled if left) and a tail
+        assert!(cache.held_bytes() <= cache.capacity() && cache.peak_held_bytes() <= cache.capacity());
+        assert_eq!(fill(&cache, (0, 4), 30).to_vec(), vec![4u8; 30]);
+    }
+
+    #[test]
+    fn hits_misses_and_evictions_do_not_depend_on_the_block_size() {
+        // The same requests through caches that differ only in their block size: the same outcomes, step by step.
+        let outcomes = |block: u64| {
+            let cache = HostCache::with_block(10_000, block);
+            let mut rng = 11u64;
+            let mut seen = Vec::new();
+            for _ in 0..2_000 {
+                rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                let segment = ((rng >> 50) % 3) as u32;
+                let row = (rng >> 20) % 30;
+                let nbytes = [700u64, 1_400, 333][segment as usize];
+                seen.push(match cache.lookup((segment, row), nbytes) {
+                    Lookup::Hit(_) => 'h',
+                    Lookup::Wait(_) => 'w',
+                    Lookup::Bypass => 'b',
+                    Lookup::Fill(mut ticket) => {
+                        ticket.write(0, &vec![row as u8; nbytes as usize]);
+                        ticket.complete().unwrap();
+                        'm'
+                    }
+                });
+                assert!(cache.held_bytes() <= cache.capacity());
+            }
+            let stats = cache.stats();
+            (
+                seen,
+                cache.keys_lru_first(),
+                (stats.hits, stats.misses, stats.evictions, stats.bypassed, stats.inserts),
+            )
+        };
+        let reference = outcomes(1 << 30); // every row one allocation (Phase 6A's memory)
+        for block in [1, 7, 100, 350, 700] {
+            assert_eq!(outcomes(block), reference, "block {block}");
+        }
     }
 
     #[test]
@@ -676,8 +1098,24 @@ mod tests {
     }
 
     #[test]
+    fn clearing_gives_rows_and_pooled_blocks_back() {
+        let cache = HostCache::with_block(100, 10);
+        drop(fill(&cache, (0, 1), 60));
+        drop(fill(&cache, (0, 2), 60)); // evicts row 1: its six blocks serve row 2
+        let lease = fill(&cache, (0, 3), 50); // evicts row 2: five of its blocks serve row 3, one is pooled
+        assert_eq!((cache.resident_bytes(), cache.held_bytes()), (50, 60));
+        assert_eq!(cache.stats().allocated_bytes, 60);
+        cache.clear();
+        // The leased row stays; everything else is gone, the pool included.
+        assert_eq!((cache.resident_bytes(), cache.held_bytes(), cache.len()), (50, 50, 1));
+        drop(lease);
+        cache.clear();
+        assert_eq!((cache.resident_bytes(), cache.held_bytes(), cache.len()), (0, 0, 0));
+    }
+
+    #[test]
     fn concurrent_lookups_load_each_row_once() {
-        let cache = HostCache::new(1 << 20);
+        let cache = HostCache::with_block(1 << 20, 64);
         let fills = Arc::new(AtomicUsize::new(0));
         std::thread::scope(|scope| {
             for _ in 0..8 {
@@ -686,15 +1124,14 @@ mod tests {
                 scope.spawn(move || {
                     for row in 0..200u64 {
                         match cache.lookup((0, row), 100) {
-                            Lookup::Fill(ticket) => {
+                            Lookup::Fill(mut ticket) => {
                                 fills.fetch_add(1, Ordering::SeqCst);
-                                ticket.complete(vec![row as u8; 100].into_boxed_slice()).unwrap();
+                                ticket.write(0, &[row as u8; 100]);
+                                ticket.complete().unwrap();
                             }
-                            Lookup::Hit(entry) => assert_eq!(entry.bytes()[0], row as u8),
-                            Lookup::Wait(pending) => {
-                                pending.on_done(move |outcome| assert_eq!(outcome.unwrap().bytes()[0], row as u8))
-                            }
-                            Lookup::Bypass => panic!("room for every row"),
+                            Lookup::Hit(entry) => assert_eq!(entry.to_vec()[0], row as u8),
+                            Lookup::Wait(_) => panic!("only prefetch loads are waited for"),
+                            Lookup::Bypass => {} // another thread was loading the row: read, not admitted
                         }
                     }
                 });
@@ -702,5 +1139,37 @@ mod tests {
         });
         assert_eq!(fills.load(Ordering::SeqCst), 200);
         assert_eq!(cache.resident_bytes(), 200 * 100);
+    }
+
+    #[test]
+    fn the_default_block_divides_every_row() {
+        assert_eq!(block_for([11_534_336, 5_767_168]), 5_767_168); // an expert's two rows of 11 and 5.5 MiB
+        assert_eq!(block_for([4 << 20, 8 << 20, 12 << 20]), 4 << 20);
+        assert_eq!(block_for([300_001, 12_392]), MIN_BLOCK_BYTES); // no row of a megabyte: tails all
+        assert_eq!(block_for([2_867_200, 1_433_600, 4_096]), 1_433_600); // a small row does not shrink the block
+        assert_eq!(block_for([3 << 20, 2 << 20]), MIN_BLOCK_BYTES); // no common megabyte: the rows get tails
+        assert_eq!(block_for([]), MIN_BLOCK_BYTES);
+    }
+
+    #[test]
+    fn spans_cover_ranges_across_parts() {
+        let mut memory = RowMemory {
+            parts: Vec::new(),
+            block: 4,
+            len: 10,
+        };
+        assert_eq!(memory.allocate_rest(), 10);
+        assert_eq!(memory.parts.iter().map(|p| p.len()).collect::<Vec<_>>(), vec![4, 4, 2]);
+        let data: Vec<u8> = (0..10).collect();
+        memory.write(0, &data[..3]);
+        memory.write(3, &data[3..]);
+        assert_eq!(memory.to_vec(), data);
+        let mut out = [0u8; 5];
+        memory.copy_to(3, &mut out);
+        assert_eq!(out, [3, 4, 5, 6, 7]);
+        assert_eq!(
+            spans(4, 10, 3, 6).collect::<Vec<_>>(),
+            vec![(0, 3, 1, 0), (1, 0, 4, 1), (2, 0, 1, 5)]
+        );
     }
 }

@@ -107,6 +107,15 @@ reads, 9% faster per decode token; with 12 GB of host cache (prefills not admitt
 token now is copying its 2.7 GB of experts to the GPU (PCIe 3.0 x8 here), then the transformer's Python and kernel
 launches.
 
+**Phase 6B — fewer bytes to the GPU, less host work per token** halves that decode time without changing a bit of what
+is computed. The host cache stops freeing and allocating on the critical path (its submit cost falls from about 100 ms
+to about 1 ms per token); the routed experts are stored encoded with NVIDIA's nvCOMP (rANS over the BF16 rows: 0.67 of
+the bytes), read and cached as bytes by the native core, sent to the GPU compressed and restored there exactly; a 1.9 GB
+device tier of fixed slots keeps the previous token's experts; and each layer's static decode pieces are replayed from
+CUDA Graphs. On the same benchmark, every step of every configuration equals the reference bit for bit in two runs, and
+the best configuration decodes a token in 409 ms (2.45 tokens/s) instead of 807, with prefills 36% faster. Phase 5C's
+bit planes decode exactly on the GPU too, but merging them costs more than the copy they save.
+
 ## Setup
 
 ```bash
@@ -119,6 +128,10 @@ uv sync                      # Python 3.11+, torch 2.14.1 (CUDA 13.0 wheels), tr
 `uv sync --no-group native` leaves it out: everything else runs on the Python storage backend as before, the native
 tests are skipped, and configurations with `backend: native` refuse to start. Build details, platforms and the fallback
 are in [`native/README.md`](native/README.md).
+
+`uv sync` also installs NVIDIA's nvCOMP (the default group `gpu`, `nvidia-libnvcomp-cu13`; NVIDIA's SDK license, not part
+of this repository), which encoded expert packs need (Phase 6B). `uv sync --no-group gpu` leaves it out: encoded packs
+cannot be read or written, and nothing else changes.
 
 ## Usage
 
@@ -168,6 +181,15 @@ uv run python benchmarks/moonlight_profile.py --run experiments/phase6a/my-run -
 uv run python benchmarks/native_report.py experiments/phase6a/my-run [--compare experiments/phase6a/other-run] \
     [--baseline experiments/phase6a/baseline-run1] [--io experiments/phase6a/io/io-cuda.json]
 uv run python benchmarks/reference_numerics.py --output experiments/phase6a/bf16/numerics.json   # §7: the reference's kernels
+# Phase 6B: experts encoded for the GPU, a device tier, decode graphs (configs/phase6b-gpu.yaml)
+uv run weightsift pack encoded-experts                                     # the encoded pack (nvCOMP rANS), under packs/
+uv run python benchmarks/gpu_codec_probe.py --output experiments/phase6b/my-probe.json   # 5C's formats and nvCOMP's codecs
+uv run python benchmarks/encoded_io.py --output experiments/phase6b/my-io.json          # one decode call's data paths
+uv run python benchmarks/moonlight_runtime.py --config configs/phase6b-gpu.yaml --output experiments/phase6b/my-run \
+    --reference-from experiments/phase6a/baseline-run1
+uv run python benchmarks/moonlight_profile.py --run experiments/phase6b/my-run --config configs/phase6b-gpu.yaml \
+    --configuration encoded-host-12g-freeze-dev1.9g-fast --prompts 7 0 3 5 --warm --output experiments/phase6b/my-run/profile-fast-warm.json
+uv run python benchmarks/gpu_report.py experiments/phase6b/my-run [--compare experiments/phase6b/other-run]
 ```
 
 `run.py` writes raw per-input records, validation records, the prompts, the
@@ -214,7 +236,10 @@ bytes repeat and exactly what an LRU host tier of each size would hit; `native_i
 against the Python path; `moonlight_runtime.py` and `moonlight_profile.py` take `configs/phase6a-native.yaml`, whose
 configurations choose the storage backend (`python` or `native`) and the native host cache, and `native_report.py`
 evaluates its gates (correctness, I/O parity, host-cache replay, end-to-end decode time). `reference_numerics.py`
-records how the reference's kernels round and whether a row's result depends on its batch.
+records how the reference's kernels round and whether a row's result depends on its batch. For Phase 6B,
+`weightsift pack encoded-experts` writes the encoded pack, `gpu_codec_probe.py` and `encoded_io.py` measure codecs and
+data paths per decode call, `moonlight_runtime.py` and `moonlight_profile.py` take `configs/phase6b-gpu.yaml` (encoded
+experts, device tiers, decode graphs, the fills option), and `gpu_report.py` evaluates its frozen gates.
 
 ## Layout
 
@@ -226,7 +251,9 @@ src/awpmi/      reference, paging, bounds, state, certificate, schedulers, execu
                 storage, streaming, materialization, models/moe and cli (Phase 3),
                 profiles, models/checkpoint and models/olmoe (Phase 4A),
                 streaming_reference, models/moonlight and models/streamed (Phase 4B),
-                oracle/experts (Phase 5A expert oracle), storage/native (Phase 6A: the native store)
+                oracle/experts (Phase 5A expert oracle), storage/native (Phase 6A: the native store),
+                storage/encoded, streaming/codec and streaming/nvcomp (Phase 6B: encoded experts decoded on the GPU),
+                models/decode_graphs (Phase 6B: CUDA Graphs of the decode step)
 native/         the Rust I/O core (Phase 6A): core (weightsift-io: plans, direct reads, host-RAM cache,
                 transfer jobs) and python (the PyO3 module weightsift_native); see native/README.md
 tests/          bound soundness, pages, certificate and ties, reference parity, fallback parity,
@@ -236,18 +263,18 @@ tests/          bound soundness, pages, certificate and ties, reference parity, 
                 composed segments and compact expert calls (Phase 4A), chunked expert calls,
                 the streaming reference, the Moonlight adapter and streamed parameters (Phase 4B),
                 the expert oracle (Phase 5A), the native store against the Python one (Phase 6A; the MoE
-                tests run through both backends)
+                tests run through both backends), encoded rows, the slot cache and decode graphs (Phase 6B)
 benchmarks/     run.py, report.py, prompts.py, oracle.py, refinement_oracle.py, refinement_report.py,
                 refinement_runtime.py, refinement_runtime_report.py, fallback_study.py,
                 suffix_runtime.py, suffix_report.py, storage_runtime.py, storage_report.py,
                 moe_runtime.py, moe_report.py, olmoe_runtime.py, olmoe_profile.py, olmoe_report.py,
                 moonlight_runtime.py, moonlight_reference_check.py, moonlight_profile.py, moonlight_report.py,
                 expert_oracle.py, expert_oracle_report.py, native_trace.py, native_io.py, native_report.py,
-                reference_numerics.py
+                reference_numerics.py, gpu_codec_probe.py, encoded_io.py, gpu_report.py
 configs/        smollm2-135m.yaml (pinned model and dataset revisions), phase1b-refinement.yaml,
                 phase1c-runtime.yaml, phase2-suffix.yaml, phase3-storage.yaml, phase3-moe.yaml,
                 phase4a-olmoe.yaml, phase4b-moonlight.yaml, phase5a-expert-oracle.yaml,
-                phase5a2-crown-oracle.yaml, phase5c-expert-deltas.yaml, phase6a-native.yaml
+                phase5a2-crown-oracle.yaml, phase5c-expert-deltas.yaml, phase6a-native.yaml, phase6b-gpu.yaml
 research/       crown_expert_oracle (Phase 5A2: the auto_LiRPA verifier, its own environment and lockfile),
                 expert_deltas (Phase 5C: exact shared bases, bit-plane deltas, their codecs, replay and progressive oracle)
 experiments/    raw results per phase and run

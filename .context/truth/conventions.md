@@ -105,6 +105,18 @@
   venv's interpreter, or let them finish first.
 - A native store holds its host cache until `close()`, which releases it at once; a driver that builds stores one after
   another closes each (Phase 6A's working-set gate caught a store that outlived its configuration).
+- Phase 6B (decision 0013): `python -m uv sync` also installs nvCOMP (group `gpu`; `--no-group gpu` skips it, and encoded
+  packs are then unavailable). The encoded pack is `weightsift pack encoded-experts` (configs/phase6b-gpu.yaml, about 3
+  minutes). Tests: `tests/test_encoded_storage.py`, `tests/test_decode_graphs.py` (CUDA), the slot cache in
+  `tests/test_streaming.py`; the MoE parity tests also run `encoded`, `encoded-cache` and `encoded-device-cache` (CUDA).
+  Pipeline: `moonlight_runtime.py --config configs/phase6b-gpu.yaml --output <run> --reference-from
+  experiments/phase6a/baseline-run1` (all stages in turn), one `moonlight_profile.py --run <run> --config
+  configs/phase6b-gpu.yaml --configuration <name> [--warm] [--trace]` per process, `benchmarks/gpu_report.py <run>
+  --compare <other run>`. A driver that runs configurations one after another releases each one's device memory before
+  the next starts (`gc.collect()` and `torch.cuda.empty_cache()`: a device tier is allocated whole when made). Background
+  benchmarks are waited for by their completion signal, never by polling (`AGENT-POLICY.md`).
+- Decode graphs and `fill_uninitialized_memory: false` are options of streamed configurations: the reference process
+  runs eagerly with PyTorch's defaults, and every option is checked against it in every digest.
 - Keep a benchmark's peak device memory well under the card, and record it (`peak_device_bytes`). Under
   Windows' WDDM, allocations beyond the GPU's memory do not fail: the driver pages device memory to the host
   and kernels slow down. Phase 5A's first development runs peaked at 8.03 GB on the 8 GB card and ran
@@ -186,7 +198,11 @@
   replaces (plans, reads, copies, counters: tested), keeps the Python one as the fallback, names no model, tensor or
   routing, and holds the GIL during no blocking work. The only `unsafe` type is `RawBuffer` (`native/core/src/buffer.rs`,
   caller-owned staging memory); every `unsafe` block that uses it states the invariant it relies on, and anything else
-  needs a demonstrated requirement. A cache budget counts every byte held, rows being loaded included.
+  needs a demonstrated requirement. A cache budget counts every byte held, rows being loaded included (and, since Phase
+  6B, free blocks kept for reuse).
+- Stored representations that are not the reference's bytes (Phase 6B's encoded rows) are restored exactly and audited
+  row by row against the reference's digests before a run uses them; codecs live in the streaming layer, never in the
+  native core or the storage contract, and a codec that does not detect corruption relies on the pack's hashes.
 - A structural diagnostic (real arithmetic, decision 0009's real tier) is never reported as a certified BF16 result. A set
   of weights "consistent with what is read" is built from a read view whose unread bits are poisoned, and its claimed
   optimum is checked against enumeration on toys and against attained points (witnesses) on real samples.

@@ -1,0 +1,758 @@
+{
+ "environment": {
+  "model": {
+   "repository": "moonshotai/Moonlight-16B-A3B",
+   "revision": "476b36a473d4467f94469414bef6cee75c9c8172"
+  },
+  "python": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+  "os": "Windows-11-10.0.26200-SP0",
+  "packages": {
+   "torch": "2.14.1+cu130",
+   "transformers": "5.18.0",
+   "safetensors": "0.8.0",
+   "numpy": "2.5.3",
+   "huggingface-hub": "1.33.0",
+   "tokenizers": "0.23.2",
+   "pyarrow": "25.0.1"
+  },
+  "cuda_version": "13.0",
+  "cudnn_version": 92400,
+  "gpu": "NVIDIA GeForce RTX 4060 Ti",
+  "numerics": {
+   "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+   "deterministic_algorithms": true,
+   "float32_matmul_precision": "highest",
+   "cuda_matmul_allow_tf32": false,
+   "cudnn_allow_tf32": false,
+   "cuda_matmul_allow_bf16_reduced_precision_reduction": false,
+   "cuda_matmul_allow_fp16_reduced_precision_reduction": false,
+   "cuda_matmul_allow_bf16_reduced_precision_reduction_split_k": true,
+   "cuda_matmul_allow_fp16_accumulation": false
+  },
+  "git_commit": "4a708697bd4db34eefc719d99ced445cbc0fc447",
+  "git_dirty": true,
+  "source_tree_sha256": "f69926fcc22a981ef849cafd83bb2a22ad721f4327650cde28cbaeb89cccb2bc",
+  "native_tree_sha256": "c1c9674815600c66a8c026bf58acf2b61d3b59294b859ae81f1e17407944c242",
+  "native_extension": "0.1.0",
+  "uv_lock_sha256": "e4c92f66a25bd57f46dec30f8540ea56363650127a30a77663945c403f85b1cf"
+ },
+ "nvcomp": {
+  "version": 5300,
+  "cudart_version": 13030
+ },
+ "encoding": {
+  "format": "weightsift-encoded-rows",
+  "version": 1,
+  "library": {
+   "nvcomp": {
+    "version": 5300,
+    "cudart_version": 13030
+   }
+  },
+  "codec": "ans",
+  "options": {
+   "data_type": "float16"
+  },
+  "chunk_bytes": 1048576,
+  "chunk_alignment": 16,
+  "row_alignment": 4096,
+  "block_bytes": 3891200,
+  "stored_ratio": 0.6747159090909091
+ },
+ "calls": [
+  [
+   "model.layers.1.mlp.experts",
+   [
+    "model.layers.1.mlp.experts.gate_up_proj",
+    "model.layers.1.mlp.experts.down_proj"
+   ],
+   [
+    4,
+    7,
+    9,
+    42,
+    50,
+    61
+   ]
+  ],
+  [
+   "model.layers.2.mlp.experts",
+   [
+    "model.layers.2.mlp.experts.gate_up_proj",
+    "model.layers.2.mlp.experts.down_proj"
+   ],
+   [
+    5,
+    10,
+    21,
+    41,
+    52,
+    53
+   ]
+  ],
+  [
+   "model.layers.24.mlp.experts",
+   [
+    "model.layers.24.mlp.experts.gate_up_proj",
+    "model.layers.24.mlp.experts.down_proj"
+   ],
+   [
+    2,
+    20,
+    21,
+    25,
+    56,
+    60
+   ]
+  ],
+  [
+   "model.layers.21.mlp.experts",
+   [
+    "model.layers.21.mlp.experts.gate_up_proj",
+    "model.layers.21.mlp.experts.down_proj"
+   ],
+   [
+    13,
+    26,
+    35,
+    36,
+    37,
+    43
+   ]
+  ],
+  [
+   "model.layers.9.mlp.experts",
+   [
+    "model.layers.9.mlp.experts.gate_up_proj",
+    "model.layers.9.mlp.experts.down_proj"
+   ],
+   [
+    18,
+    44,
+    48,
+    49,
+    51,
+    59
+   ]
+  ],
+  [
+   "model.layers.22.mlp.experts",
+   [
+    "model.layers.22.mlp.experts.gate_up_proj",
+    "model.layers.22.mlp.experts.down_proj"
+   ],
+   [
+    4,
+    15,
+    39,
+    44,
+    51,
+    57
+   ]
+  ],
+  [
+   "model.layers.15.mlp.experts",
+   [
+    "model.layers.15.mlp.experts.gate_up_proj",
+    "model.layers.15.mlp.experts.down_proj"
+   ],
+   [
+    11,
+    26,
+    30,
+    35,
+    43,
+    57
+   ]
+  ],
+  [
+   "model.layers.10.mlp.experts",
+   [
+    "model.layers.10.mlp.experts.gate_up_proj",
+    "model.layers.10.mlp.experts.down_proj"
+   ],
+   [
+    2,
+    3,
+    19,
+    20,
+    25,
+    28
+   ]
+  ],
+  [
+   "model.layers.1.mlp.experts",
+   [
+    "model.layers.1.mlp.experts.gate_up_proj",
+    "model.layers.1.mlp.experts.down_proj"
+   ],
+   [
+    5,
+    11,
+    15,
+    17,
+    62,
+    63
+   ]
+  ],
+  [
+   "model.layers.22.mlp.experts",
+   [
+    "model.layers.22.mlp.experts.gate_up_proj",
+    "model.layers.22.mlp.experts.down_proj"
+   ],
+   [
+    1,
+    5,
+    24,
+    37,
+    49,
+    62
+   ]
+  ],
+  [
+   "model.layers.23.mlp.experts",
+   [
+    "model.layers.23.mlp.experts.gate_up_proj",
+    "model.layers.23.mlp.experts.down_proj"
+   ],
+   [
+    16,
+    25,
+    26,
+    48,
+    61,
+    62
+   ]
+  ],
+  [
+   "model.layers.19.mlp.experts",
+   [
+    "model.layers.19.mlp.experts.gate_up_proj",
+    "model.layers.19.mlp.experts.down_proj"
+   ],
+   [
+    1,
+    27,
+    35,
+    37,
+    40,
+    45
+   ]
+  ],
+  [
+   "model.layers.12.mlp.experts",
+   [
+    "model.layers.12.mlp.experts.gate_up_proj",
+    "model.layers.12.mlp.experts.down_proj"
+   ],
+   [
+    12,
+    16,
+    19,
+    24,
+    28,
+    55
+   ]
+  ],
+  [
+   "model.layers.16.mlp.experts",
+   [
+    "model.layers.16.mlp.experts.gate_up_proj",
+    "model.layers.16.mlp.experts.down_proj"
+   ],
+   [
+    6,
+    13,
+    17,
+    18,
+    30,
+    51
+   ]
+  ],
+  [
+   "model.layers.12.mlp.experts",
+   [
+    "model.layers.12.mlp.experts.gate_up_proj",
+    "model.layers.12.mlp.experts.down_proj"
+   ],
+   [
+    1,
+    18,
+    36,
+    46,
+    55,
+    63
+   ]
+  ],
+  [
+   "model.layers.4.mlp.experts",
+   [
+    "model.layers.4.mlp.experts.gate_up_proj",
+    "model.layers.4.mlp.experts.down_proj"
+   ],
+   [
+    3,
+    13,
+    27,
+    32,
+    45,
+    50
+   ]
+  ],
+  [
+   "model.layers.18.mlp.experts",
+   [
+    "model.layers.18.mlp.experts.gate_up_proj",
+    "model.layers.18.mlp.experts.down_proj"
+   ],
+   [
+    4,
+    6,
+    8,
+    15,
+    37,
+    40
+   ]
+  ],
+  [
+   "model.layers.16.mlp.experts",
+   [
+    "model.layers.16.mlp.experts.gate_up_proj",
+    "model.layers.16.mlp.experts.down_proj"
+   ],
+   [
+    18,
+    26,
+    34,
+    49,
+    55,
+    62
+   ]
+  ],
+  [
+   "model.layers.14.mlp.experts",
+   [
+    "model.layers.14.mlp.experts.gate_up_proj",
+    "model.layers.14.mlp.experts.down_proj"
+   ],
+   [
+    10,
+    22,
+    43,
+    49,
+    54,
+    56
+   ]
+  ],
+  [
+   "model.layers.23.mlp.experts",
+   [
+    "model.layers.23.mlp.experts.gate_up_proj",
+    "model.layers.23.mlp.experts.down_proj"
+   ],
+   [
+    25,
+    30,
+    44,
+    57,
+    58,
+    63
+   ]
+  ],
+  [
+   "model.layers.7.mlp.experts",
+   [
+    "model.layers.7.mlp.experts.gate_up_proj",
+    "model.layers.7.mlp.experts.down_proj"
+   ],
+   [
+    5,
+    7,
+    20,
+    39,
+    45,
+    46
+   ]
+  ],
+  [
+   "model.layers.7.mlp.experts",
+   [
+    "model.layers.7.mlp.experts.gate_up_proj",
+    "model.layers.7.mlp.experts.down_proj"
+   ],
+   [
+    2,
+    10,
+    22,
+    28,
+    29,
+    36
+   ]
+  ],
+  [
+   "model.layers.25.mlp.experts",
+   [
+    "model.layers.25.mlp.experts.gate_up_proj",
+    "model.layers.25.mlp.experts.down_proj"
+   ],
+   [
+    0,
+    14,
+    34,
+    39,
+    52,
+    63
+   ]
+  ],
+  [
+   "model.layers.18.mlp.experts",
+   [
+    "model.layers.18.mlp.experts.gate_up_proj",
+    "model.layers.18.mlp.experts.down_proj"
+   ],
+   [
+    4,
+    9,
+    20,
+    32,
+    43,
+    56
+   ]
+  ],
+  [
+   "model.layers.5.mlp.experts",
+   [
+    "model.layers.5.mlp.experts.gate_up_proj",
+    "model.layers.5.mlp.experts.down_proj"
+   ],
+   [
+    13,
+    15,
+    23,
+    30,
+    32,
+    41
+   ]
+  ],
+  [
+   "model.layers.16.mlp.experts",
+   [
+    "model.layers.16.mlp.experts.gate_up_proj",
+    "model.layers.16.mlp.experts.down_proj"
+   ],
+   [
+    8,
+    22,
+    23,
+    27,
+    52,
+    62
+   ]
+  ],
+  [
+   "model.layers.11.mlp.experts",
+   [
+    "model.layers.11.mlp.experts.gate_up_proj",
+    "model.layers.11.mlp.experts.down_proj"
+   ],
+   [
+    1,
+    10,
+    17,
+    32,
+    36,
+    43
+   ]
+  ],
+  [
+   "model.layers.3.mlp.experts",
+   [
+    "model.layers.3.mlp.experts.gate_up_proj",
+    "model.layers.3.mlp.experts.down_proj"
+   ],
+   [
+    21,
+    28,
+    33,
+    38,
+    41,
+    48
+   ]
+  ],
+  [
+   "model.layers.22.mlp.experts",
+   [
+    "model.layers.22.mlp.experts.gate_up_proj",
+    "model.layers.22.mlp.experts.down_proj"
+   ],
+   [
+    0,
+    32,
+    44,
+    45,
+    58,
+    59
+   ]
+  ],
+  [
+   "model.layers.4.mlp.experts",
+   [
+    "model.layers.4.mlp.experts.gate_up_proj",
+    "model.layers.4.mlp.experts.down_proj"
+   ],
+   [
+    5,
+    18,
+    34,
+    41,
+    50,
+    62
+   ]
+  ],
+  [
+   "model.layers.16.mlp.experts",
+   [
+    "model.layers.16.mlp.experts.gate_up_proj",
+    "model.layers.16.mlp.experts.down_proj"
+   ],
+   [
+    25,
+    30,
+    33,
+    44,
+    45,
+    60
+   ]
+  ],
+  [
+   "model.layers.16.mlp.experts",
+   [
+    "model.layers.16.mlp.experts.gate_up_proj",
+    "model.layers.16.mlp.experts.down_proj"
+   ],
+   [
+    6,
+    27,
+    36,
+    37,
+    42,
+    54
+   ]
+  ],
+  [
+   "model.layers.16.mlp.experts",
+   [
+    "model.layers.16.mlp.experts.gate_up_proj",
+    "model.layers.16.mlp.experts.down_proj"
+   ],
+   [
+    7,
+    8,
+    24,
+    27,
+    41,
+    53
+   ]
+  ],
+  [
+   "model.layers.2.mlp.experts",
+   [
+    "model.layers.2.mlp.experts.gate_up_proj",
+    "model.layers.2.mlp.experts.down_proj"
+   ],
+   [
+    26,
+    31,
+    34,
+    41,
+    50,
+    56
+   ]
+  ],
+  [
+   "model.layers.8.mlp.experts",
+   [
+    "model.layers.8.mlp.experts.gate_up_proj",
+    "model.layers.8.mlp.experts.down_proj"
+   ],
+   [
+    16,
+    23,
+    32,
+    40,
+    56,
+    58
+   ]
+  ],
+  [
+   "model.layers.25.mlp.experts",
+   [
+    "model.layers.25.mlp.experts.gate_up_proj",
+    "model.layers.25.mlp.experts.down_proj"
+   ],
+   [
+    2,
+    24,
+    34,
+    49,
+    58,
+    63
+   ]
+  ],
+  [
+   "model.layers.2.mlp.experts",
+   [
+    "model.layers.2.mlp.experts.gate_up_proj",
+    "model.layers.2.mlp.experts.down_proj"
+   ],
+   [
+    7,
+    8,
+    21,
+    35,
+    41,
+    52
+   ]
+  ],
+  [
+   "model.layers.11.mlp.experts",
+   [
+    "model.layers.11.mlp.experts.gate_up_proj",
+    "model.layers.11.mlp.experts.down_proj"
+   ],
+   [
+    11,
+    35,
+    37,
+    49,
+    54,
+    59
+   ]
+  ],
+  [
+   "model.layers.22.mlp.experts",
+   [
+    "model.layers.22.mlp.experts.gate_up_proj",
+    "model.layers.22.mlp.experts.down_proj"
+   ],
+   [
+    5,
+    38,
+    39,
+    46,
+    47,
+    54
+   ]
+  ],
+  [
+   "model.layers.8.mlp.experts",
+   [
+    "model.layers.8.mlp.experts.gate_up_proj",
+    "model.layers.8.mlp.experts.down_proj"
+   ],
+   [
+    18,
+    32,
+    40,
+    47,
+    50,
+    54
+   ]
+  ]
+ ],
+ "results": [
+  {
+   "path": "bf16",
+   "warm": false,
+   "calls": 40,
+   "ms_mean": 39.495907531818375,
+   "ms_median": 35.32364999409765,
+   "ms_p95": 71.55100000090897,
+   "bf16_gb_s": 2.628348871750072,
+   "drive_bytes_per_call": 103858176.0,
+   "h2d_bytes_per_call": 103809024.0,
+   "host_cache_hits": null,
+   "host_cache_misses": null,
+   "decoder": null
+  },
+  {
+   "path": "bf16",
+   "warm": true,
+   "calls": 40,
+   "ms_mean": 29.335112508852035,
+   "ms_median": 24.672150029800832,
+   "ms_p95": 49.26200001500547,
+   "bf16_gb_s": 3.5387293629323917,
+   "drive_bytes_per_call": 0.0,
+   "h2d_bytes_per_call": 103809024.0,
+   "host_cache_hits": 480,
+   "host_cache_misses": 0,
+   "decoder": null
+  },
+  {
+   "path": "encoded-gpu",
+   "warm": false,
+   "calls": 40,
+   "ms_mean": 31.236355018336326,
+   "ms_median": 26.194349979050457,
+   "ms_p95": 76.72840007580817,
+   "bf16_gb_s": 3.3233398691704634,
+   "drive_bytes_per_call": 70041600.0,
+   "h2d_bytes_per_call": 70041600.0,
+   "host_cache_hits": null,
+   "host_cache_misses": null,
+   "decoder": {
+    "launches": 40,
+    "rows": 480,
+    "chunks": 4080,
+    "stored_bytes": 2801664000,
+    "decoded_bytes": 4152360960
+   }
+  },
+  {
+   "path": "encoded-gpu",
+   "warm": true,
+   "calls": 40,
+   "ms_mean": 21.635635005077347,
+   "ms_median": 17.020849976688623,
+   "ms_p95": 73.1118000112474,
+   "bf16_gb_s": 4.798057647748198,
+   "drive_bytes_per_call": 0.0,
+   "h2d_bytes_per_call": 70041600.0,
+   "host_cache_hits": 480,
+   "host_cache_misses": 0,
+   "decoder": {
+    "launches": 40,
+    "rows": 480,
+    "chunks": 4080,
+    "stored_bytes": 2801664000,
+    "decoded_bytes": 4152360960
+   }
+  },
+  {
+   "path": "5c-gpu",
+   "warm": true,
+   "calls": 6,
+   "ms_mean": 93.9183000397558,
+   "ms_median": 73.79545003641397,
+   "bf16_gb_s": 1.1053119994299028,
+   "stored_ratio": 0.6610394856745145,
+   "h2d_bytes_per_call": 68621863.83333333,
+   "drive_bytes_per_call": 68621863.83333333,
+   "note": "frames in host memory (a host cache's best case); drive bytes are the frames' had they been read"
+  },
+  {
+   "path": "5c-cpu",
+   "warm": true,
+   "calls": 6,
+   "ms_mean": 400.20201661779237,
+   "ms_median": 400.85259987972677,
+   "bf16_gb_s": 0.25939155648768614,
+   "stored_ratio": 0.6610394856745145,
+   "h2d_bytes_per_call": 103809024.0,
+   "drive_bytes_per_call": 68621863.83333333,
+   "note": "frames in host memory (a host cache's best case); drive bytes are the frames' had they been read"
+  }
+ ]
+}

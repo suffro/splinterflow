@@ -1,0 +1,383 @@
+{
+  "timings_ms": {
+    "verify_files": 78460.50529996864,
+    "index_audit": 76075.15539997257,
+    "encoded_audit": 148273.5409999732,
+    "load": 5775.124500039965,
+    "python-stream": 457040.5052001588,
+    "native-stream": 430120.8799001761,
+    "native-host-12g-freeze": 220912.9291998688,
+    "encoded-stream": 362528.9635001682,
+    "encoded-chunk-1": 187346.1611000821,
+    "encoded-host-tiny": 62508.555700071156,
+    "encoded-host-12g-freeze": 172757.70519999787,
+    "encoded-dev-tiny": 63154.98299989849,
+    "encoded-host-12g-freeze-dev1.9g": 148927.65790014528,
+    "encoded-host-12g-freeze-dev1.9g-fast": 143891.30169991404,
+    "configurations": 2254345.544700045
+  },
+  "configurations": {
+    "python-stream": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3233027072,
+      "host_staging_bytes": 134217728,
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": null,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "native-stream": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3233027072,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 0,
+      "freeze_prefill": false,
+      "native_slots": 4,
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": null,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "native-host-12g-freeze": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3233027072,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 12000000000,
+      "freeze_prefill": true,
+      "native_slots": 4,
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": null,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "encoded-stream": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3233027584,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 0,
+      "freeze_prefill": false,
+      "native_slots": 4,
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": null,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "encoded-chunk-1": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 17301504,
+      "device_bytes_at_start": 3233027584,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 0,
+      "freeze_prefill": false,
+      "native_slots": 4,
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": null,
+      "calls": 936,
+      "chunked_calls": 936
+    },
+    "encoded-host-tiny": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3233027584,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 34603008,
+      "freeze_prefill": false,
+      "native_slots": 4,
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": null,
+      "calls": 936,
+      "chunked_calls": 104
+    },
+    "encoded-host-12g-freeze": {
+      "cache_capacity_bytes": 0,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3233027584,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 12000000000,
+      "freeze_prefill": true,
+      "native_slots": 4,
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": null,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "encoded-dev-tiny": {
+      "cache_capacity_bytes": 50000000,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 3280049664,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 0,
+      "freeze_prefill": false,
+      "native_slots": 4,
+      "device_cache_slots": {
+        "3891200": 4,
+        "7782400": 4
+      },
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": 46694400,
+      "calls": 936,
+      "chunked_calls": 104
+    },
+    "encoded-host-12g-freeze-dev1.9g": {
+      "cache_capacity_bytes": 1900000000,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 5125019136,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 12000000000,
+      "freeze_prefill": true,
+      "native_slots": 4,
+      "device_cache_slots": {
+        "3891200": 162,
+        "7782400": 162
+      },
+      "fill_uninitialized_memory": true,
+      "peak_cache_resident_bytes": 1891123200,
+      "calls": 3744,
+      "chunked_calls": 416
+    },
+    "encoded-host-12g-freeze-dev1.9g-fast": {
+      "cache_capacity_bytes": 1900000000,
+      "cache_experts": 0,
+      "call_budget_bytes": 268435456,
+      "device_bytes_at_start": 5125019136,
+      "host_staging_bytes": 134217728,
+      "backend": "native",
+      "host_cache_bytes": 12000000000,
+      "freeze_prefill": true,
+      "native_slots": 4,
+      "device_cache_slots": {
+        "3891200": 162,
+        "7782400": 162
+      },
+      "fill_uninitialized_memory": false,
+      "peak_cache_resident_bytes": 1891123200,
+      "calls": 3744,
+      "chunked_calls": 416,
+      "decode_graphs": {
+        "captures": 54,
+        "replays": 6858,
+        "eager_steps": 16,
+        "memory_bytes": 67802624,
+        "capture_ms": 206.99919993057847
+      }
+    }
+  },
+  "memory": {
+    "start": {
+      "resident_bytes": 633520128,
+      "peak_resident_bytes": 633520128,
+      "private_bytes": 1194950656
+    },
+    "after_load": {
+      "resident_bytes": 1641193472,
+      "peak_resident_bytes": 2312335360,
+      "private_bytes": 5794783232
+    },
+    "peak": {
+      "resident_bytes": 3259072512,
+      "peak_resident_bytes": 15273459712,
+      "private_bytes": 7986610176
+    },
+    "phases": {
+      "python-stream": {
+        "prefill": {
+          "resident_bytes": 3319173120,
+          "private_bytes": 8439234560,
+          "host_commit_bytes": 4635066368,
+          "device_bytes": 3903150592
+        },
+        "decode": {
+          "resident_bytes": 3326197760,
+          "private_bytes": 8649928704,
+          "host_commit_bytes": 4510150656,
+          "device_bytes": 3379229184
+        }
+      },
+      "native-stream": {
+        "prefill": {
+          "resident_bytes": 3103301632,
+          "private_bytes": 8780042240,
+          "host_commit_bytes": 4382048256,
+          "device_bytes": 3903150592
+        },
+        "decode": {
+          "resident_bytes": 3105284096,
+          "private_bytes": 8780476416,
+          "host_commit_bytes": 4263211008,
+          "device_bytes": 3379229184
+        }
+      },
+      "native-host-12g-freeze": {
+        "prefill": {
+          "resident_bytes": 15118065664,
+          "private_bytes": 20638089216,
+          "host_commit_bytes": 16296984576,
+          "device_bytes": 3690363392
+        },
+        "decode": {
+          "resident_bytes": 15118065664,
+          "private_bytes": 20638089216,
+          "host_commit_bytes": 16296984576,
+          "device_bytes": 3387651584
+        }
+      },
+      "encoded-stream": {
+        "prefill": {
+          "resident_bytes": 3176206336,
+          "private_bytes": 9009307648,
+          "host_commit_bytes": 4423974912,
+          "device_bytes": 4020603392
+        },
+        "decode": {
+          "resident_bytes": 3183939584,
+          "private_bytes": 9017028608,
+          "host_commit_bytes": 4346671104,
+          "device_bytes": 3458224128
+        }
+      },
+      "encoded-chunk-1": {
+        "prefill": {
+          "resident_bytes": 3200647168,
+          "private_bytes": 7833059328,
+          "host_commit_bytes": 4538433536,
+          "device_bytes": 3305182208
+        },
+        "decode": {
+          "resident_bytes": 3203444736,
+          "private_bytes": 7757824000,
+          "host_commit_bytes": 4360437760,
+          "device_bytes": 3270863360
+        }
+      },
+      "encoded-host-tiny": {
+        "prefill": {
+          "resident_bytes": 3244478464,
+          "private_bytes": 8782725120,
+          "host_commit_bytes": 4529274880,
+          "device_bytes": 3712259584
+        },
+        "decode": {
+          "resident_bytes": 3244806144,
+          "private_bytes": 8783122432,
+          "host_commit_bytes": 4402171904,
+          "device_bytes": 3411466240
+        }
+      },
+      "encoded-host-12g-freeze": {
+        "prefill": {
+          "resident_bytes": 15236657152,
+          "private_bytes": 20823728128,
+          "host_commit_bytes": 16421806080,
+          "device_bytes": 3807816192
+        },
+        "decode": {
+          "resident_bytes": 15236591616,
+          "private_bytes": 20823597056,
+          "host_commit_bytes": 16421675008,
+          "device_bytes": 3458224128
+        }
+      },
+      "encoded-dev-tiny": {
+        "prefill": {
+          "resident_bytes": 3228602368,
+          "private_bytes": 8821747712,
+          "host_commit_bytes": 4489424896,
+          "device_bytes": 3759281664
+        },
+        "decode": {
+          "resident_bytes": 3228602368,
+          "private_bytes": 8821747712,
+          "host_commit_bytes": 4392562688,
+          "device_bytes": 3458488320
+        }
+      },
+      "encoded-host-12g-freeze-dev1.9g": {
+        "prefill": {
+          "resident_bytes": 15249104896,
+          "private_bytes": 22227054592,
+          "host_commit_bytes": 16438915072,
+          "device_bytes": 5698628096
+        },
+        "decode": {
+          "resident_bytes": 15249104896,
+          "private_bytes": 22227054592,
+          "host_commit_bytes": 16438915072,
+          "device_bytes": 5348327936
+        }
+      },
+      "encoded-host-12g-freeze-dev1.9g-fast": {
+        "prefill": {
+          "resident_bytes": 15269253120,
+          "private_bytes": 22339903488,
+          "host_commit_bytes": 16480460800,
+          "device_bytes": 5766653440
+        },
+        "decode": {
+          "resident_bytes": 15269122048,
+          "private_bytes": 22339772416,
+          "host_commit_bytes": 16480329728,
+          "device_bytes": 5431090176
+        }
+      }
+    }
+  },
+  "system": {
+    "start": {
+      "physical_available_bytes": 20433518592,
+      "system_cache_bytes": 2036723712,
+      "commit_total_bytes": 22980960256
+    },
+    "end": {
+      "physical_available_bytes": 18437779456,
+      "system_cache_bytes": 2024783872,
+      "commit_total_bytes": 29767225344
+    }
+  },
+  "gpu_total_bytes": 8585084928,
+  "gpu_budget_bytes": 6000000000,
+  "load": {
+    "loaded_bytes": 3130517760,
+    "tensors": 325
+  },
+  "non_expert_device_bytes": 3199472640,
+  "shared_experts_device_bytes": 899678208,
+  "host_staging_bytes": 134217728,
+  "expert_bytes_total": 28789702656,
+  "layer_bytes": 1107296256,
+  "expert_row_bytes": [
+    17301504
+  ],
+  "experts_implementation": "grouped_mm",
+  "attention_implementation": "sdpa",
+  "pinned_host_memory": {
+    "active_bytes.allocated": 8053798180,
+    "active_bytes.current": 536870912,
+    "active_bytes.freed": 7516927268,
+    "active_bytes.peak": 1073741836,
+    "allocated_bytes.allocated": 1073741848,
+    "allocated_bytes.current": 1073741836,
+    "allocated_bytes.freed": 12,
+    "allocated_bytes.peak": 1073741836
+  }
+}

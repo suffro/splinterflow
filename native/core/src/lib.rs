@@ -16,7 +16,7 @@ pub mod layout;
 pub mod plan;
 
 pub use buffer::RawBuffer;
-pub use cache::{CacheStats, HostCache};
+pub use cache::{block_for, CacheStats, HostCache, MIN_BLOCK_BYTES};
 pub use engine::{Delivered, Engine, EngineConfig, IoStats, Job, Op, Prefetch, Request, SegmentStats, SlotBuffers};
 pub use error::{Error, Result};
 pub use file::{AlignedBuffer, FileTable, DIRECT_ALIGNMENT};

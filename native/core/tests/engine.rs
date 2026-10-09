@@ -75,7 +75,13 @@ impl Fixture {
         FileTable::open(paths, direct).unwrap()
     }
 
+    /// An engine whose host cache holds rows in blocks of 40,000 bytes: a long row is seven blocks and a tail, the
+    /// other rows are tails alone, and host copies (chunks of 50,000 bytes) cross blocks.
     fn engine(&self, direct: bool, cache: u64, workers: usize) -> Engine {
+        self.engine_with_blocks(direct, cache, workers, 40_000)
+    }
+
+    fn engine_with_blocks(&self, direct: bool, cache: u64, workers: usize, block: u64) -> Engine {
         let config = EngineConfig {
             direct,
             plan: PlanConfig {
@@ -86,6 +92,7 @@ impl Fixture {
             max_read_bytes: 16 << 10,
             workers,
             host_cache_bytes: cache,
+            cache_block_bytes: block,
             direct_copy_bytes: 256 << 10,
             copy_chunk_bytes: 50_000,
         };
@@ -210,11 +217,11 @@ fn random_request(rng: &mut Lcg, fixture: &Fixture, segment: u32) -> Request {
 #[test]
 fn every_byte_equals_the_file_without_and_with_a_cache() {
     let fixture = Fixture::new("exact", 1);
-    for direct in [true, false] {
+    for (direct, block) in [(true, 40_000u64), (false, 40_000), (true, 4_096), (true, 0)] {
         for cache in [0u64, 200_000, 50 << 20] {
-            let engine = fixture.engine(direct, cache, 4);
+            let engine = fixture.engine_with_blocks(direct, cache, 4, block);
             let mut slots = Slots::new(3, 64 << 10);
-            let mut rng = Lcg(direct as u64 * 10 + cache);
+            let mut rng = Lcg(direct as u64 * 10 + cache + block);
             for _ in 0..40 {
                 let count = 1 + rng.below(3);
                 let requests: Vec<Request> = (0..count)
@@ -228,11 +235,12 @@ fn every_byte_equals_the_file_without_and_with_a_cache() {
                     assert_eq!(
                         output,
                         &expected(&fixture, request, output.len()),
-                        "direct={direct} cache={cache}"
+                        "direct={direct} cache={cache} block={block}"
                     );
                 }
                 if let Some(cache) = engine.cache() {
                     assert!(cache.resident_bytes() <= cache.capacity());
+                    assert!(cache.held_bytes() <= cache.capacity() && cache.peak_held_bytes() <= cache.capacity());
                 }
             }
             let stats = engine.stats();
@@ -310,10 +318,58 @@ fn small_caches_evict_and_never_exceed_their_budget() {
         let cache = engine.cache().unwrap();
         assert!(cache.resident_bytes() <= cache.capacity());
         assert!(cache.peak_resident_bytes() <= cache.capacity());
+        assert!(cache.peak_held_bytes() <= cache.capacity());
     }
     let stats = engine.cache_stats().unwrap();
     assert!(stats.evictions > 0 && stats.hits > 0, "{stats:?}");
     assert_eq!(stats.lookups, stats.hits + stats.waits + stats.misses);
+}
+
+#[test]
+fn evicted_rows_blocks_serve_rows_of_other_sizes() {
+    // Long rows (300,001 bytes) and composed rows (12,392) in blocks of 4,096 bytes, through a cache that holds about
+    // three long rows: every byte exact, the same hits and misses as with one allocation per row (Phase 6A's memory),
+    // nothing allocated once the cache has filled but the rows' tails, and never more held than the capacity.
+    let fixture = Fixture::new("blocks", 15);
+    let run = |block: u64| {
+        let engine = fixture.engine_with_blocks(true, 1_000_000, 4, block);
+        let mut slots = Slots::new(3, 64 << 10);
+        let mut rng = Lcg(21);
+        let mut allocated = Vec::new();
+        for _ in 0..80 {
+            let segment = [1u32, 2][rng.below(2) as usize];
+            let request = random_request(&mut rng, &fixture, segment);
+            let output = transfer(&engine, std::slice::from_ref(&request), &mut slots, true)
+                .unwrap()
+                .remove(0);
+            assert_eq!(output, expected(&fixture, &request, output.len()), "block {block}");
+            let cache = engine.cache().unwrap();
+            assert!(cache.held_bytes() <= cache.capacity() && cache.peak_held_bytes() <= cache.capacity());
+            allocated.push(cache.stats().allocated_bytes);
+        }
+        (
+            engine.cache_stats().unwrap(),
+            engine.cache().unwrap().keys_lru_first(),
+            allocated,
+        )
+    };
+    let (whole, order, _) = run(1 << 30);
+    let (stats, blocks_order, allocated) = run(4_096);
+    let outcome =
+        |s: &weightsift_io::CacheStats| (s.lookups, s.hits, s.waits, s.misses, s.inserts, s.evictions, s.bypassed);
+    assert_eq!(outcome(&stats), outcome(&whole));
+    assert_eq!(blocks_order, order);
+    // Evicted rows' blocks served many times the capacity; what was allocated is about the capacity (to fill the cache)
+    // and the admitted rows' tails (under 4,096 bytes each); after the cache filled, about the tails alone.
+    let capacity = 1_000_000;
+    assert!(stats.evictions > 20 && stats.recycled_bytes > 5 * capacity, "{stats:?}");
+    assert!(stats.allocated_bytes < capacity + 4_096 * stats.inserts, "{stats:?}");
+    let half = allocated.len() / 2;
+    assert!(
+        allocated[allocated.len() - 1] - allocated[half] < 4_096 * stats.inserts,
+        "{stats:?}"
+    );
+    assert!(whole.allocated_bytes > 5 * stats.allocated_bytes, "{whole:?} {stats:?}");
 }
 
 #[test]
@@ -353,7 +409,9 @@ fn a_miss_never_evicts_a_hit_of_its_own_job() {
 }
 
 #[test]
-fn concurrent_jobs_load_each_row_once() {
+fn concurrent_jobs_admit_each_row_once_and_never_wait_for_each_other() {
+    // Jobs that waited for each other's loads could each hold the slots the other's loads need (an occasional hang of
+    // this test, decision 0013): a job reads a row another job is loading, and each row is still admitted once.
     let fixture = Arc::new(Fixture::new("concurrent", 4));
     let engine = Arc::new(fixture.engine(true, 64 << 20, 8));
     let rows = fixture.segments[2].rows;
@@ -374,10 +432,12 @@ fn concurrent_jobs_load_each_row_once() {
         }
     });
     let stats = engine.cache_stats().unwrap();
-    // Room for every row: each row was loaded once at most, every other lookup was a hit or a wait.
+    // Room for every row: each row was admitted once at most; a lookup was a hit, or a miss (read, and admitted unless
+    // another job was loading the row); nothing waited (no prefetch).
     assert!(stats.inserts <= rows, "{stats:?}");
-    assert_eq!(stats.evictions, 0);
-    assert_eq!(stats.aborted_fills, 0);
+    assert_eq!((stats.evictions, stats.aborted_fills, stats.waits), (0, 0, 0));
+    assert_eq!(stats.lookups, stats.hits + stats.misses);
+    assert_eq!(stats.misses, stats.inserts + stats.bypassed);
     assert_eq!(engine.stats().fallback_rows, 0);
 }
 
@@ -429,7 +489,7 @@ fn cancelled_and_closed_jobs_stop_cleanly() {
         Some(Error::Closed)
     );
     let cache = engine.cache().unwrap();
-    assert_eq!((cache.resident_bytes(), cache.len()), (0, 0));
+    assert_eq!((cache.resident_bytes(), cache.held_bytes(), cache.len()), (0, 0, 0));
 }
 
 #[test]

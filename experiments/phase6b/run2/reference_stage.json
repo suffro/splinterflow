@@ -1,0 +1,116 @@
+{
+  "timings_ms": {
+    "load": 6089.724000077695,
+    "resident_check": 581032.5121001806,
+    "streamed": 4448634.665800026
+  },
+  "memory": {
+    "start": {
+      "resident_bytes": 631898112,
+      "peak_resident_bytes": 631898112,
+      "private_bytes": 1193820160
+    },
+    "after_load": {
+      "resident_bytes": 823386112,
+      "peak_resident_bytes": 2832162816,
+      "private_bytes": 4979322880
+    },
+    "peak": {
+      "resident_bytes": 1932058624,
+      "peak_resident_bytes": 2946822144,
+      "private_bytes": 10556096512
+    },
+    "phases": {
+      "prefill": {
+        "resident_bytes": 2220388352,
+        "private_bytes": 10857095168,
+        "host_commit_bytes": 3273793536
+      },
+      "decode": {
+        "resident_bytes": 2217340928,
+        "private_bytes": 10850766848,
+        "host_commit_bytes": 3269562368
+      }
+    }
+  },
+  "system": {
+    "start": {
+      "physical_available_bytes": 18231377920,
+      "system_cache_bytes": 15414235136,
+      "commit_total_bytes": 22690607104
+    },
+    "end": {
+      "physical_available_bytes": 17078657024,
+      "system_cache_bytes": 17591660544,
+      "commit_total_bytes": 32374603776
+    }
+  },
+  "load": {
+    "load_seconds": 3.758804199984297,
+    "non_expert_tensors": 352,
+    "non_expert_checkpoint_bytes": 3130521216,
+    "unexpected_keys": [
+      "model.layers.0.self_attn.rotary_emb.inv_freq",
+      "model.layers.1.self_attn.rotary_emb.inv_freq",
+      "model.layers.10.self_attn.rotary_emb.inv_freq",
+      "model.layers.11.self_attn.rotary_emb.inv_freq",
+      "model.layers.12.self_attn.rotary_emb.inv_freq",
+      "model.layers.13.self_attn.rotary_emb.inv_freq",
+      "model.layers.14.self_attn.rotary_emb.inv_freq",
+      "model.layers.15.self_attn.rotary_emb.inv_freq",
+      "model.layers.16.self_attn.rotary_emb.inv_freq",
+      "model.layers.17.self_attn.rotary_emb.inv_freq",
+      "model.layers.18.self_attn.rotary_emb.inv_freq",
+      "model.layers.19.self_attn.rotary_emb.inv_freq",
+      "model.layers.2.self_attn.rotary_emb.inv_freq",
+      "model.layers.20.self_attn.rotary_emb.inv_freq",
+      "model.layers.21.self_attn.rotary_emb.inv_freq",
+      "model.layers.22.self_attn.rotary_emb.inv_freq",
+      "model.layers.23.self_attn.rotary_emb.inv_freq",
+      "model.layers.24.self_attn.rotary_emb.inv_freq",
+      "model.layers.25.self_attn.rotary_emb.inv_freq",
+      "model.layers.26.self_attn.rotary_emb.inv_freq",
+      "model.layers.3.self_attn.rotary_emb.inv_freq",
+      "model.layers.4.self_attn.rotary_emb.inv_freq",
+      "model.layers.5.self_attn.rotary_emb.inv_freq",
+      "model.layers.6.self_attn.rotary_emb.inv_freq",
+      "model.layers.7.self_attn.rotary_emb.inv_freq",
+      "model.layers.8.self_attn.rotary_emb.inv_freq",
+      "model.layers.9.self_attn.rotary_emb.inv_freq"
+    ],
+    "experts_modules": 26,
+    "expert_checkpoint_tensors": 4992,
+    "experts_implementation": "grouped_mm",
+    "attention_implementation": "sdpa"
+  },
+  "non_expert_device_bytes": 3210744832,
+  "resident_check": {
+    "prompts": 2,
+    "peak_device_bytes": 6204448256,
+    "layer_loads": 451,
+    "loaded_bytes": 499390611456,
+    "load_seconds": 477.06360770226456,
+    "peak_expert_device_bytes": 2214592512
+  },
+  "streamed": {
+    "prompts": 16,
+    "peak_device_bytes": 5147472384,
+    "layer_loads": 3744,
+    "loaded_bytes": 4145717182464,
+    "load_seconds": 4097.772043902194,
+    "peak_expert_device_bytes": 2214592512
+  },
+  "residency_checked_steps": 18,
+  "profile": {
+    "kind": "bf16_reference",
+    "weight_dtype": "BF16",
+    "compute_dtype": "bfloat16",
+    "experts_implementation": "grouped_mm",
+    "attention_implementation": "sdpa",
+    "numerics": "awpmi.runtime.configure_reproducible_numerics",
+    "quantization": {}
+  },
+  "experts_implementation": "grouped_mm",
+  "attention_implementation": "sdpa",
+  "expert_layers": 26
+}

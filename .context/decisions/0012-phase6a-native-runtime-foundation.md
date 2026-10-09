@@ -11,7 +11,7 @@ replay of the routing through a cache found that caching pays only above one dec
 2.6 GB): a host-RAM tier, not the GPU, which has no room. Phases 5A, 5A2 and 5C closed expert AWPMI on BF16 Moonlight
 and pointed to this engineering path (decisions 0009–0011).
 
-The user's Phase 6A brief (2026-10-08, `state/phase_6A.md`):
+The user's Phase 6A brief (2026-10-08; committed in 94374cd, since replaced by the Phase 6B brief):
 
 - Begin moving Weightsift's performance-critical runtime infrastructure from Python to Rust (I/O, caching, prefetching,
   scheduling), keeping the Python research layer and the PyTorch/CUDA execution. 6B (C++/CUDA execution, fused

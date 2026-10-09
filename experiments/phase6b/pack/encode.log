@@ -1,0 +1,189 @@
+measured model.layers.1.mlp.experts.down_proj
+measured model.layers.1.mlp.experts.gate_up_proj
+measured model.layers.10.mlp.experts.down_proj
+measured model.layers.10.mlp.experts.gate_up_proj
+measured model.layers.11.mlp.experts.down_proj
+measured model.layers.11.mlp.experts.gate_up_proj
+measured model.layers.12.mlp.experts.down_proj
+measured model.layers.12.mlp.experts.gate_up_proj
+measured model.layers.13.mlp.experts.down_proj
+measured model.layers.13.mlp.experts.gate_up_proj
+measured model.layers.14.mlp.experts.down_proj
+measured model.layers.14.mlp.experts.gate_up_proj
+measured model.layers.15.mlp.experts.down_proj
+measured model.layers.15.mlp.experts.gate_up_proj
+measured model.layers.16.mlp.experts.down_proj
+measured model.layers.16.mlp.experts.gate_up_proj
+measured model.layers.17.mlp.experts.down_proj
+measured model.layers.17.mlp.experts.gate_up_proj
+measured model.layers.18.mlp.experts.down_proj
+measured model.layers.18.mlp.experts.gate_up_proj
+measured model.layers.19.mlp.experts.down_proj
+measured model.layers.19.mlp.experts.gate_up_proj
+measured model.layers.2.mlp.experts.down_proj
+measured model.layers.2.mlp.experts.gate_up_proj
+measured model.layers.20.mlp.experts.down_proj
+measured model.layers.20.mlp.experts.gate_up_proj
+measured model.layers.21.mlp.experts.down_proj
+measured model.layers.21.mlp.experts.gate_up_proj
+measured model.layers.22.mlp.experts.down_proj
+measured model.layers.22.mlp.experts.gate_up_proj
+measured model.layers.23.mlp.experts.down_proj
+measured model.layers.23.mlp.experts.gate_up_proj
+measured model.layers.24.mlp.experts.down_proj
+measured model.layers.24.mlp.experts.gate_up_proj
+measured model.layers.25.mlp.experts.down_proj
+measured model.layers.25.mlp.experts.gate_up_proj
+measured model.layers.26.mlp.experts.down_proj
+measured model.layers.26.mlp.experts.gate_up_proj
+measured model.layers.3.mlp.experts.down_proj
+measured model.layers.3.mlp.experts.gate_up_proj
+measured model.layers.4.mlp.experts.down_proj
+measured model.layers.4.mlp.experts.gate_up_proj
+measured model.layers.5.mlp.experts.down_proj
+measured model.layers.5.mlp.experts.gate_up_proj
+measured model.layers.6.mlp.experts.down_proj
+measured model.layers.6.mlp.experts.gate_up_proj
+measured model.layers.7.mlp.experts.down_proj
+measured model.layers.7.mlp.experts.gate_up_proj
+measured model.layers.8.mlp.experts.down_proj
+measured model.layers.8.mlp.experts.gate_up_proj
+measured model.layers.9.mlp.experts.down_proj
+measured model.layers.9.mlp.experts.gate_up_proj
+wrote rows-000.bin (model.layers.1.mlp.experts)
+wrote rows-001.bin (model.layers.10.mlp.experts)
+wrote rows-002.bin (model.layers.11.mlp.experts)
+wrote rows-003.bin (model.layers.12.mlp.experts)
+wrote rows-004.bin (model.layers.13.mlp.experts)
+wrote rows-005.bin (model.layers.14.mlp.experts)
+wrote rows-006.bin (model.layers.15.mlp.experts)
+wrote rows-007.bin (model.layers.16.mlp.experts)
+wrote rows-008.bin (model.layers.17.mlp.experts)
+wrote rows-009.bin (model.layers.18.mlp.experts)
+wrote rows-010.bin (model.layers.19.mlp.experts)
+wrote rows-011.bin (model.layers.2.mlp.experts)
+wrote rows-012.bin (model.layers.20.mlp.experts)
+wrote rows-013.bin (model.layers.21.mlp.experts)
+wrote rows-014.bin (model.layers.22.mlp.experts)
+wrote rows-015.bin (model.layers.23.mlp.experts)
+wrote rows-016.bin (model.layers.24.mlp.experts)
+wrote rows-017.bin (model.layers.25.mlp.experts)
+wrote rows-018.bin (model.layers.26.mlp.experts)
+wrote rows-019.bin (model.layers.3.mlp.experts)
+wrote rows-020.bin (model.layers.4.mlp.experts)
+wrote rows-021.bin (model.layers.5.mlp.experts)
+wrote rows-022.bin (model.layers.6.mlp.experts)
+wrote rows-023.bin (model.layers.7.mlp.experts)
+wrote rows-024.bin (model.layers.8.mlp.experts)
+wrote rows-025.bin (model.layers.9.mlp.experts)
+{
+  "kind": "moe-experts",
+  "files": {
+    "rows-000": {
+      "path": "rows-000.bin",
+      "bytes": 747110400
+    },
+    "rows-001": {
+      "path": "rows-001.bin",
+      "bytes": 747110400
+    },
+    "rows-002": {
+      "path": "rows-002.bin",
+      "bytes": 747110400
+    },
+    "rows-003": {
+      "path": "rows-003.bin",
+      "bytes": 747110400
+    },
+    "rows-004": {
+      "path": "rows-004.bin",
+      "bytes": 747110400
+    },
+    "rows-005": {
+      "path": "rows-005.bin",
+      "bytes": 747110400
+    },
+    "rows-006": {
+      "path": "rows-006.bin",
+      "bytes": 747110400
+    },
+    "rows-007": {
+      "path": "rows-007.bin",
+      "bytes": 747110400
+    },
+    "rows-008": {
+      "path": "rows-008.bin",
+      "bytes": 747110400
+    },
+    "rows-009": {
+      "path": "rows-009.bin",
+      "bytes": 747110400
+    },
+    "rows-010": {
+      "path": "rows-010.bin",
+      "bytes": 747110400
+    },
+    "rows-011": {
+      "path": "rows-011.bin",
+      "bytes": 747110400
+    },
+    "rows-012": {
+      "path": "rows-012.bin",
+      "bytes": 747110400
+    },
+    "rows-013": {
+      "path": "rows-013.bin",
+      "bytes": 747110400
+    },
+    "rows-014": {
+      "path": "rows-014.bin",
+      "bytes": 747110400
+    },
+    "rows-015": {
+      "path": "rows-015.bin",
+      "bytes": 747110400
+    },
+    "rows-016": {
+      "path": "rows-016.bin",
+      "bytes": 747110400
+    },
+    "rows-017": {
+      "path": "rows-017.bin",
+      "bytes": 747110400
+    },
+    "rows-018": {
+      "path": "rows-018.bin",
+      "bytes": 747110400
+    },
+    "rows-019": {
+      "path": "rows-019.bin",
+      "bytes": 747110400
+    },
+    "rows-020": {
+      "path": "rows-020.bin",
+      "bytes": 747110400
+    },
+    "rows-021": {
+      "path": "rows-021.bin",
+      "bytes": 747110400
+    },
+    "rows-022": {
+      "path": "rows-022.bin",
+      "bytes": 747110400
+    },
+    "rows-023": {
+      "path": "rows-023.bin",
+      "bytes": 747110400
+    },
+    "rows-024": {
+      "path": "rows-024.bin",
+      "bytes": 747110400
+    },
+    "rows-025": {
+      "path": "rows-025.bin",
+      "bytes": 747110400
+    }
+  },
+  "segments": 52,
+  "bytes": 19424870400
+}

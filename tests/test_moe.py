@@ -6,13 +6,11 @@ import pytest
 import torch
 import transformers
 
-from awpmi.materialization.backend import MaterializationBackend
 from awpmi.materialization.weights import ExpertStore, WeightStore
 from awpmi.models.moe import RoutingRecord, StreamedExperts, find_expert_modules, groups_from_pack, write_expert_pack
 from awpmi.storage.cache import HotnessPolicy, LRUPolicy, PageCache
 from awpmi.storage.pack import SourceFile, open_pack
-from awpmi.streaming.streamer import PageStreamer
-from tests.conftest import BACKENDS, DEVICES, page_store
+from tests.conftest import BACKENDS, DEVICES, materialization_backend
 
 COMMON = dict(vocab_size=128, hidden_size=64, num_hidden_layers=2, num_attention_heads=4, num_key_value_heads=2, max_position_embeddings=64)
 # Architecture fixtures only: the adapter itself knows none of these names.
@@ -59,7 +57,7 @@ def greedy_logits(model, input_ids: torch.Tensor, steps: int) -> list[torch.Tens
 
 
 def expert_store(pack, device: str, cache: PageCache | None = None, backend: str = "python") -> ExpertStore:
-    backend = MaterializationBackend(page_store(pack, backend, direct=True), device, PageStreamer(device), cache)
+    backend = materialization_backend(pack, backend, device, cache, direct=True)
     return ExpertStore(WeightStore(backend), groups_from_pack(pack))
 
 

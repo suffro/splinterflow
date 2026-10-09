@@ -237,6 +237,41 @@ def test_the_host_cache_serves_exact_bytes_under_any_budget(composed, device, bu
         streamer.close()
 
 
+def test_the_cache_block_size_changes_no_byte_and_no_cache_decision(composed):  # noqa: F811
+    """Phase 6B (decision 0013): the host cache holds rows in blocks that evicted rows hand to the next ones, whatever their
+    sizes. With blocks smaller than a row the same requests give the same bytes, hits, misses, evictions and cached rows as
+    one allocation per row (Phase 6A's memory), and everything the cache holds, its pool of blocks included, stays within
+    its budget."""
+    segment, paths, expected = composed  # rows of 12,388 bytes
+    outcomes = {}
+    for block in (1 << 30, 4096, 1000):  # one allocation per row; three blocks and a tail; twelve blocks and a tail
+        store = NativePageStore(
+            paths, {segment.name: segment}, direct=True, max_extent_bytes=16384, host_cache_bytes=5 * segment.row_bytes + 77,
+            cache_block_bytes=block,
+        )
+        streamer = PageStreamer("cpu", slot_bytes=32 << 10, native_slots=3)
+        backend = MaterializationBackend(store, "cpu", streamer)
+        generator = torch.Generator().manual_seed(7)
+        try:
+            for step in range(30):
+                rows = random_rows(segment.rows, generator, [0.1, 0.3, 0.7][step % 3])
+                assert torch.equal(backend.materialize(segment.name, rows), expected[rows])
+                cache = store.cache_stats()
+                assert cache["held_bytes"] <= cache["capacity_bytes"] and cache["peak_held_bytes"] <= cache["capacity_bytes"]
+            cache = store.cache_stats()
+            assert cache["block_bytes"] == block
+            outcomes[block] = (
+                {k: cache[k] for k in ("lookups", "hits", "waits", "misses", "inserts", "evictions", "bypassed")}, store.cached_rows(),
+            )
+            if block < segment.row_bytes:
+                assert cache["recycled_bytes"] > 0 and cache["allocated_bytes"] < cache["insert_bytes"]
+        finally:
+            store.close()
+            streamer.close()
+    assert outcomes[4096] == outcomes[1 << 30] == outcomes[1000]
+    assert outcomes[1 << 30][0]["evictions"] > 10
+
+
 @pytest.mark.parametrize("device", DEVICES)
 def test_several_requests_in_one_transfer(checkpoint, device):  # noqa: F811
     path, tensors = checkpoint

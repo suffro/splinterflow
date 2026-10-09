@@ -39,6 +39,7 @@ from __future__ import annotations
 import argparse
 import gc
 import json
+import os
 import statistics
 import sys
 import time
@@ -50,7 +51,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "benchmarks"))
 
-from moonlight_runtime import DTYPES, NUMERICS_FLAGS, load_adapter  # noqa: E402  (configures the numerics first)
+from moonlight_runtime import DTYPES, NUMERICS_FLAGS, device_cache, load_adapter  # noqa: E402  (configures the numerics first)
 
 import torch  # noqa: E402
 from torch.profiler import ProfilerActivity, profile, record_function  # noqa: E402
@@ -60,12 +61,13 @@ import awpmi.models.moe as moe_module  # noqa: E402
 import awpmi.storage.cache as cache_module  # noqa: E402
 import awpmi.storage.native as native_module  # noqa: E402
 import awpmi.storage.store as store_module  # noqa: E402
+import awpmi.streaming.codec as codec_module  # noqa: E402
 import awpmi.streaming.streamer as streamer_module  # noqa: E402
 from awpmi.materialization.backend import MaterializationBackend  # noqa: E402
 from awpmi.materialization.weights import ExpertStore, WeightStore  # noqa: E402
 from awpmi.models.checkpoint import checkpoint_sources, load_model_without_experts  # noqa: E402
+from awpmi.models.decode_graphs import DecodeGraphs  # noqa: E402
 from awpmi.models.moe import StreamedExperts, groups_from_pack  # noqa: E402
-from awpmi.storage.cache import POLICIES, PageCache  # noqa: E402
 from awpmi.storage.fileio import process_memory  # noqa: E402
 from awpmi.storage.pack import open_pack  # noqa: E402
 from awpmi.streaming.streamer import PageStreamer  # noqa: E402
@@ -127,24 +129,31 @@ def instrument(clock: Clock) -> None:
     backend_module.PageCache.get_many = clock.wrap("cache", backend_module.PageCache.get_many)
     backend_module.MaterializationBackend._cache_copy = clock.wrap("admit", backend_module.MaterializationBackend._cache_copy)
     cache_module.PageCache.put = clock.wrap("admit", cache_module.PageCache.put)
+    cache_module.SlotCache.get_many = clock.wrap("cache", cache_module.SlotCache.get_many)  # Phase 6B: a device cache in slots
+    cache_module.SlotCache.put = clock.wrap("admit", cache_module.SlotCache.put)
     ExpertStore.assemble = clock.wrap("assemble", ExpertStore.assemble)
     # The native path (Phase 6A): submit plans and looks the cache up in the core; Python then waits for pieces.
     native_module.NativeTransfer.__init__ = clock.wrap("plan", native_module.NativeTransfer.__init__)
     native_module.NativeTransfer.__iter__ = clock.wrap_generator("io", native_module.NativeTransfer.__iter__)
     native_module.NativeTransfer.close = clock.wrap("io", native_module.NativeTransfer.close)
+    # Phase 6B (decision 0013): building and launching the GPU decoding of encoded rows (host time; the kernels' device
+    # time is in the trace).
+    codec_module.RowDecoder.decode = clock.wrap("decode", codec_module.RowDecoder.decode)
 
 
-def scopes(model, adapter, experts: list[str]) -> list:
-    """record_function scopes around the modules whose device time the trace attributes."""
+def scopes(model, adapter, experts: list[str], graphed: bool = False) -> list:
+    """record_function scopes around the modules whose device time the trace attributes (with decode graphs, only the
+    modules that still run eagerly: the routed experts and the LM head; the graphed ones replay outside any scope)."""
     targets = {"lm_head": model.lm_head}
     for name, module in model.named_modules():
-        if name.endswith(".self_attn"):
+        if name.endswith(".self_attn") and not graphed:
             targets[name] = module
     for name in experts:
         head = name[: -len(adapter.EXPERTS_SUFFIX)]
         targets[name] = model.get_submodule(name)
-        targets[head + adapter.ROUTER_SUFFIX] = model.get_submodule(head + adapter.ROUTER_SUFFIX)
-        targets[head + adapter.SHARED_SUFFIX] = model.get_submodule(head + adapter.SHARED_SUFFIX)
+        if not graphed:
+            targets[head + adapter.ROUTER_SUFFIX] = model.get_submodule(head + adapter.ROUTER_SUFFIX)
+            targets[head + adapter.SHARED_SUFFIX] = model.get_submodule(head + adapter.SHARED_SUFFIX)
 
     def kind(name: str) -> str:
         if name == "lm_head":
@@ -201,14 +210,19 @@ def summarize_trace(prof, wall_ms: float) -> dict:
     scopes_ms: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
     by_name: dict[str, list] = defaultdict(lambda: [0, 0.0])  # kernel name: launches, device ms (Phase 6A's kernel inventory)
     annotations, activities = [], []
-    launches = 0
+    launches = graph_launches = device_kernels = 0
     launch_cpu_ms = 0.0
     for event in prof.events():
         if event.device_type != torch.autograd.DeviceType.CUDA:
             if event.name in ("cudaLaunchKernel", "cudaLaunchKernelExC", "cuLaunchKernel", "cudaLaunchKernelEx"):
                 launches += 1
                 launch_cpu_ms += event.self_cpu_time_total / 1e3
+            elif event.name in ("cudaGraphLaunch", "cuGraphLaunch"):  # Phase 6B4: one host call, many kernels
+                graph_launches += 1
+                launch_cpu_ms += event.self_cpu_time_total / 1e3
             continue
+        if not event.name.startswith("scope:") and "memcpy" not in event.name.lower() and "memset" not in event.name.lower():
+            device_kernels += 1
         span = (event.time_range.start, event.time_range.end)
         if event.name.startswith("scope:"):
             annotations.append((*span, event.name[6:]))
@@ -239,6 +253,8 @@ def summarize_trace(prof, wall_ms: float) -> dict:
         "device_ms_by_kind": dict(kinds),
         "device_ms_by_scope": {label: dict(values) for label, values in scopes_ms.items()},
         "kernel_launches": launches,
+        "graph_launches": graph_launches,
+        "device_kernels": device_kernels,  # kernels the GPU ran, launched one by one or by a graph
         "launch_cpu_ms": launch_cpu_ms,
         "gpu_busy_ms": busy_ms,
         "kernels": [
@@ -280,25 +296,35 @@ def main() -> int:
     entries = {e["name"]: e for e in [*chosen.get("configurations", []), *chosen.get("profile", {}).get("configurations", [])]}
     entry = entries[args.configuration]
     capacity = int(entry.get("cache_experts", 0)) * expert_row
-    cache = None
-    if capacity:
-        policy_class = POLICIES[entry["policy"]]
-        cache = PageCache(capacity, policy_class(float(raw["hotness_half_life"])) if entry["policy"] == "hotness" else policy_class())
+    if "device_cache_bytes" in entry:  # Phase 6B: a device cache of encoded rows, in stored bytes
+        capacity = int(float(entry["device_cache_bytes"]))
     call_budget = int(entry["call_budget_experts"]) * expert_row if "call_budget_experts" in entry else entry.get("call_budget_bytes", raw.get("call_budget_bytes"))
     store_options = dict(
         direct=True, alignment=int(storage["alignment"]), max_gap=int(storage["max_gap"]), workers=int(storage["workers"]),
         max_read_bytes=int(storage["max_read_bytes"]), max_extent_bytes=int(storage["max_extent_bytes"]),
     )
     native = entry.get("backend", "python") == "native"
+    # Phase 6B (decision 0013): PyTorch's NaN fill of uninitialized memory (on with deterministic algorithms) can be turned
+    # off per configuration; it changes no arithmetic, only what memory nothing reads holds.
+    fill = bool(entry.get("fill_uninitialized_memory", True))
+    torch.utils.deterministic.fill_uninitialized_memory = fill
+    encoded = None
+    if entry.get("experts") == "encoded":  # Phase 6B: the encoded pack's rows, decoded on the GPU (decision 0013)
+        from awpmi.storage.encoded import open_encoded
+
+        encoded = open_encoded(REPO_ROOT / chosen["encoded"]["directory"], verify="size")
+    source = pack if encoded is None else encoded.pack
+    cache = device_cache(entry, capacity, float(raw["hotness_half_life"]), encoded, device) if capacity else None
     if native:
         host_cache = int(entry["host_cache_experts"]) * expert_row if "host_cache_experts" in entry else int(float(entry.get("host_cache_bytes", 0)))
-        store = pack.store(backend="native", host_cache_bytes=host_cache, **store_options)
+        store = source.store(backend="native", host_cache_bytes=host_cache, **store_options)
     else:
-        store = pack.store(**store_options)
+        store = source.store(**store_options)
     freeze_prefill = bool(entry.get("freeze_prefill", False))
     native_slots = int(chosen.get("storage", storage).get("native_slots", 4))
     streamer = PageStreamer(device, int(storage["slot_bytes"]), int(storage["slots"]), native_slots=native_slots)
-    backend = MaterializationBackend(store, device, streamer, cache)
+    decoder = None if encoded is None else codec_module.RowDecoder(encoded.encodings, device)
+    backend = MaterializationBackend(store, device, streamer, cache, decoder=decoder)
     clock = Clock()
     instrument(clock)
     experts = ExpertStore(WeightStore(backend), groups)
@@ -307,10 +333,15 @@ def main() -> int:
         prefetch_chunks=bool(entry.get("prefetch_chunks", False)),
     ).install()
     names = [m.name for m in streamed.modules]
+    graphs = DecodeGraphs(model).install() if entry.get("decode_graphs") else None  # Phase 6B4 (decision 0013)
     result = {"gpu": torch.cuda.get_device_name(device), "configuration": args.configuration, "prompts": [p["prompt_id"] for p in prompts],
               "lengths": [p["length"] for p in prompts], "decode_steps": steps, "call_budget_bytes": call_budget, "cache_capacity_bytes": capacity,
               "backend": "native" if native else "python", "host_cache_bytes": store.host_cache_bytes if native else 0,
               "native_slots": native_slots, "freeze_prefill": freeze_prefill, "warm": args.warm, "memory_after_load": process_memory(),
+              "experts": "encoded" if encoded is not None else "bf16",
+              "fill_uninitialized_memory": fill, "python_hash_seed": os.environ.get("PYTHONHASHSEED"),
+              "device_cache_slots": {str(size): count for size, count in cache.slots.items()} if cache is not None and cache.copies else None,
+              "encoding": None if encoded is None else {**encoded.metadata["encoding"], "stored_ratio": encoded.stored_ratio},
               "environment": environment_metadata(REPO_ROOT, {"repository": model_config["repository"], "revision": model_config["revision"]}, NUMERICS_FLAGS)}
     records: list[dict] = []
     traces: list[dict] = []
@@ -332,6 +363,8 @@ def main() -> int:
                 for step in range(steps + 1):
                     if native and freeze_prefill:
                         store.set_admit(step > 0)
+                        if cache is not None and encoded is not None:
+                            cache.admit = step > 0
                     output = model(input_ids=input_ids, past_key_values=cache_kv, use_cache=True, logits_to_keep=1)
                     input_ids, cache_kv = output.logits[0, -1].argmax().view(1, 1), output.past_key_values
                 del output, cache_kv
@@ -344,9 +377,11 @@ def main() -> int:
             cache_kv = None
             for step in range(steps + 1):
                 trace = args.trace and index == 0 and step <= 2
-                handles = scopes(model, adapter, names) if trace else []
+                handles = scopes(model, adapter, names, graphed=graphs is not None) if trace else []
                 if native and freeze_prefill:
                     store.set_admit(step > 0)
+                    if cache is not None and encoded is not None:
+                        cache.admit = step > 0
                 torch.cuda.synchronize(device)
                 torch.cuda.reset_peak_memory_stats(device)
                 backend.reset_stats()
@@ -375,6 +410,12 @@ def main() -> int:
                     "read_calls": report["storage"]["read_calls"], "pieces": report["transfer"]["pieces"], "h2d_copies": report["transfer"]["h2d_copies"],
                     "requests": report["materialization"]["requests"], "chunked_calls": streamed.chunked_calls - calls[1],
                     "cache_hits": None if cache is None else report["cache"]["hits"], "traced": trace,
+                    # Phase 6B: the device cache (encoded rows: stored bytes) and the allocator's reservation (its pool too).
+                    "cache": None if cache is None else {
+                        **{k: report["cache"][k] for k in ("lookups", "hits", "misses", "hit_bytes", "miss_bytes", "inserts", "evictions", "bypassed")},
+                        "resident_bytes": cache.resident_bytes,
+                    },
+                    "peak_reserved_bytes": torch.cuda.max_memory_reserved(device),
                     "main_thread_cpu_ms": main_cpu, "requested_bytes": report["materialization"]["requested_bytes"],
                     "fetched_bytes": report["materialization"]["fetched_bytes"],
                     "extents": report["storage"]["extents"], "peak_device_bytes": torch.cuda.max_memory_allocated(device),
@@ -382,12 +423,19 @@ def main() -> int:
                     "host_cache": None if "host_cache" not in report["storage"] else {
                         k: report["storage"]["host_cache"][k]
                         for k in ("lookups", "hits", "waits", "misses", "hit_bytes", "wait_bytes", "miss_bytes", "evictions", "resident_bytes",
-                                  "prefetch_fills", "prefetch_used", "prefetch_wasted")
+                                  "prefetch_fills", "prefetch_used", "prefetch_wasted", "held_bytes", "peak_held_bytes", "recycled_bytes",
+                                  "allocated_bytes", "released_bytes")
+                        if k in report["storage"]["host_cache"]
                     },
                     "native": report["storage"].get("native"),
+                    "decoder": report.get("decoder"),
+                    "stored_bytes": report["materialization"].get("stored_requested_bytes", 0),
                 })
                 cache_kv = output.past_key_values
                 input_ids = token
+    if graphs is not None:
+        result["decode_graphs"] = {"captures": graphs.captures, "replays": graphs.replays, "eager_steps": graphs.eager_steps, "memory_bytes": graphs.memory_bytes, "capture_ms": graphs.capture_ms}
+        graphs.remove()
     streamed.remove()
     store.close()
     backend.streamer.close()
@@ -434,6 +482,14 @@ def summarize(steps: list[dict]) -> dict:
             entry["extents"] = mean("extents")
             entry["peak_device_bytes"] = max(s["peak_device_bytes"] for s in chosen)
             entry["peak_resident_bytes"] = max((s.get("memory") or {}).get("peak_resident_bytes", 0) for s in chosen)
+        devices = [s["cache"] for s in chosen if s.get("cache")]
+        if devices:  # Phase 6B: a device cache
+            hit = sum(c["hit_bytes"] for c in devices)
+            entry["device_cache_byte_hit_rate"] = hit / max(1, hit + sum(c["miss_bytes"] for c in devices))
+            entry["device_cache_resident_bytes"] = max(c["resident_bytes"] for c in devices)
+            entry["device_cache_evictions"] = statistics.mean(c["evictions"] for c in devices)
+        if all("peak_reserved_bytes" in s for s in chosen):
+            entry["peak_reserved_bytes"] = max(s["peak_reserved_bytes"] for s in chosen)
         caches = [s["host_cache"] for s in chosen if s.get("host_cache")]
         if caches:
             lookups = sum(c["lookups"] for c in caches)
@@ -446,6 +502,10 @@ def summarize(steps: list[dict]) -> dict:
             entry["drive_busy_ms"] = statistics.mean(n["busy_ms"] for n in natives)
             entry["drive_gb_per_s_busy"] = entry["physical_mb"] / 1e3 / max(1e-9, entry["drive_busy_ms"] / 1e3)
             entry["cache_copied_mb"] = statistics.mean(n["cache_copied_bytes"] for n in natives) / 1e6
+            if all("submit_ms" in n for n in natives):  # Phase 6B: the engine's own time in submit (decision 0013)
+                entry["engine_submit_ms"] = {
+                    k: statistics.mean(n[f"submit{k}_ms"] for n in natives) for k in ("", "_cache", "_plan", "_start")
+                }
         if phase == "prefill":
             entry["by_length"] = {
                 int(length): statistics.mean(s["wall_ms"] for s in chosen if s["length"] == length) for length in sorted({s["length"] for s in chosen})

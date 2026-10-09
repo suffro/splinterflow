@@ -1,5 +1,6 @@
 //! Host memory the engine writes into without owning it: a caller's staging slot (pinned memory allocated by
-//! PyTorch), whose bytes Python later copies to the device.
+//! PyTorch), whose bytes Python later copies to the device; and, since Phase 6B (decision 0013), the blocks of a host
+//! cache row while it loads (`cache::RowViews`: the row's fill owns them until it completes or gives them back).
 //!
 //! This is the core's only `unsafe` type, and its demonstrated requirement is zero copy: reads land directly in the
 //! pinned memory the device copies from (decision 0007 removed a host copy of every byte for this reason). Its users
@@ -9,9 +10,10 @@
 //!
 //!   * the memory is live, writable and `len` bytes long for as long as any task may touch it (the binding keeps the
 //!     owning Python buffer alive until the job that uses it has no task in flight);
-//!   * tasks write disjoint ranges (the planner places every extent, part and gather at its own range of a slot), and
-//!     nothing reads a range while a task writes it (a slot is handed to Python only after all its writes finished,
-//!     and refilled only after Python released it).
+//!   * tasks write disjoint ranges (the planner places every extent, part and gather at its own range of a slot, and
+//!     every admission at its own range of a row), and nothing reads a range while a task writes it (a slot is handed
+//!     to Python only after all its writes finished, and refilled only after Python released it; a row becomes a cache
+//!     entry only after its last admission).
 
 #[derive(Clone, Copy, Debug)]
 pub struct RawBuffer {

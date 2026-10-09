@@ -16,6 +16,11 @@ the cache and LRU would evict every page between its insertion and its next use.
 
 The policy decides only *which* pages stay resident. It never changes a page's bytes,
 so it affects efficiency only.
+
+SlotCache (Phase 6B, decision 0013) keeps pages in fixed slots of one device allocation per page
+size, made when the cache is: its budget is the memory it holds from the start, and nothing is
+allocated, freed or fragmented afterwards. Each page size has its own slots and policy (a page is
+evicted only for a page of its size), and `put` copies the page into its slot.
 """
 
 from __future__ import annotations
@@ -23,7 +28,7 @@ from __future__ import annotations
 import math
 from abc import ABC, abstractmethod
 from collections import Counter, OrderedDict
-from collections.abc import Hashable
+from collections.abc import Callable, Hashable, Mapping
 from dataclasses import dataclass
 
 import torch
@@ -126,6 +131,8 @@ class CacheStats:
 
 class PageCache:
     """Device-resident pages under a byte budget; see the module docstring."""
+
+    copies = False  # `put` keeps the caller's tensor (SlotCache copies it)
 
     def __init__(self, capacity_bytes: int, policy: ReplacementPolicy | None = None) -> None:
         if capacity_bytes < 0:
@@ -243,3 +250,135 @@ class PageCache:
         self.stats.evictions += 1
         self.stats.evicted_bytes += nbytes
         self.policy.forget(key)
+
+
+class _Slots(PageCache):
+    """The slots of one page size (SlotCache): a PageCache whose entries are views of one allocation."""
+
+    def __init__(self, page_bytes: int, count: int, device, policy: ReplacementPolicy, stats: CacheStats) -> None:
+        super().__init__(page_bytes * count, policy)
+        self.stats = stats  # one CacheStats for every size
+        self.page_bytes = page_bytes
+        self.memory = torch.empty((count, page_bytes), dtype=torch.uint8, device=device)
+        self._free = list(range(count - 1, -1, -1))  # slot 0 first
+        self._slot_of: dict = {}
+
+    def place(self, key) -> int | None:
+        """The slot a new page `key` goes to (after evicting by the policy if none is free), or None if `key` is
+        resident or the cache admits nothing."""
+        if key in self._entries:
+            return None
+        if not self.can_admit(self.page_bytes):
+            self.bypass(1, self.page_bytes)
+            return None
+        while not self._free:
+            self._evict(self.policy.victim(set(self._entries) - self._pinned))
+        slot = self._free.pop()
+        self._slot_of[key] = slot
+        self._insert(key, self.memory[slot], self.page_bytes)
+        return slot
+
+    def clear(self) -> None:
+        super().clear()
+        self._free = list(range(self.memory.shape[0] - 1, -1, -1))
+        self._slot_of.clear()
+
+    def _evict(self, key) -> None:
+        super()._evict(key)
+        self._free.append(self._slot_of.pop(key))
+
+
+class SlotCache:
+    """Pages in fixed slots (module docstring): `PageCache`'s lookups, admission freeze and counters, for pages whose sizes
+    are known in advance.
+
+    `put` copies a page into its slot on the current stream; a slot an eviction frees is overwritten by a later `put`,
+    after every earlier use of the old page on that stream, so entries must be used only on the stream that puts them.
+    Pages always used together (an expert's rows) behave as under one policy when each size has as many slots.
+    """
+
+    copies = True
+
+    def __init__(self, slots: Mapping[int, int], device, policy: Callable[[], ReplacementPolicy] = LRUPolicy) -> None:
+        if not slots or any(int(size) <= 0 or int(count) <= 0 for size, count in slots.items()):
+            raise ValueError("a slot cache needs at least one slot of a positive size per page size")
+        self.stats = CacheStats()
+        self._sizes = {int(size): _Slots(int(size), int(count), device, policy(), self.stats) for size, count in sorted(slots.items())}
+        self.capacity_bytes = sum(pages.capacity_bytes for pages in self._sizes.values())
+        self.peak_resident_bytes = 0
+        self.pinned_bytes = 0
+        self._admit = True
+
+    @classmethod
+    def sized(cls, capacity_bytes: int, page_bytes: Mapping[int, int], device, policy: Callable[[], ReplacementPolicy] = LRUPolicy) -> SlotCache:
+        """Slots within `capacity_bytes` for pages of the sizes in `page_bytes` (a size → the bytes of all the pages of
+        that size there are): each size gets a share of the budget in proportion to its pages' bytes, in whole slots."""
+        total = sum(page_bytes.values())
+        slots = {size: (capacity_bytes * share // total) // size for size, share in page_bytes.items()}
+        if total <= 0 or not all(slots.values()):
+            raise ValueError(f"{capacity_bytes} bytes hold no slot of some page size: {slots}")
+        return cls(slots, device, policy)
+
+    @property
+    def slots(self) -> dict[int, int]:
+        return {size: pages.memory.shape[0] for size, pages in self._sizes.items()}
+
+    @property
+    def admit(self) -> bool:
+        return self._admit
+
+    @admit.setter
+    def admit(self, value: bool) -> None:
+        self._admit = bool(value)
+        for pages in self._sizes.values():
+            pages.admit = self._admit
+
+    @property
+    def resident_bytes(self) -> int:
+        return sum(pages.resident_bytes for pages in self._sizes.values())
+
+    def __contains__(self, key) -> bool:
+        return any(key in pages for pages in self._sizes.values())
+
+    def __len__(self) -> int:
+        return sum(len(pages) for pages in self._sizes.values())
+
+    def get(self, key, nbytes: int) -> torch.Tensor | None:
+        """Look `key` up, counting a hit or a miss of `nbytes` (a page size without slots always misses)."""
+        pages = self._sizes.get(nbytes)
+        if pages is None:
+            self.stats.lookups += 1
+            self.stats.misses += 1
+            self.stats.miss_bytes += nbytes
+            return None
+        return pages.get(key, nbytes)
+
+    def get_many(self, keys: list, nbytes: int) -> list[torch.Tensor | None]:
+        return [self.get(key, nbytes) for key in keys]
+
+    def can_admit(self, nbytes: int) -> bool:
+        return self._admit and nbytes in self._sizes
+
+    def bypass(self, pages: int, nbytes: int) -> None:
+        self.stats.bypassed += pages
+        self.stats.bypassed_bytes += nbytes
+
+    def put(self, key, tensor: torch.Tensor) -> bool:
+        """Offer a fetched page (a contiguous tensor of a slot's size); copies it into its slot if admitted. Returns
+        whether the page is resident."""
+        nbytes = tensor.numel() * tensor.element_size()
+        pages = self._sizes.get(nbytes)
+        if pages is None or not self._admit:
+            if key not in self:
+                self.bypass(1, nbytes)
+            return key in self
+        slot = pages.place(key)
+        if slot is None:
+            return key in pages
+        pages.memory[slot].copy_(tensor.reshape(-1).view(torch.uint8))
+        self.peak_resident_bytes = max(self.peak_resident_bytes, self.resident_bytes)
+        return True
+
+    def clear(self) -> None:
+        for pages in self._sizes.values():
+            pages.clear()

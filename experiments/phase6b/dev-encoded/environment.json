@@ -1,0 +1,104 @@
+{
+  "model": {
+    "repository": "moonshotai/Moonlight-16B-A3B",
+    "revision": "476b36a473d4467f94469414bef6cee75c9c8172",
+    "dtype": "bfloat16",
+    "device": "cuda"
+  },
+  "python": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+  "os": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "torch": "2.14.1+cu130",
+    "transformers": "5.18.0",
+    "safetensors": "0.8.0",
+    "numpy": "2.5.3",
+    "huggingface-hub": "1.33.0",
+    "tokenizers": "0.23.2",
+    "pyarrow": "25.0.1"
+  },
+  "cuda_version": "13.0",
+  "cudnn_version": 92400,
+  "gpu": "NVIDIA GeForce RTX 4060 Ti",
+  "numerics": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "deterministic_algorithms": true,
+    "float32_matmul_precision": "highest",
+    "cuda_matmul_allow_tf32": false,
+    "cudnn_allow_tf32": false,
+    "cuda_matmul_allow_bf16_reduced_precision_reduction": false,
+    "cuda_matmul_allow_fp16_reduced_precision_reduction": false,
+    "cuda_matmul_allow_bf16_reduced_precision_reduction_split_k": true,
+    "cuda_matmul_allow_fp16_accumulation": false
+  },
+  "git_commit": "4a708697bd4db34eefc719d99ced445cbc0fc447",
+  "git_dirty": true,
+  "source_tree_sha256": "796cb5740a639f69b43e83845295c8242223d135865c7e89730ffdd3d1f617e5",
+  "native_tree_sha256": "c1c9674815600c66a8c026bf58acf2b61d3b59294b859ae81f1e17407944c242",
+  "native_extension": "0.1.0",
+  "uv_lock_sha256": "e4c92f66a25bd57f46dec30f8540ea56363650127a30a77663945c403f85b1cf",
+  "tokenizer": {
+    "class": "TikTokenTokenizer",
+    "revision": "476b36a473d4467f94469414bef6cee75c9c8172",
+    "trust_remote_code": true
+  },
+  "prompts": {
+    "repository": "Salesforce/wikitext",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "file": "wikitext-2-raw-v1/test-00000-of-00001.parquet",
+    "text_column": "text",
+    "file_sha256": "5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91",
+    "seed": 4,
+    "lengths": [
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      768,
+      1024,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      768,
+      1024
+    ]
+  },
+  "num_prompts": 16,
+  "python_hash_seed": "1",
+  "profile": {
+    "kind": "bf16_reference",
+    "weight_dtype": "BF16",
+    "compute_dtype": "bfloat16",
+    "experts_implementation": "grouped_mm",
+    "attention_implementation": "sdpa",
+    "numerics": "awpmi.runtime.configure_reproducible_numerics",
+    "quantization": {}
+  },
+  "started_at": "2026-10-09T13:03:08+0200",
+  "system_memory": {
+    "physical_available_bytes": 20638728192,
+    "system_cache_bytes": 660180992,
+    "commit_total_bytes": 22930014208
+  },
+  "storage": {
+    "disk": {
+      "model": "Samsung SSD 990 PRO with Heatsink 1TB",
+      "bus": "NVMe",
+      "media": "SSD",
+      "logical_sector": 512,
+      "physical_sector": 4096
+    }
+  },
+  "reference_from": {
+    "run": "experiments/phase6a/baseline-run1",
+    "files_sha256": {
+      "reference.jsonl.gz": "307b8849f09e96318c9728f61e5cfed165e80bbb86b365eb9c9ab7f2a1023a43",
+      "reference_rows.json": "9f843872999973bf070e8cdfcc05ff4e580b7531136a3eff3c052b914a1c9e58",
+      "reference_stage.json": "0154044a9fc460bcc034861fbfe1de8679f6cdbff068b7b79f50212c27789c1d"
+    }
+  }
+}

@@ -1,0 +1,4673 @@
+{
+ "gpu": "NVIDIA GeForce RTX 4060 Ti",
+ "configuration": "encoded-host-12g-freeze-dev1.9g-fast",
+ "prompts": [
+  7,
+  0,
+  3,
+  5
+ ],
+ "lengths": [
+  1024,
+  16,
+  128,
+  512
+ ],
+ "decode_steps": 8,
+ "call_budget_bytes": 268435456,
+ "cache_capacity_bytes": 1900000000,
+ "backend": "native",
+ "host_cache_bytes": 12000000000,
+ "native_slots": 4,
+ "freeze_prefill": true,
+ "warm": true,
+ "memory_after_load": {
+  "resident_bytes": 1799479296,
+  "peak_resident_bytes": 2198896640,
+  "private_bytes": 7870443520
+ },
+ "experts": "encoded",
+ "fill_uninitialized_memory": false,
+ "python_hash_seed": "1",
+ "device_cache_slots": {
+  "3891200": 162,
+  "7782400": 162
+ },
+ "encoding": {
+  "format": "weightsift-encoded-rows",
+  "version": 1,
+  "library": {
+   "nvcomp": {
+    "version": 5300,
+    "cudart_version": 13030
+   }
+  },
+  "codec": "ans",
+  "options": {
+   "data_type": "float16"
+  },
+  "chunk_bytes": 1048576,
+  "chunk_alignment": 16,
+  "row_alignment": 4096,
+  "block_bytes": 3891200,
+  "stored_ratio": 0.6747159090909091
+ },
+ "environment": {
+  "model": {
+   "repository": "moonshotai/Moonlight-16B-A3B",
+   "revision": "476b36a473d4467f94469414bef6cee75c9c8172"
+  },
+  "python": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+  "os": "Windows-11-10.0.26200-SP0",
+  "packages": {
+   "torch": "2.14.1+cu130",
+   "transformers": "5.18.0",
+   "safetensors": "0.8.0",
+   "numpy": "2.5.3",
+   "huggingface-hub": "1.33.0",
+   "tokenizers": "0.23.2",
+   "pyarrow": "25.0.1"
+  },
+  "cuda_version": "13.0",
+  "cudnn_version": 92400,
+  "gpu": "NVIDIA GeForce RTX 4060 Ti",
+  "numerics": {
+   "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+   "deterministic_algorithms": true,
+   "float32_matmul_precision": "highest",
+   "cuda_matmul_allow_tf32": false,
+   "cudnn_allow_tf32": false,
+   "cuda_matmul_allow_bf16_reduced_precision_reduction": false,
+   "cuda_matmul_allow_fp16_reduced_precision_reduction": false,
+   "cuda_matmul_allow_bf16_reduced_precision_reduction_split_k": true,
+   "cuda_matmul_allow_fp16_accumulation": false
+  },
+  "git_commit": "dc7be8f61eec1ea79c6806b2832d0ad3db056796",
+  "git_dirty": true,
+  "source_tree_sha256": "01465c71be526b49593c95748ac6f1c8295c3b9544e7eac999b88c87be1728c7",
+  "native_tree_sha256": "759df48b5438b75e3716e2725a3100e2284245f2434e59ce70e1fb60f6bc4b8e",
+  "native_extension": "0.1.0",
+  "uv_lock_sha256": "e4c92f66a25bd57f46dec30f8540ea56363650127a30a77663945c403f85b1cf"
+ },
+ "after_warm": {
+  "host_cache": {
+   "lookups": 33086,
+   "hits": 19070,
+   "hit_bytes": 111206604800,
+   "waits": 0,
+   "wait_bytes": 0,
+   "misses": 14016,
+   "miss_bytes": 81909760000,
+   "inserts": 5385,
+   "insert_bytes": 31472025600,
+   "evictions": 1680,
+   "evicted_bytes": 9856409600,
+   "bypassed": 8631,
+   "bypassed_bytes": 50437734400,
+   "aborted_fills": 0,
+   "recycled": 1682,
+   "recycled_bytes": 9856409600,
+   "allocated_bytes": 21615616000,
+   "released_bytes": 9619046400,
+   "prefetch_fills": 0,
+   "prefetch_fill_bytes": 0,
+   "prefetch_skipped": 0,
+   "prefetch_bypassed": 0,
+   "prefetch_used": 0,
+   "prefetch_wasted": 0,
+   "capacity_bytes": 12000000000,
+   "block_bytes": 3891200,
+   "resident_bytes": 11996569600,
+   "peak_resident_bytes": 11996569600,
+   "pool_bytes": 0,
+   "held_bytes": 11996569600,
+   "peak_held_bytes": 11996569600,
+   "entries": 2057,
+   "admit": true
+  },
+  "memory": {
+   "resident_bytes": 15397146624,
+   "peak_resident_bytes": 15397146624,
+   "private_bytes": 22516228096
+  }
+ },
+ "decode_graphs": {
+  "captures": 54,
+  "replays": 5184,
+  "eager_steps": 13,
+  "memory_bytes": 67802624,
+  "capture_ms": 178.95289999432862
+ },
+ "summary": {
+  "prefill": {
+   "steps": 3,
+   "wall_ms": 3387.024399902051,
+   "regions_ms": {
+    "assemble": 518.9442702103406,
+    "cache": 2.4333327698210874,
+    "chunks": 876.9007333709548,
+    "decode": 110.14799936674535,
+    "h2d": 188.6545653299739,
+    "io": 1499.8063989914954,
+    "plan": 11.883499876906475,
+    "route": 12.964699572573105,
+    "other": 165.2889004132403
+   },
+   "h2d_device_ms": 2070.237824432552,
+   "physical_mb": 4529.3568,
+   "read_calls": 4578,
+   "pieces": 575,
+   "h2d_copies": 1329.3333333333333,
+   "requests": 187.33333333333334,
+   "chunked_calls": 26,
+   "share": {
+    "assemble": 0.1532153917241777,
+    "cache": 0.0007184278831565124,
+    "chunks": 0.2589000343181212,
+    "decode": 0.03252058041563879,
+    "h2d": 0.05569920468699003,
+    "io": 0.4428094462605195,
+    "plan": 0.0035085368376000284,
+    "route": 0.0038277549972619124,
+    "other": 0.04880062287653442
+   },
+   "drive_gb_per_s": 3.0199609783273655,
+   "wall_ms_median": 3585.9528998844326,
+   "wall_ms_p95": 3585.9528998844326,
+   "tokens_per_s": null,
+   "main_thread_cpu_ms": 1822.9166666666667,
+   "requested_mb": 20975.190016,
+   "extents": 593,
+   "peak_device_bytes": 5728273408,
+   "peak_resident_bytes": 16274259968,
+   "device_cache_byte_hit_rate": 0.0956832554302997,
+   "device_cache_resident_bytes": 1891123200,
+   "device_cache_evictions": 0,
+   "peak_reserved_bytes": 5903482880,
+   "host_cache_hit_rate": 0.6468531468531469,
+   "host_cache_byte_hit_rate": 0.6460930373973852,
+   "host_cache_resident_bytes": 11996569600,
+   "drive_busy_ms": 1393.4422333333334,
+   "drive_gb_per_s_busy": 3.2504804947421926,
+   "cache_copied_mb": 8268.8,
+   "engine_submit_ms": {
+    "": 6.066066666666666,
+    "_cache": 1.4817333333333333,
+    "_plan": 1.6260000000000001,
+    "_start": 2.7676
+   },
+   "by_length": {
+    "16": 2400.002999929711,
+    "128": 3585.9528998844326,
+    "512": 4175.117299892008
+   }
+  },
+  "decode": {
+   "steps": 30,
+   "wall_ms": 420.76008999720216,
+   "regions_ms": {
+    "admit": 12.76187690285345,
+    "assemble": 55.111793017325304,
+    "cache": 0.3975232985491554,
+    "decode": 16.78868996289869,
+    "h2d": 18.945780008410413,
+    "io": 121.64449345630904,
+    "plan": 1.8090666737407446,
+    "route": 13.960266625508666,
+    "other": 179.34060005160669
+   },
+   "h2d_device_ms": 198.82042128940424,
+   "physical_mb": 266.41749333333337,
+   "read_calls": 273.5,
+   "pieces": 72.23333333333333,
+   "h2d_copies": 128.4,
+   "requests": 52,
+   "chunked_calls": 0,
+   "share": {
+    "admit": 0.03033053088028931,
+    "assemble": 0.13098151257095644,
+    "cache": 0.0009447742502189282,
+    "decode": 0.03990086123189661,
+    "h2d": 0.0450275120164947,
+    "io": 0.28910653920888246,
+    "plan": 0.00429952059795589,
+    "route": 0.03317868533016403,
+    "other": 0.4262300639131416
+   },
+   "drive_gb_per_s": 2.190131963754055,
+   "wall_ms_median": 409.9219999043271,
+   "wall_ms_p95": 497.86830018274486,
+   "tokens_per_s": 2.3766512646355062,
+   "main_thread_cpu_ms": 285.4166666666667,
+   "requested_mb": 2699.034624,
+   "extents": 44.833333333333336,
+   "peak_device_bytes": 5446572032,
+   "peak_resident_bytes": 16274259968,
+   "device_cache_byte_hit_rate": 0.32029914529914527,
+   "device_cache_resident_bytes": 1891123200,
+   "device_cache_evictions": 212.06666666666666,
+   "peak_reserved_bytes": 5903482880,
+   "host_cache_hit_rate": 0.78528764539453,
+   "host_cache_byte_hit_rate": 0.7847637011421985,
+   "host_cache_resident_bytes": 11996569600,
+   "drive_busy_ms": 81.94483666666666,
+   "drive_gb_per_s_busy": 3.251180967228727,
+   "cache_copied_mb": 971.3732266666666,
+   "engine_submit_ms": {
+    "": 0.8826066666666667,
+    "_cache": 0.23686666666666667,
+    "_plan": 0.19192333333333333,
+    "_start": 0.4163866666666667
+   }
+  }
+ },
+ "traces": [
+  {
+   "step": 0,
+   "phase": "prefill",
+   "device_ms_by_kind": {
+    "other_kernels": 238.25626600001075,
+    "gemm": 200.41534000000178,
+    "attention_kernels": 8.143407999999734,
+    "memcpy_other": 0.7982320000016119,
+    "memcpy_d2d": 5.73054800000273,
+    "memcpy_h2d": 2591.2122339999987
+   },
+   "device_ms_by_scope": {
+    "outside_scopes": {
+     "other_kernels": 49.56067899999726,
+     "gemm": 53.030780999999955,
+     "attention_kernels": 8.143407999999734,
+     "memcpy_other": 0.3585600000042739,
+     "memcpy_d2d": 0.3228790000009122,
+     "memcpy_h2d": 0.026366999999998367
+    },
+    "experts": {
+     "memcpy_d2d": 5.407669000001818,
+     "other_kernels": 188.69558700001366,
+     "memcpy_other": 0.43967199999733225,
+     "memcpy_h2d": 2591.185866999999,
+     "gemm": 144.92238800000203
+    },
+    "lm_head": {
+     "gemm": 2.4621710000000894
+    }
+   },
+   "kernel_launches": 9809,
+   "graph_launches": 0,
+   "device_kernels": 9809,
+   "launch_cpu_ms": 161.6791999999939,
+   "gpu_busy_ms": 3044.5560280000186,
+   "kernels": [
+    {
+     "name": "Memcpy HtoD (Pinned -> Device)",
+     "launches": 1591,
+     "device_ms": 2590.9141879999997
+    },
+    {
+     "name": "_ZN11ans_gpu_lib6detail17decompress_kernelILNS0_10DecodeModeE1ELb0EEEvPKPKvPKyPKPvS8_PyP14nvcompStatus_tyh",
+     "launches": 228,
+     "device_ms": 179.74914000000098
+    },
+    {
+     "name": "ampere_bf16_s16816gemm_bf16_128x64_ldg8_f2f_stages_32x6_tn",
+     "launches": 1002,
+     "device_ms": 49.54677100000492
+    },
+    {
+     "name": "ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_stages_32x1_tn",
+     "launches": 179,
+     "device_ms": 46.87566499999884
+    },
+    {
+     "name": "ampere_bf16_s16816gemm_bf16_128x128_ldg8_f2f_stages_64x3_tn",
+     "launches": 437,
+     "device_ms": 19.720544000005184
+    },
+    {
+     "name": "_ZN7cutlass7Kernel2I68cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x1_tn_align8EEvNT_6ParamsE",
+     "launches": 346,
+     "device_ms": 15.41175099999681
+    },
+    {
+     "name": "ampere_s16816gemm_bf16_256x128_ldg8_stages_32x3_tn",
+     "launches": 214,
+     "device_ms": 12.82845699999732
+    },
+    {
+     "name": "_ZN2at6native24vectorized_gather_kernelILi16ExEEvPcS2_PT0_ixxxxb",
+     "launches": 53,
+     "device_ms": 10.671818000001444
+    },
+    {
+     "name": "ampere_bf16_s1688gemm_bf16_64x128_sliced1x2_ldg8_f2f_tn",
+     "launches": 119,
+     "device_ms": 10.090226000001863
+    },
+    {
+     "name": "_ZN7cutlass7Kernel2I67cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x64_32x6_tn_align8EEvNT_6ParamsE",
+     "launches": 116,
+     "device_ms": 8.236852000000269
+    },
+    {
+     "name": "_ZN7cutlass7Kernel2I67cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_32x32_64x2_tn_align8EEvNT_6ParamsE",
+     "launches": 162,
+     "device_ms": 8.180435999999515
+    },
+    {
+     "name": "_Z43fmha_cutlassF_bf16_aligned_32x128_gmem_sm80N22PyTorchMemEffAttention15AttentionKernelIN7cutlass10bfloat16_tENS1_4arch4Sm80ELb1ELi32ELi128ELi65536ELb1ELb1EE6ParamsE",
+     "launches": 27,
+     "device_ms": 8.143407999999734
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIN3c108BFloat16ES5_S5_NS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 324,
+     "device_ms": 7.037324000000768
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_15gpu_kernel_implINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 26,
+     "device_ms": 7.011856999999029
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi128ELi4ENS0_8ReduceOpIfNS0_14func_wrapper_tIfZNS0_11sum_functorIfffEclERNS_14TensorIteratorEEUlffE_EEjfLi4ELi4EEEEEvT1_",
+     "launches": 26,
+     "device_ms": 6.670936999999627
+    },
+    {
+     "name": "ampere_bf16_s16816gemm_bf16_64x64_ldg8_f2f_stages_64x5_tn",
+     "launches": 211,
+     "device_ms": 5.8053339999970675
+    },
+    {
+     "name": "Memcpy DtoD (Device -> Device)",
+     "launches": 280,
+     "device_ms": 5.73054800000273
+    },
+    {
+     "name": "_ZN7cutlass7Kernel2I68cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_32x32_128x2_tn_align8EEvNT_6ParamsE",
+     "launches": 211,
+     "device_ms": 5.6982879999974685
+    },
+    {
+     "name": "_ZN8internal5gemvx6kernelIii13__nv_bfloat16S2_S2_fLb0ELb1ELb1ELb0ELi6ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKS2_ES6_S4_IS2_EfEEENSt9enable_ifIXntT5_EvE4typeET11_",
+     "launches": 50,
+     "device_ms": 4.78306200000066
+    },
+    {
+     "name": "_ZN7cutlass7Kernel2I68cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8EEvNT_6ParamsE",
+     "launches": 170,
+     "device_ms": 4.544533000002762
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_11FillFunctorIN3c108BFloat16EEESt5arrayIPcLy1EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 4.4343950000014045
+    },
+    {
+     "name": "ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_tn",
+     "launches": 27,
+     "device_ms": 2.9085640000001725
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastIZZZNS0_61_GLOBAL__N__a30504db_23_ActivationSiluKernel_cu_96125627_762411silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE4_clEvEUlN3c108BFloat16EE_EEvS5_RKT_EUliE_EEviT1_",
+     "launches": 26,
+     "device_ms": 2.8622010000017473
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIN3c108BFloat16EEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 188,
+     "device_ms": 2.600613000000262
+    },
+    {
+     "name": "_ZN2at6native40_GLOBAL__N__27eda9f4_8_Shape_cu_85d9f36c19CatArrayBatchedCopyINS1_10OpaqueTypeILj2EEEjLi4ELi64ELi64EEEvPT_NS1_25CatArrInputTensorMetadataIS5_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+     "launches": 108,
+     "device_ms": 2.1076099999974445
+    },
+    {
+     "name": "_ZN8cublasLt19splitKreduce_kernelILi32ELi16Eif13__nv_bfloat16fS1_Lb0ES1_S1_S1_Lb1ELb0ELb0ELb0EEEvNS_18cublasSplitKParamsIT4_EEPKT2_PKT8_PT7_PT3_PKS3_SG_PKT9_S7_PSH_PvxPS3_PiSM_SM_SG_SG_SG_SG_SG_",
+     "launches": 214,
+     "device_ms": 1.4688320000009998
+    },
+    {
+     "name": "ampere_bf16_s16816gemm_bf16_256x128_ldg8_f2f_stages_32x3_tn",
+     "launches": 14,
+     "device_ms": 1.4466859999989974
+    },
+    {
+     "name": "_ZN2at6native27unrolled_elementwise_kernelIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE5_clEvEUlfE_St5arrayIPcLy2EELi4E23TrivialOffsetCalculatorILi1EjESB_NS0_6memory12LoadWithCastILi1EEENSC_13StoreWithCastILi1EEEEEviT_T0_T2_T3_T4_T5_",
+     "launches": 108,
+     "device_ms": 1.325601000001064
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail10radix_sort29DeviceRadixSortOnesweepKernelINS1_5radix10policy_hubIxN2at4cuda3cub6detail10OpaqueTypeILi8EEEyE10Policy1000ELNS0_9SortOrderE0ExSB_yiiNS1_21identity_decomposer_tEEEvPT5_SH_PT3_PKSI_PT1_PKSM_PT2_PKSQ_T4_iiT6_",
+     "launches": 260,
+     "device_ms": 1.266172000000366
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE10_clEvEUlN3c108BFloat16EE_EEvS4_RKT_EUliE_EEviT1_",
+     "launches": 54,
+     "device_ms": 1.082333000000056
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIxNS0_14func_wrapper_tIxZNS0_11sum_functorIxxxEclERNS_14TensorIteratorEEUlxxE_EEjxLi4ELi4EEEEEvT1_",
+     "launches": 456,
+     "device_ms": 0.8990989999997973
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 82,
+     "device_ms": 0.8545279999999906
+    },
+    {
+     "name": "ampere_sgemm_32x128_tn",
+     "launches": 26,
+     "device_ms": 0.827967000000048
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_25bfloat16_copy_kernel_cudaERNS_18TensorIteratorBaseEEUlfE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 110,
+     "device_ms": 0.8263979999982338
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail10radix_sort29DeviceRadixSortOnesweepKernelINS1_5radix10policy_hubIxNS0_8NullTypeEyE10Policy1000ELNS0_9SortOrderE0ExS6_yiiNS1_21identity_decomposer_tEEEvPT5_SC_PT3_PKSD_PT1_PKSH_PT2_PKSL_T4_iiT6_",
+     "launches": 208,
+     "device_ms": 0.7799390000006093
+    },
+    {
+     "name": "ampere_bf16_s1688gemm_bf16_128x64_sliced1x2_ldg8_f2f_tn",
+     "launches": 7,
+     "device_ms": 0.7337919999996666
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_50_GLOBAL__N__7dd5f103_12_PowKernel_cu_96125627_135629pow_tensor_scalar_kernel_implIffEEvRNS_18TensorIteratorBaseET0_EUlfE_St5arrayIPcLy2EELb0EEEviS6_T1_",
+     "launches": 82,
+     "device_ms": 0.712091999997961
+    },
+    {
+     "name": "ampere_bf16_s16816gemm_bf16_64x128_ldg8_f2f_stages_64x3_tn",
+     "launches": 23,
+     "device_ms": 0.6557079999992276
+    },
+    {
+     "name": "_ZN7cutlass7Kernel2I67cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x64_32x4_tn_align8EEvNT_6ParamsE",
+     "launches": 4,
+     "device_ms": 0.6505920000004117
+    },
+    {
+     "name": "_ZN2at6native27unrolled_elementwise_kernelIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE2_clEvEUlxE_St5arrayIPcLy2EELi4E23TrivialOffsetCalculatorILi1EjESB_NS0_6memory12LoadWithCastILi1EEENSC_13StoreWithCastILi1EEEEEviT_T0_T2_T3_T4_T5_",
+     "launches": 456,
+     "device_ms": 0.6242079999984773
+    },
+    {
+     "name": "_ZN2at6native6sbtopk10gatherTopKIfjLi2ELb0EEEvNS_4cuda6detail10TensorInfoIKT_T0_EES8_S8_bS8_S8_NS5_IS6_S8_EES8_NS5_IxS8_EES8_PS6_",
+     "launches": 78,
+     "device_ms": 0.6225879999989811
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIfNS0_7MeanOpsIffffEEjfLi4ELi4EEEEEvT1_",
+     "launches": 82,
+     "device_ms": 0.5842560000015464
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIN3c108BFloat16ES4_S4_NS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 27,
+     "device_ms": 0.5445739999992909
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_15CUDAFunctor_addIxEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 456,
+     "device_ms": 0.5272609999989365
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_61_GLOBAL__N__a30504db_23_ActivationSiluKernel_cu_96125627_762411silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE4_clEvEUlN3c108BFloat16EE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 27,
+     "device_ms": 0.3941109999994225
+    },
+    {
+     "name": "Memcpy DtoH (Device -> Pageable)",
+     "launches": 332,
+     "device_ms": 0.38565499999918595
+    },
+    {
+     "name": "Memset (Device)",
+     "launches": 651,
+     "device_ms": 0.3613440000022725
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13AUnaryFunctorIiibNS0_51_GLOBAL__N__e3604c96_18_CompareEQKernel_cu_d8008c9616CompareEqFunctorIiEEEESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 228,
+     "device_ms": 0.31030000000255675
+    },
+    {
+     "name": "Memcpy HtoD (Pageable -> Device)",
+     "launches": 228,
+     "device_ms": 0.29804600000124665
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_21compare_scalar_kernelIxEEvRNS_18TensorIteratorBaseENS0_50_GLOBAL__N__2ac0fdad_17_CompareKernels_cu_8f1b29aa6OpTypeET_EUlxE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 208,
+     "device_ms": 0.22384000000369395
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_15gpu_kernel_implIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE5_clEvEUlfE_EEvS4_RKT_EUliE_EEviT1_",
+     "launches": 27,
+     "device_ms": 0.1741759999993319
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIxNS0_9MinMaxOpsIxxiEEjxLi4ELi4EEEEEvT1_",
+     "launches": 52,
+     "device_ms": 0.1556150000017805
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail10radix_sort30DeviceRadixSortHistogramKernelINS1_5radix10policy_hubIxN2at4cuda3cub6detail10OpaqueTypeILi8EEEyE10Policy1000ELNS0_9SortOrderE0ExyNS1_21identity_decomposer_tEEEvPT2_PKT1_SG_iiT3_",
+     "launches": 52,
+     "device_ms": 0.14864200000012168
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 108,
+     "device_ms": 0.13481399999800311
+    },
+    {
+     "name": "_ZN44_GLOBAL__N__99c14716_11_Indexing_cu_2a2c434e33indexing_backward_kernel_stride_1IxEEvPKxS2_PKT_PS3_xxxxb",
+     "launches": 52,
+     "device_ms": 0.13254500000143346
+    },
+    {
+     "name": "_ZN2at6native24index_elementwise_kernelILi128ELi4EZNS0_16gpu_index_kernelIZNS0_17index_kernel_implINS0_10OpaqueTypeILi8EEEEEvRNS_18TensorIteratorBaseEN3c108ArrayRefIxEESA_EUlPcPKcxE_EEvS7_SA_SA_RKT_bEUliE_EEvxT1_",
+     "launches": 52,
+     "device_ms": 0.1286419999983354
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13BinaryFunctorIxxbNS0_51_GLOBAL__N__e3604c96_18_CompareEQKernel_cu_d8008c9616CompareEqFunctorIxEEEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 110,
+     "device_ms": 0.12089600000134658
+    },
+    {
+     "name": "_ZN2at6native20bitonicSortKVInPlaceILi2ELin1ELi16ELi16EfxNS0_4GTOpIfLb1EEEjEEvNS_4cuda6detail10TensorInfoIT3_T6_EES8_S8_S8_NS6_IT4_S8_EES8_T5_",
+     "launches": 26,
+     "device_ms": 0.1185930000008084
+    },
+    {
+     "name": "_ZN2at6native27unrolled_elementwise_kernelINS0_13BinaryFunctorIxxbNS0_51_GLOBAL__N__e3604c96_18_CompareEQKernel_cu_d8008c9616CompareEqFunctorIxEEEESt5arrayIPcLy3EELi4E23TrivialOffsetCalculatorILi2EjESA_ILi1EjENS0_6memory15LoadWithoutCastENSD_16StoreWithoutCastEEEviT_T0_T2_T3_T4_T5_",
+     "launches": 103,
+     "device_ms": 0.11427100000088819
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIfNS0_14func_wrapper_tIfZNS0_11sum_functorIfffEclERNS_14TensorIteratorEEUlffE_EEjfLi4ELi4EEEEEvT1_",
+     "launches": 52,
+     "device_ms": 0.10845100000296047
+    }
+   ],
+   "wall_ms": 4507.388500031084,
+   "gpu_idle_fraction": 0.3245410223727059
+  },
+  {
+   "step": 1,
+   "phase": "decode",
+   "device_ms_by_kind": {
+    "other_kernels": 74.29583300000283,
+    "gemm": 95.24963199999932,
+    "memcpy_d2d": 40.29115800000079,
+    "attention_kernels": 2.805527999999761,
+    "memcpy_other": 0.22636799999998417,
+    "memcpy_h2d": 332.1073210000005
+   },
+   "device_ms_by_scope": {
+    "outside_scopes": {
+     "other_kernels": 72.38844400000262,
+     "gemm": 52.231851999999876,
+     "memcpy_d2d": 40.14578700000034,
+     "attention_kernels": 2.805527999999761,
+     "memcpy_other": 0.15286300000015393,
+     "memcpy_h2d": 332.1073210000005
+    },
+    "experts": {
+     "memcpy_d2d": 0.1453710000004794,
+     "other_kernels": 1.9073890000001485,
+     "memcpy_other": 0.07350499999983004,
+     "gemm": 40.55400799999951
+    },
+    "lm_head": {
+     "gemm": 2.4637719999999974
+    }
+   },
+   "kernel_launches": 2344,
+   "graph_launches": 54,
+   "device_kernels": 4161,
+   "launch_cpu_ms": 44.543599999997944,
+   "gpu_busy_ms": 544.9758400000028,
+   "kernels": [
+    {
+     "name": "Memcpy HtoD (Pinned -> Device)",
+     "launches": 178,
+     "device_ms": 332.0690180000006
+    },
+    {
+     "name": "_ZN8internal5gemvx6kernelIii13__nv_bfloat16S2_S2_fLb0ELb1ELb1ELb0ELi6ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKS2_ES6_S4_IS2_EfEEENSt9enable_ifIXntT5_EvE4typeET11_",
+     "launches": 291,
+     "device_ms": 62.71730099999926
+    },
+    {
+     "name": "_ZN11ans_gpu_lib6detail17decompress_kernelILNS0_10DecodeModeE1ELb0EEEvPKPKvPKyPKPvS8_PyP14nvcompStatus_tyh",
+     "launches": 26,
+     "device_ms": 60.76306199999998
+    },
+    {
+     "name": "Memcpy DtoD (Device -> Device)",
+     "launches": 424,
+     "device_ms": 40.29115800000079
+    },
+    {
+     "name": "_ZN7cutlass7Kernel2I68cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_32x32_128x2_tn_align8EEvNT_6ParamsE",
+     "launches": 156,
+     "device_ms": 16.80380999999997
+    },
+    {
+     "name": "ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_tn",
+     "launches": 27,
+     "device_ms": 9.49605000000032
+    },
+    {
+     "name": "_ZN8internal5gemvx6kernelIii13__nv_bfloat16S2_S2_fLb0ELb1ELb1ELb0ELi7ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKS2_ES6_S4_IS2_EfEEENSt9enable_ifIXntT5_EvE4typeET11_",
+     "launches": 28,
+     "device_ms": 6.10728499999986
+    },
+    {
+     "name": "_Z43fmha_cutlassF_bf16_aligned_32x128_gmem_sm80N22PyTorchMemEffAttention15AttentionKernelIN7cutlass10bfloat16_tENS1_4arch4Sm80ELb1ELi32ELi128ELi65536ELb1ELb1EE6ParamsE",
+     "launches": 27,
+     "device_ms": 2.805527999999761
+    },
+    {
+     "name": "_ZN2at6native40_GLOBAL__N__27eda9f4_8_Shape_cu_85d9f36c30CatArrayBatchedCopy_vectorizedINS1_10OpaqueTypeILj2EEEjLi3ELi128ELi1ELi16ELi8EEEvPcNS1_25CatArrInputTensorMetadataIT_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+     "launches": 54,
+     "device_ms": 1.4595480000003997
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE10_clEvEUlN3c108BFloat16EE_EEvS4_RKT_EUliE_EEviT1_",
+     "launches": 54,
+     "device_ms": 1.399422000000272
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail10radix_sort31DeviceRadixSortSingleTileKernelINS1_5radix10policy_hubIxNS0_8NullTypeEyE10Policy1000ELNS0_9SortOrderE0ExS6_yNS1_21identity_decomposer_tEEEvPKT1_PSB_PKT2_PSF_T3_iiT4_",
+     "launches": 26,
+     "device_ms": 0.8026539999997836
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIN3c108BFloat16ES5_S5_NS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 242,
+     "device_ms": 0.6918330000001782
+    },
+    {
+     "name": "_ZN2at6native27unrolled_elementwise_kernelIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE5_clEvEUlfE_St5arrayIPcLy2EELi4E23TrivialOffsetCalculatorILi1EjESB_NS0_6memory12LoadWithCastILi1EEENSC_13StoreWithCastILi1EEEEEviT_T0_T2_T3_T4_T5_",
+     "launches": 135,
+     "device_ms": 0.6658849999994495
+    },
+    {
+     "name": "_ZN2at6native6sbtopk10gatherTopKIfjLi1ELb0EEEvNS_4cuda6detail10TensorInfoIKT_T0_EES8_S8_bS8_S8_NS5_IS6_S8_EES8_NS5_IxS8_EES8_PS6_",
+     "launches": 78,
+     "device_ms": 0.45942300000042813
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_21compare_scalar_kernelIxEEvRNS_18TensorIteratorBaseENS0_50_GLOBAL__N__2ac0fdad_17_CompareKernels_cu_8f1b29aa6OpTypeET_EUlxE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 208,
+     "device_ms": 0.43203100000109357
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIN3c108BFloat16EEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 188,
+     "device_ms": 0.4283860000002823
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIfNS0_7MeanOpsIffffEEjfLi4ELi4EEEEEvT1_",
+     "launches": 82,
+     "device_ms": 0.3599280000000363
+    },
+    {
+     "name": "_ZN2at6native40_GLOBAL__N__27eda9f4_8_Shape_cu_85d9f36c19CatArrayBatchedCopyINS1_10OpaqueTypeILj2EEEjLi4ELi64ELi64EEEvPT_NS1_25CatArrInputTensorMetadataIS5_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+     "launches": 27,
+     "device_ms": 0.27203199999991484
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIN3c108BFloat16ES4_S4_NS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 109,
+     "device_ms": 0.2702729999998609
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIxNS0_14func_wrapper_tIxZNS0_11sum_functorIxxxEclERNS_14TensorIteratorEEUlxxE_EEjxLi4ELi4EEEEEvT1_",
+     "launches": 52,
+     "device_ms": 0.26502400000031046
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail10radix_sort31DeviceRadixSortSingleTileKernelINS1_5radix10policy_hubIxN2at4cuda3cub6detail10OpaqueTypeILi8EEEyE10Policy1000ELNS0_9SortOrderE0ExSB_yNS1_21identity_decomposer_tEEEvPKT1_PSG_PKT2_PSK_T3_iiT4_",
+     "launches": 52,
+     "device_ms": 0.2400310000000971
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_25bfloat16_copy_kernel_cudaERNS_18TensorIteratorBaseEEUlfE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 110,
+     "device_ms": 0.22720200000035495
+    },
+    {
+     "name": "_ZN2at6native24index_elementwise_kernelILi128ELi4EZNS0_16gpu_index_kernelIZNS0_17index_kernel_implINS0_10OpaqueTypeILi8EEEEEvRNS_18TensorIteratorBaseEN3c108ArrayRefIxEESA_EUlPcPKcxE_EEvS7_SA_SA_RKT_bEUliE_EEvxT1_",
+     "launches": 52,
+     "device_ms": 0.21894299999982475
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIxNS0_9MinMaxOpsIxxiEEjxLi4ELi4EEEEEvT1_",
+     "launches": 52,
+     "device_ms": 0.21459400000023005
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 108,
+     "device_ms": 0.2137949999995519
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 82,
+     "device_ms": 0.2024609999993595
+    },
+    {
+     "name": "_ZN50_GLOBAL__N__35dbd4de_17_RangeFactories_cu_4cc9e74429elementwise_kernel_with_indexIiZZZN2at6native15arange_cuda_outERKN3c106ScalarES6_S6_RNS1_6TensorEENKUlvE_clEvENKUlvE2_clEvEUlxE_EEvT_T0_PN15function_traitsISD_E11result_typeE",
+     "launches": 131,
+     "device_ms": 0.1936640000002114
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_11FillFunctorIxEESt5arrayIPcLy1EELb0EEEviT0_T1_",
+     "launches": 106,
+     "device_ms": 0.18479799999970045
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_17rsqrt_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 82,
+     "device_ms": 0.18426000000005696
+    },
+    {
+     "name": "_ZN2at6native20bitonicSortKVInPlaceILin2ELin1ELi16ELi16EfxNS0_4GTOpIfLb1EEEjEEvNS_4cuda6detail10TensorInfoIT3_T6_EES8_S8_S8_NS6_IT4_S8_EES8_T5_",
+     "launches": 26,
+     "device_ms": 0.17654300000027415
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_50_GLOBAL__N__7dd5f103_12_PowKernel_cu_96125627_135629pow_tensor_scalar_kernel_implIffEEvRNS_18TensorIteratorBaseET0_EUlfE_St5arrayIPcLy2EELb0EEEviS6_T1_",
+     "launches": 82,
+     "device_ms": 0.17078099999990873
+    },
+    {
+     "name": "_ZN2at6native25_assert_async_cuda_kernelIbEEvPKT_NS0_3MsgE",
+     "launches": 104,
+     "device_ms": 0.1698850000004603
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIfNS0_14func_wrapper_tIfZNS0_11sum_functorIfffEclERNS_14TensorIteratorEEUlffE_EEjfLi4ELi4EEEEEvT1_",
+     "launches": 52,
+     "device_ms": 0.16454499999994734
+    },
+    {
+     "name": "_ZN2at6native20bitonicSortKVInPlaceILin2ELin1ELi16ELi16ExxNS0_4LTOpIxLb1EEEjEEvNS_4cuda6detail10TensorInfoIT3_T6_EES8_S8_S8_NS6_IT4_S8_EES8_T5_",
+     "launches": 26,
+     "device_ms": 0.16083300000020254
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi128ELi4ENS0_8ReduceOpIfNS0_14func_wrapper_tIfZNS0_11sum_functorIfffEclERNS_14TensorIteratorEEUlffE_EEjfLi4ELi4EEEEEvT1_",
+     "launches": 26,
+     "device_ms": 0.1488979999999864
+    },
+    {
+     "name": "_ZN2at6native40_GLOBAL__N__27eda9f4_8_Shape_cu_85d9f36c30CatArrayBatchedCopy_vectorizedINS1_10OpaqueTypeILj2EEEjLi4ELi128ELi1ELi16ELi8EEEvPcNS1_25CatArrInputTensorMetadataIT_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+     "launches": 54,
+     "device_ms": 0.14787299999976633
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_15gpu_kernel_implINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 26,
+     "device_ms": 0.14048000000018512
+    },
+    {
+     "name": "_ZN2at6native27unrolled_elementwise_kernelIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE2_clEvEUlxE_St5arrayIPcLy2EELi4E23TrivialOffsetCalculatorILi1EjESB_NS0_6memory12LoadWithCastILi1EEENSC_13StoreWithCastILi1EEEEEviT_T0_T2_T3_T4_T5_",
+     "launches": 52,
+     "device_ms": 0.13340800000001043
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13BUnaryFunctorIxxxZZZNS0_15binary_internal21div_trunc_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE2_clEvEUlxxE_EESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.12867099999988565
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_15CUDAFunctor_addIxEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.12799999999994185
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13BUnaryFunctorIxxxZZZNS0_21remainder_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE2_clEvEUlxxE_EESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.1277410000003147
+    },
+    {
+     "name": "_ZN44_GLOBAL__N__99c14716_11_Indexing_cu_2a2c434e33indexing_backward_kernel_stride_1IxEEvPKxS2_PKT_PS3_xxxxb",
+     "launches": 52,
+     "device_ms": 0.12323099999970871
+    },
+    {
+     "name": "Memcpy DtoH (Device -> Pageable)",
+     "launches": 104,
+     "device_ms": 0.12003199999959893
+    },
+    {
+     "name": "_ZN8internal5gemvx6kernelIiiffffLb0ELb1ELb1ELb0ELi7ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKfES5_S3_IfEfEEENSt9enable_ifIXntT5_EvE4typeET11_",
+     "launches": 26,
+     "device_ms": 0.11270599999994739
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIbbbNS0_17BitwiseAndFunctorIbEEEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.11216200000012759
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13AUnaryFunctorIxxxNS0_15binary_internal10MulFunctorIxEEEESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.11139100000022159
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13BinaryFunctorIxxbNS0_51_GLOBAL__N__e3604c96_18_CompareEQKernel_cu_d8008c9616CompareEqFunctorIxEEEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 26,
+     "device_ms": 0.11116799999987419
+    },
+    {
+     "name": "_ZN2at6native24vectorized_gather_kernelILi16ExEEvPcS2_PT0_ixxxxb",
+     "launches": 52,
+     "device_ms": 0.10643500000021593
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 26,
+     "device_ms": 0.10089200000007983
+    },
+    {
+     "name": "_ZN2at6native24index_elementwise_kernelILi128ELi4EZNS0_16gpu_index_kernelIZNS0_17index_kernel_implINS0_10OpaqueTypeILi4EEEEEvRNS_18TensorIteratorBaseEN3c108ArrayRefIxEESA_EUlPcPKcxE_EEvS7_SA_SA_RKT_bEUliE_EEvxT1_",
+     "launches": 26,
+     "device_ms": 0.09727899999998042
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail6select23DeviceSelectSweepKernelINS2_10policy_hubIxNS0_8NullTypeEiLb0ELNS0_10SelectImplE0EE10Policy1000EPKxPS5_PxSC_NS0_13ScanTileStateIiLb1EEES5_N4cuda3std3__48equal_toIvEEiNS2_19streaming_context_tIxLb1EEELS6_0EEEvT0_T1_T2_T3_T4_T5_T6_T7_iT8_NS1_7vsmem_tE",
+     "launches": 26,
+     "device_ms": 0.09059300000022631
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_61_GLOBAL__N__a30504db_23_ActivationSiluKernel_cu_96125627_762411silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE4_clEvEUlN3c108BFloat16EE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 27,
+     "device_ms": 0.08454300000029066
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastIZZZNS0_61_GLOBAL__N__a30504db_23_ActivationSiluKernel_cu_96125627_762411silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE4_clEvEUlN3c108BFloat16EE_EEvS5_RKT_EUliE_EEviT1_",
+     "launches": 26,
+     "device_ms": 0.08438299999997254
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_19sigmoid_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 26,
+     "device_ms": 0.08012899999969161
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail6select23DeviceSelectSweepKernelINS2_10policy_hubIxbiLb0ELNS0_10SelectImplE0EE10Policy1000EN6thrust45THRUST_300001_SM_750_800_860_900_1000_1200_NS17counting_iteratorIxNS9_11use_defaultESB_SB_EENS9_18transform_iteratorIN2at6native43_GLOBAL__N__ec01c160_10_Nonzero_cu_cba1aaa09NonZeroOpIbEEPKbSB_SB_EEPxPiNS0_13ScanTileStateIiLb1EEENS0_8NullTypeESQ_iNS2_19streaming_context_tIxLb1EEELS5_0EEEvT0_T1_T2_T3_T4_T5_T6_T7_iT8_NS1_7vsmem_tE",
+     "launches": 26,
+     "device_ms": 0.07923200000009821
+    },
+    {
+     "name": "_ZN2at4cuda17kernelHistogram1DIiixLi1ELi2ELin1ELNS0_23CUDAHistogramMemoryTypeE0EZNS0_21CUDA_tensor_histogramIiiLb0EEEbNS_6TensorES4_S4_xNS_14AccumulateTypeIT0_Lb1EE4typeES8_NS0_13TensorArgTypeES9_S9_EUlxE0_EEvNS0_6detail10TensorInfoIT_T1_EESF_NSC_IKS6_SE_EExS8_S8_SE_T6_",
+     "launches": 26,
+     "device_ms": 0.0714869999998482
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail6reduce28DeviceReduceSingleTileKernelINS2_10policy_hubIiyN4cuda3std3__44plusIvEEE10Policy1000EN6thrust45THRUST_300001_SM_750_800_860_900_1000_1200_NS18transform_iteratorIN2at6native43_GLOBAL__N__ec01c160_10_Nonzero_cu_cba1aaa09NonZeroOpIbEEPKbNSD_11use_defaultESM_EEPiyS9_iiNS7_10__identityEEEvT0_T1_T2_T3_T4_T6_",
+     "launches": 26,
+     "device_ms": 0.07008200000023497
+    },
+    {
+     "name": "Memcpy DtoH (Device -> Pinned)",
+     "launches": 52,
+     "device_ms": 0.06646400000046562
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13AUnaryFunctorIiibNS0_51_GLOBAL__N__e3604c96_18_CompareEQKernel_cu_d8008c9616CompareEqFunctorIiEEEESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 26,
+     "device_ms": 0.0642569999997504
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail4scan16DeviceScanKernelINS2_10policy_hubIiiijSt4plusIiEE10Policy1000EPKiPiNS0_13ScanTileStateIiLb1EEES6_NS0_8NullTypeEjiLb0ESE_EEvT0_T1_T2_iT3_T4_T5_",
+     "launches": 26,
+     "device_ms": 0.0640940000002156
+    }
+   ],
+   "wall_ms": 764.7909999359399,
+   "gpu_idle_fraction": 0.28741860188515445
+  },
+  {
+   "step": 2,
+   "phase": "decode",
+   "device_ms_by_kind": {
+    "other_kernels": 54.86459199999906,
+    "gemm": 54.81714700000015,
+    "memcpy_d2d": 9.524330000000178,
+    "attention_kernels": 4.77714400000001,
+    "memcpy_other": 0.2745299999997732,
+    "memcpy_h2d": 119.82255600000013
+   },
+   "device_ms_by_scope": {
+    "outside_scopes": {
+     "other_kernels": 50.687421999999245,
+     "gemm": 27.576064999999723,
+     "memcpy_d2d": 9.26775700000019,
+     "attention_kernels": 4.77714400000001,
+     "memcpy_other": 0.1780479999998352,
+     "memcpy_h2d": 119.82255600000013
+    },
+    "experts": {
+     "memcpy_d2d": 0.256572999999982,
+     "other_kernels": 4.177169999999872,
+     "memcpy_other": 0.09648199999993812,
+     "gemm": 22.928576000000458
+    },
+    "lm_head": {
+     "gemm": 4.312505999999994
+    }
+   },
+   "kernel_launches": 2344,
+   "graph_launches": 54,
+   "device_kernels": 4161,
+   "launch_cpu_ms": 42.61949999999957,
+   "gpu_busy_ms": 244.08029899999931,
+   "kernels": [
+    {
+     "name": "Memcpy HtoD (Pinned -> Device)",
+     "launches": 95,
+     "device_ms": 119.78738900000005
+    },
+    {
+     "name": "_ZN11ans_gpu_lib6detail17decompress_kernelILNS0_10DecodeModeE1ELb0EEEvPKPKvPKyPKPvS8_PyP14nvcompStatus_tyh",
+     "launches": 26,
+     "device_ms": 33.30795199999994
+    },
+    {
+     "name": "_ZN8internal5gemvx6kernelIii13__nv_bfloat16S2_S2_fLb0ELb1ELb1ELb0ELi6ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKS2_ES6_S4_IS2_EfEEENSt9enable_ifIXntT5_EvE4typeET11_",
+     "launches": 291,
+     "device_ms": 29.099363000000153
+    },
+    {
+     "name": "ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_tn",
+     "launches": 27,
+     "device_ms": 15.178249999999942
+    },
+    {
+     "name": "Memcpy DtoD (Device -> Device)",
+     "launches": 262,
+     "device_ms": 9.524330000000178
+    },
+    {
+     "name": "_ZN7cutlass7Kernel2I68cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_32x32_128x2_tn_align8EEvNT_6ParamsE",
+     "launches": 156,
+     "device_ms": 9.424334000000018
+    },
+    {
+     "name": "_Z43fmha_cutlassF_bf16_aligned_32x128_gmem_sm80N22PyTorchMemEffAttention15AttentionKernelIN7cutlass10bfloat16_tENS1_4arch4Sm80ELb1ELi32ELi128ELi65536ELb1ELb1EE6ParamsE",
+     "launches": 27,
+     "device_ms": 4.77714400000001
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE10_clEvEUlN3c108BFloat16EE_EEvS4_RKT_EUliE_EEviT1_",
+     "launches": 54,
+     "device_ms": 2.3731490000001445
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail10radix_sort31DeviceRadixSortSingleTileKernelINS1_5radix10policy_hubIxNS0_8NullTypeEyE10Policy1000ELNS0_9SortOrderE0ExS6_yNS1_21identity_decomposer_tEEEvPKT1_PSB_PKT2_PSF_T3_iiT4_",
+     "launches": 26,
+     "device_ms": 1.6082209999999284
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIN3c108BFloat16ES5_S5_NS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 242,
+     "device_ms": 1.1253440000005763
+    },
+    {
+     "name": "_ZN2at6native27unrolled_elementwise_kernelIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE5_clEvEUlfE_St5arrayIPcLy2EELi4E23TrivialOffsetCalculatorILi1EjESB_NS0_6memory12LoadWithCastILi1EEENSC_13StoreWithCastILi1EEEEEviT_T0_T2_T3_T4_T5_",
+     "launches": 135,
+     "device_ms": 1.0005700000002247
+    },
+    {
+     "name": "_ZN8internal5gemvx6kernelIii13__nv_bfloat16S2_S2_fLb0ELb1ELb1ELb0ELi7ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKS2_ES6_S4_IS2_EfEEENSt9enable_ifIXntT5_EvE4typeET11_",
+     "launches": 28,
+     "device_ms": 0.9006399999999115
+    },
+    {
+     "name": "_ZN2at6native6sbtopk10gatherTopKIfjLi1ELb0EEEvNS_4cuda6detail10TensorInfoIKT_T0_EES8_S8_bS8_S8_NS5_IS6_S8_EES8_NS5_IxS8_EES8_PS6_",
+     "launches": 78,
+     "device_ms": 0.8769260000000502
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_21compare_scalar_kernelIxEEvRNS_18TensorIteratorBaseENS0_50_GLOBAL__N__2ac0fdad_17_CompareKernels_cu_8f1b29aa6OpTypeET_EUlxE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 208,
+     "device_ms": 0.8170519999998386
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIN3c108BFloat16EEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 188,
+     "device_ms": 0.6684469999999422
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIfNS0_7MeanOpsIffffEEjfLi4ELi4EEEEEvT1_",
+     "launches": 82,
+     "device_ms": 0.5397089999998985
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail10radix_sort31DeviceRadixSortSingleTileKernelINS1_5radix10policy_hubIxN2at4cuda3cub6detail10OpaqueTypeILi8EEEyE10Policy1000ELNS0_9SortOrderE0ExSB_yNS1_21identity_decomposer_tEEEvPKT1_PSG_PKT2_PSK_T3_iiT4_",
+     "launches": 52,
+     "device_ms": 0.5114539999999324
+    },
+    {
+     "name": "_ZN2at6native40_GLOBAL__N__27eda9f4_8_Shape_cu_85d9f36c30CatArrayBatchedCopy_vectorizedINS1_10OpaqueTypeILj2EEEjLi3ELi128ELi1ELi16ELi8EEEvPcNS1_25CatArrInputTensorMetadataIT_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+     "launches": 54,
+     "device_ms": 0.4827219999999729
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIxNS0_9MinMaxOpsIxxiEEjxLi4ELi4EEEEEvT1_",
+     "launches": 52,
+     "device_ms": 0.4753539999999101
+    },
+    {
+     "name": "_ZN2at6native24index_elementwise_kernelILi128ELi4EZNS0_16gpu_index_kernelIZNS0_17index_kernel_implINS0_10OpaqueTypeILi8EEEEEvRNS_18TensorIteratorBaseEN3c108ArrayRefIxEESA_EUlPcPKcxE_EEvS7_SA_SA_RKT_bEUliE_EEvxT1_",
+     "launches": 52,
+     "device_ms": 0.4024000000000114
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIN3c108BFloat16ES4_S4_NS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 109,
+     "device_ms": 0.3964179999998004
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIxNS0_14func_wrapper_tIxZNS0_11sum_functorIxxxEclERNS_14TensorIteratorEEUlxxE_EEjxLi4ELi4EEEEEvT1_",
+     "launches": 52,
+     "device_ms": 0.3831039999998973
+    },
+    {
+     "name": "_ZN50_GLOBAL__N__35dbd4de_17_RangeFactories_cu_4cc9e74429elementwise_kernel_with_indexIiZZZN2at6native15arange_cuda_outERKN3c106ScalarES6_S6_RNS1_6TensorEENKUlvE_clEvENKUlvE2_clEvEUlxE_EEvT_T0_PN15function_traitsISD_E11result_typeE",
+     "launches": 131,
+     "device_ms": 0.3744339999998193
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_25bfloat16_copy_kernel_cudaERNS_18TensorIteratorBaseEEUlfE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 110,
+     "device_ms": 0.37026799999992144
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_15gpu_kernel_implINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 26,
+     "device_ms": 0.34809499999999394
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 108,
+     "device_ms": 0.3472010000001881
+    },
+    {
+     "name": "_ZN2at6native20bitonicSortKVInPlaceILin2ELin1ELi16ELi16EfxNS0_4GTOpIfLb1EEEjEEvNS_4cuda6detail10TensorInfoIT3_T6_EES8_S8_S8_NS6_IT4_S8_EES8_T5_",
+     "launches": 26,
+     "device_ms": 0.3470399999998354
+    },
+    {
+     "name": "_ZN2at6native20bitonicSortKVInPlaceILin2ELin1ELi16ELi16ExxNS0_4LTOpIxLb1EEEjEEvNS_4cuda6detail10TensorInfoIT3_T6_EES8_S8_S8_NS6_IT4_S8_EES8_T5_",
+     "launches": 26,
+     "device_ms": 0.3337260000000207
+    },
+    {
+     "name": "_ZN2at6native25_assert_async_cuda_kernelIbEEvPKT_NS0_3MsgE",
+     "launches": 104,
+     "device_ms": 0.3289899999997568
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi128ELi4ENS0_8ReduceOpIfNS0_14func_wrapper_tIfZNS0_11sum_functorIfffEclERNS_14TensorIteratorEEUlffE_EEjfLi4ELi4EEEEEvT1_",
+     "launches": 26,
+     "device_ms": 0.31856099999998694
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+     "launches": 82,
+     "device_ms": 0.31779099999976945
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_11FillFunctorIxEESt5arrayIPcLy1EELb0EEEviT0_T1_",
+     "launches": 106,
+     "device_ms": 0.3135069999999703
+    },
+    {
+     "name": "_ZN2at6native40_GLOBAL__N__27eda9f4_8_Shape_cu_85d9f36c19CatArrayBatchedCopyINS1_10OpaqueTypeILj2EEEjLi4ELi64ELi64EEEvPT_NS1_25CatArrInputTensorMetadataIS5_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+     "launches": 27,
+     "device_ms": 0.3106549999999684
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_17rsqrt_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 82,
+     "device_ms": 0.2882890000000648
+    },
+    {
+     "name": "_ZN2at6native13reduce_kernelILi512ELi1ENS0_8ReduceOpIfNS0_14func_wrapper_tIfZNS0_11sum_functorIfffEclERNS_14TensorIteratorEEUlffE_EEjfLi4ELi4EEEEEvT1_",
+     "launches": 52,
+     "device_ms": 0.2793610000001372
+    },
+    {
+     "name": "_ZN2at6native27unrolled_elementwise_kernelIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE2_clEvEUlxE_St5arrayIPcLy2EELi4E23TrivialOffsetCalculatorILi1EjESB_NS0_6memory12LoadWithCastILi1EEENSC_13StoreWithCastILi1EEEEEviT_T0_T2_T3_T4_T5_",
+     "launches": 52,
+     "device_ms": 0.2782079999999369
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZNS0_50_GLOBAL__N__7dd5f103_12_PowKernel_cu_96125627_135629pow_tensor_scalar_kernel_implIffEEvRNS_18TensorIteratorBaseET0_EUlfE_St5arrayIPcLy2EELb0EEEviS6_T1_",
+     "launches": 82,
+     "device_ms": 0.2764799999999546
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13BUnaryFunctorIxxxZZZNS0_21remainder_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE2_clEvEUlxxE_EESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.264931999999989
+    },
+    {
+     "name": "_ZN44_GLOBAL__N__99c14716_11_Indexing_cu_2a2c434e33indexing_backward_kernel_stride_1IxEEvPKxS2_PKT_PS3_xxxxb",
+     "launches": 52,
+     "device_ms": 0.2527349999997304
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13BUnaryFunctorIxxxZZZNS0_15binary_internal21div_trunc_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE2_clEvEUlxxE_EESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.251520999999836
+    },
+    {
+     "name": "_ZN8internal5gemvx6kernelIiiffffLb0ELb1ELb1ELb0ELi7ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKfES5_S3_IfEfEEENSt9enable_ifIXntT5_EvE4typeET11_",
+     "launches": 26,
+     "device_ms": 0.21004800000015164
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIbbbNS0_17BitwiseAndFunctorIbEEEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.20848100000008077
+    },
+    {
+     "name": "_ZN2at6native40_GLOBAL__N__27eda9f4_8_Shape_cu_85d9f36c30CatArrayBatchedCopy_vectorizedINS1_10OpaqueTypeILj2EEEjLi4ELi128ELi1ELi16ELi8EEEvPcNS1_25CatArrInputTensorMetadataIT_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+     "launches": 54,
+     "device_ms": 0.20608300000015162
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_15CUDAFunctor_addIxEESt5arrayIPcLy3EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.20495799999995504
+    },
+    {
+     "name": "_ZN2at6native24vectorized_gather_kernelILi16ExEEvPcS2_PT0_ixxxxb",
+     "launches": 52,
+     "device_ms": 0.2021759999999412
+    },
+    {
+     "name": "_ZN2at6native24index_elementwise_kernelILi128ELi4EZNS0_16gpu_index_kernelIZNS0_17index_kernel_implINS0_10OpaqueTypeILi4EEEEEvRNS_18TensorIteratorBaseEN3c108ArrayRefIxEESA_EUlPcPKcxE_EEvS7_SA_SA_RKT_bEUliE_EEvxT1_",
+     "launches": 26,
+     "device_ms": 0.19916400000005524
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13AUnaryFunctorIxxxNS0_15binary_internal10MulFunctorIxEEEESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 52,
+     "device_ms": 0.1966700000000963
+    },
+    {
+     "name": "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastIZZZNS0_61_GLOBAL__N__a30504db_23_ActivationSiluKernel_cu_96125627_762411silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE4_clEvEUlN3c108BFloat16EE_EEvS5_RKT_EUliE_EEviT1_",
+     "launches": 26,
+     "device_ms": 0.18879800000001348
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail6select23DeviceSelectSweepKernelINS2_10policy_hubIxNS0_8NullTypeEiLb0ELNS0_10SelectImplE0EE10Policy1000EPKxPS5_PxSC_NS0_13ScanTileStateIiLb1EEES5_N4cuda3std3__48equal_toIvEEiNS2_19streaming_context_tIxLb1EEELS6_0EEEvT0_T1_T2_T3_T4_T5_T6_T7_iT8_NS1_7vsmem_tE",
+     "launches": 26,
+     "device_ms": 0.16739099999996238
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail6select23DeviceSelectSweepKernelINS2_10policy_hubIxbiLb0ELNS0_10SelectImplE0EE10Policy1000EN6thrust45THRUST_300001_SM_750_800_860_900_1000_1200_NS17counting_iteratorIxNS9_11use_defaultESB_SB_EENS9_18transform_iteratorIN2at6native43_GLOBAL__N__ec01c160_10_Nonzero_cu_cba1aaa09NonZeroOpIbEEPKbSB_SB_EEPxPiNS0_13ScanTileStateIiLb1EEENS0_8NullTypeESQ_iNS2_19streaming_context_tIxLb1EEELS5_0EEEvT0_T1_T2_T3_T4_T5_T6_T7_iT8_NS1_7vsmem_tE",
+     "launches": 26,
+     "device_ms": 0.15919900000005505
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2ENS0_13BUnaryFunctorIxxxZZZNS0_15binary_internal21div_floor_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE2_clEvEUlxxE_EESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 26,
+     "device_ms": 0.1553279999999067
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail4scan16DeviceScanKernelINS2_10policy_hubIiiijSt4plusIiEE10Policy1000EPKiPiNS0_13ScanTileStateIiLb1EEES6_NS0_8NullTypeEjiLb0ESE_EEvT0_T1_T2_iT3_T4_T5_",
+     "launches": 26,
+     "device_ms": 0.15238299999993984
+    },
+    {
+     "name": "_ZN2at4cuda17kernelHistogram1DIiixLi1ELi2ELin1ELNS0_23CUDAHistogramMemoryTypeE0EZNS0_21CUDA_tensor_histogramIiiLb0EEEbNS_6TensorES4_S4_xNS_14AccumulateTypeIT0_Lb1EE4typeES8_NS0_13TensorArgTypeES9_S9_EUlxE0_EEvNS0_6detail10TensorInfoIT_T1_EESF_NSC_IKS6_SE_EExS8_S8_SE_T6_",
+     "launches": 26,
+     "device_ms": 0.1509439999999158
+    },
+    {
+     "name": "Memcpy DtoH (Device -> Pageable)",
+     "launches": 104,
+     "device_ms": 0.14310500000003953
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_61_GLOBAL__N__a30504db_23_ActivationSiluKernel_cu_96125627_762411silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE4_clEvEUlN3c108BFloat16EE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 27,
+     "device_ms": 0.13689500000000315
+    },
+    {
+     "name": "_ZN2at6native27unrolled_elementwise_kernelIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE1_clEvEUliE_St5arrayIPcLy2EELi4E23TrivialOffsetCalculatorILi1EjESB_NS0_6memory12LoadWithCastILi1EEENSC_13StoreWithCastILi1EEEEEviT_T0_T2_T3_T4_T5_",
+     "launches": 26,
+     "device_ms": 0.13165000000007424
+    },
+    {
+     "name": "_ZN14at_cuda_detail3cub6detail6reduce28DeviceReduceSingleTileKernelINS2_10policy_hubIiyN4cuda3std3__44plusIvEEE10Policy1000EN6thrust45THRUST_300001_SM_750_800_860_900_1000_1200_NS18transform_iteratorIN2at6native43_GLOBAL__N__ec01c160_10_Nonzero_cu_cba1aaa09NonZeroOpIbEEPKbNSD_11use_defaultESM_EEPiyS9_iiNS7_10__identityEEEvT0_T1_T2_T3_T4_T6_",
+     "launches": 26,
+     "device_ms": 0.11417499999996561
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13AUnaryFunctorIiibNS0_51_GLOBAL__N__e3604c96_18_CompareEQKernel_cu_d8008c9616CompareEqFunctorIiEEEESt5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 26,
+     "device_ms": 0.10969600000004358
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_19sigmoid_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 26,
+     "device_ms": 0.10921399999991355
+    },
+    {
+     "name": "_ZN2at6native29vectorized_elementwise_kernelILi2EZZZNS0_49_GLOBAL__N__a62a4dcd_16_TensorCompare_cu_71e06f4e19launch_clamp_scalarERNS_18TensorIteratorBaseEN3c106ScalarES6_NS0_6detail11ClampLimitsEENKUlvE_clEvENKUlvE2_clEvEUlxE_St5arrayIPcLy2EELb0EEEviT0_T1_",
+     "launches": 26,
+     "device_ms": 0.1078399999999965
+    }
+   ],
+   "wall_ms": 411.1944001633674,
+   "gpu_idle_fraction": 0.4064114226676572
+  }
+ ],
+ "steps": [
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 0,
+   "phase": "prefill",
+   "wall_ms": 4507.388500031084,
+   "regions_ms": {
+    "route": 22.81850017607212,
+    "cache": 3.090700600296259,
+    "plan": 16.1693983245641,
+    "io": 1949.2272951174527,
+    "h2d": 261.33610028773546,
+    "decode": 181.57549970783293,
+    "assemble": 714.8786063771695,
+    "chunks": 1147.7109992410988
+   },
+   "store_io_ms": 1872.1124,
+   "h2d_device_ms": 2616.601857699454,
+   "physical_bytes": 6144204800,
+   "h2d_bytes": 16214630400,
+   "read_calls": 6171,
+   "pieces": 728,
+   "h2d_copies": 1591,
+   "requests": 228,
+   "chunked_calls": 26,
+   "cache_hits": 324,
+   "traced": true,
+   "cache": {
+    "lookups": 3102,
+    "hits": 324,
+    "misses": 2778,
+    "hit_bytes": 1891123200,
+    "miss_bytes": 16214630400,
+    "inserts": 0,
+    "evictions": 0,
+    "bypassed": 2778,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 2625.0,
+   "requested_bytes": 26834632704,
+   "fetched_bytes": 16214630400,
+   "extents": 707,
+   "peak_device_bytes": 5779367424,
+   "memory": {
+    "resident_bytes": 16236408832,
+    "peak_resident_bytes": 16253980672,
+    "private_bytes": 23398821888
+   },
+   "host_cache": {
+    "lookups": 2778,
+    "hits": 1727,
+    "waits": 0,
+    "misses": 1051,
+    "hit_bytes": 10070425600,
+    "wait_bytes": 0,
+    "miss_bytes": 6144204800,
+    "evictions": 0,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 0,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 1872.1124,
+    "read_ms": 12706.4407,
+    "cache_copied_bytes": 10070425600,
+    "gathered_bytes": 0,
+    "admitted_bytes": 0,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 228,
+    "submit_ms": 8.9243,
+    "submit_cache_ms": 1.8137,
+    "submit_plan_ms": 1.9842,
+    "submit_start_ms": 4.8778
+   },
+   "decoder": {
+    "launches": 228,
+    "rows": 3102,
+    "chunks": 26367,
+    "stored_bytes": 18105753600,
+    "decoded_bytes": 26834632704
+   },
+   "stored_bytes": 18105753600
+  },
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 1,
+   "phase": "decode",
+   "wall_ms": 764.7909999359399,
+   "regions_ms": {
+    "route": 74.77480010129511,
+    "cache": 0.331199262291193,
+    "plan": 1.7922003753483295,
+    "io": 150.33770049922168,
+    "h2d": 29.719999991357327,
+    "decode": 22.232499439269304,
+    "admit": 25.397699791938066,
+    "assemble": 168.61679987050593
+   },
+   "store_io_ms": 127.334,
+   "h2d_device_ms": 334.5330241769552,
+   "physical_bytes": 369664000,
+   "h2d_bytes": 1692672000,
+   "read_calls": 380,
+   "pieces": 96,
+   "h2d_copies": 178,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 22,
+   "traced": true,
+   "cache": {
+    "lookups": 312,
+    "hits": 22,
+    "misses": 290,
+    "hit_bytes": 128409600,
+    "miss_bytes": 1692672000,
+    "inserts": 290,
+    "evictions": 290,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 625.0,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1692672000,
+   "extents": 63,
+   "peak_device_bytes": 5439130624,
+   "memory": {
+    "resident_bytes": 15800795136,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22964047872
+   },
+   "host_cache": {
+    "lookups": 290,
+    "hits": 227,
+    "waits": 0,
+    "misses": 63,
+    "hit_bytes": 1323008000,
+    "wait_bytes": 0,
+    "miss_bytes": 369664000,
+    "evictions": 63,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 369664000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 127.334,
+    "read_ms": 759.3667,
+    "cache_copied_bytes": 1323008000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 369664000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.8435,
+    "submit_cache_ms": 0.2826,
+    "submit_plan_ms": 0.2393,
+    "submit_start_ms": 0.2777
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 2,
+   "phase": "decode",
+   "wall_ms": 411.1944001633674,
+   "regions_ms": {
+    "route": 38.696000119671226,
+    "cache": 0.4283988382667303,
+    "plan": 1.708500785753131,
+    "io": 104.50959904119372,
+    "h2d": 15.633699717000127,
+    "decode": 21.300499327480793,
+    "admit": 11.860399506986141,
+    "assemble": 30.681503238156438
+   },
+   "store_io_ms": 85.2983,
+   "h2d_device_ms": 121.56928007304668,
+   "physical_bytes": 268492800,
+   "h2d_bytes": 747110400,
+   "read_calls": 276,
+   "pieces": 56,
+   "h2d_copies": 95,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 184,
+   "traced": true,
+   "cache": {
+    "lookups": 312,
+    "hits": 184,
+    "misses": 128,
+    "hit_bytes": 1073971200,
+    "miss_bytes": 747110400,
+    "inserts": 128,
+    "evictions": 128,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 296.875,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 747110400,
+   "extents": 46,
+   "peak_device_bytes": 5415539200,
+   "memory": {
+    "resident_bytes": 15789338624,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954471424
+   },
+   "host_cache": {
+    "lookups": 128,
+    "hits": 82,
+    "waits": 0,
+    "misses": 46,
+    "hit_bytes": 478617600,
+    "wait_bytes": 0,
+    "miss_bytes": 268492800,
+    "evictions": 46,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 268492800,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 85.2983,
+    "read_ms": 521.6567,
+    "cache_copied_bytes": 478617600,
+    "gathered_bytes": 0,
+    "admitted_bytes": 268492800,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6622,
+    "submit_cache_ms": 0.1954,
+    "submit_plan_ms": 0.1717,
+    "submit_start_ms": 0.2581
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 3,
+   "phase": "decode",
+   "wall_ms": 377.84660002216697,
+   "regions_ms": {
+    "route": 21.910900017246604,
+    "cache": 0.493600033223629,
+    "plan": 1.632900908589363,
+    "io": 119.75399986840785,
+    "h2d": 16.670600743964314,
+    "decode": 16.976499697193503,
+    "admit": 9.826500434428453,
+    "assemble": 17.92639889754355
+   },
+   "store_io_ms": 91.8087,
+   "h2d_device_ms": 141.30143961310387,
+   "physical_bytes": 295731200,
+   "h2d_bytes": 875520000,
+   "read_calls": 304,
+   "pieces": 59,
+   "h2d_copies": 109,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 162,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 162,
+    "misses": 150,
+    "hit_bytes": 945561600,
+    "miss_bytes": 875520000,
+    "inserts": 150,
+    "evictions": 150,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 203.125,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 875520000,
+   "extents": 50,
+   "peak_device_bytes": 5421817344,
+   "memory": {
+    "resident_bytes": 15789342720,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954471424
+   },
+   "host_cache": {
+    "lookups": 150,
+    "hits": 100,
+    "waits": 0,
+    "misses": 50,
+    "hit_bytes": 579788800,
+    "wait_bytes": 0,
+    "miss_bytes": 295731200,
+    "evictions": 51,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 295731200,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 91.8087,
+    "read_ms": 577.4403,
+    "cache_copied_bytes": 579788800,
+    "gathered_bytes": 0,
+    "admitted_bytes": 295731200,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7105,
+    "submit_cache_ms": 0.2289,
+    "submit_plan_ms": 0.1863,
+    "submit_start_ms": 0.2599
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 4,
+   "phase": "decode",
+   "wall_ms": 485.2143998723477,
+   "regions_ms": {
+    "route": 13.72699998319149,
+    "cache": 0.37640146911144257,
+    "plan": 1.7966001760214567,
+    "io": 258.68269987404346,
+    "h2d": 29.312800150364637,
+    "decode": 16.85530017130077,
+    "admit": 14.925301540642977,
+    "assemble": 28.978797374293208
+   },
+   "store_io_ms": 248.8885,
+   "h2d_device_ms": 226.9383037239313,
+   "physical_bytes": 836608000,
+   "h2d_bytes": 1389158400,
+   "read_calls": 860,
+   "pieces": 83,
+   "h2d_copies": 215,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 74,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 74,
+    "misses": 238,
+    "hit_bytes": 431923200,
+    "miss_bytes": 1389158400,
+    "inserts": 238,
+    "evictions": 238,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 156.25,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1389158400,
+   "extents": 143,
+   "peak_device_bytes": 5445702144,
+   "memory": {
+    "resident_bytes": 15789367296,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954745856
+   },
+   "host_cache": {
+    "lookups": 238,
+    "hits": 95,
+    "waits": 0,
+    "misses": 143,
+    "hit_bytes": 552550400,
+    "wait_bytes": 0,
+    "miss_bytes": 836608000,
+    "evictions": 142,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 836608000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 248.8885,
+    "read_ms": 1623.6996,
+    "cache_copied_bytes": 552550400,
+    "gathered_bytes": 0,
+    "admitted_bytes": 836608000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.9114,
+    "submit_cache_ms": 0.3273,
+    "submit_plan_ms": 0.2918,
+    "submit_start_ms": 0.2593
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 5,
+   "phase": "decode",
+   "wall_ms": 321.2349000386894,
+   "regions_ms": {
+    "route": 13.555699959397316,
+    "cache": 0.4383993800729513,
+    "plan": 1.4897000510245562,
+    "io": 142.13770092464983,
+    "h2d": 16.841099597513676,
+    "decode": 16.35150029323995,
+    "admit": 8.00760043784976,
+    "assemble": 15.957500087097287
+   },
+   "store_io_ms": 137.479,
+   "h2d_device_ms": 114.63043200969696,
+   "physical_bytes": 455270400,
+   "h2d_bytes": 700416000,
+   "read_calls": 468,
+   "pieces": 60,
+   "h2d_copies": 118,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 192,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 192,
+    "misses": 120,
+    "hit_bytes": 1120665600,
+    "miss_bytes": 700416000,
+    "inserts": 120,
+    "evictions": 120,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 187.5,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 700416000,
+   "extents": 78,
+   "peak_device_bytes": 5432793088,
+   "memory": {
+    "resident_bytes": 15789367296,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954745856
+   },
+   "host_cache": {
+    "lookups": 120,
+    "hits": 42,
+    "waits": 0,
+    "misses": 78,
+    "hit_bytes": 245145600,
+    "wait_bytes": 0,
+    "miss_bytes": 455270400,
+    "evictions": 78,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 455270400,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 137.479,
+    "read_ms": 865.394,
+    "cache_copied_bytes": 245145600,
+    "gathered_bytes": 0,
+    "admitted_bytes": 455270400,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 25,
+    "submit_ms": 0.6758,
+    "submit_cache_ms": 0.2324,
+    "submit_plan_ms": 0.1924,
+    "submit_start_ms": 0.2198
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 6,
+   "phase": "decode",
+   "wall_ms": 382.4080000631511,
+   "regions_ms": {
+    "route": 14.037299901247025,
+    "cache": 0.37490040995180607,
+    "plan": 1.6107994597405195,
+    "io": 110.59120087884367,
+    "h2d": 17.136998707428575,
+    "decode": 16.402499517425895,
+    "admit": 11.510200100019574,
+    "assemble": 59.61110116913915
+   },
+   "store_io_ms": 79.5674,
+   "h2d_device_ms": 171.1958723217249,
+   "physical_bytes": 256819200,
+   "h2d_bytes": 1062297600,
+   "read_calls": 263,
+   "pieces": 70,
+   "h2d_copies": 116,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 130,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 130,
+    "misses": 182,
+    "hit_bytes": 758784000,
+    "miss_bytes": 1062297600,
+    "inserts": 182,
+    "evictions": 182,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 312.5,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1062297600,
+   "extents": 42,
+   "peak_device_bytes": 5446572032,
+   "memory": {
+    "resident_bytes": 15789367296,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954745856
+   },
+   "host_cache": {
+    "lookups": 182,
+    "hits": 138,
+    "waits": 0,
+    "misses": 44,
+    "hit_bytes": 805478400,
+    "wait_bytes": 0,
+    "miss_bytes": 256819200,
+    "evictions": 40,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 256819200,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 79.5674,
+    "read_ms": 470.336,
+    "cache_copied_bytes": 805478400,
+    "gathered_bytes": 0,
+    "admitted_bytes": 256819200,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7079,
+    "submit_cache_ms": 0.2156,
+    "submit_plan_ms": 0.1793,
+    "submit_start_ms": 0.2766
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 7,
+   "phase": "decode",
+   "wall_ms": 459.83720012009144,
+   "regions_ms": {
+    "route": 13.936700765043497,
+    "cache": 0.35180035047233105,
+    "plan": 1.7414994072169065,
+    "io": 122.84429999999702,
+    "h2d": 19.53270030207932,
+    "decode": 16.7970999609679,
+    "admit": 14.855402987450361,
+    "assemble": 50.79669668339193
+   },
+   "store_io_ms": 64.2945,
+   "h2d_device_ms": 225.94736075401306,
+   "physical_bytes": 210124800,
+   "h2d_bytes": 1412505600,
+   "read_calls": 216,
+   "pieces": 70,
+   "h2d_copies": 125,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 70,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 70,
+    "misses": 242,
+    "hit_bytes": 408576000,
+    "miss_bytes": 1412505600,
+    "inserts": 242,
+    "evictions": 242,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 328.125,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1412505600,
+   "extents": 36,
+   "peak_device_bytes": 5445218304,
+   "memory": {
+    "resident_bytes": 15789367296,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954745856
+   },
+   "host_cache": {
+    "lookups": 242,
+    "hits": 206,
+    "waits": 0,
+    "misses": 36,
+    "hit_bytes": 1202380800,
+    "wait_bytes": 0,
+    "miss_bytes": 210124800,
+    "evictions": 36,
+    "resident_bytes": 11992678400,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 210124800,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 64.2945,
+    "read_ms": 399.7186,
+    "cache_copied_bytes": 1202380800,
+    "gathered_bytes": 0,
+    "admitted_bytes": 210124800,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7282,
+    "submit_cache_ms": 0.2451,
+    "submit_plan_ms": 0.19,
+    "submit_start_ms": 0.2439
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 7,
+   "length": 1024,
+   "step": 8,
+   "phase": "decode",
+   "wall_ms": 335.43129987083375,
+   "regions_ms": {
+    "route": 13.692799024283886,
+    "cache": 0.4015001468360424,
+    "plan": 1.501099904999137,
+    "io": 77.12229993194342,
+    "h2d": 13.434099266305566,
+    "decode": 16.092999139800668,
+    "admit": 10.042798705399036,
+    "assemble": 29.59470311179757
+   },
+   "store_io_ms": 40.7024,
+   "h2d_device_ms": 142.67423982918262,
+   "physical_bytes": 128409600,
+   "h2d_bytes": 887193600,
+   "read_calls": 132,
+   "pieces": 58,
+   "h2d_copies": 98,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 160,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 160,
+    "misses": 152,
+    "hit_bytes": 933888000,
+    "miss_bytes": 887193600,
+    "inserts": 152,
+    "evictions": 152,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 218.75,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 887193600,
+   "extents": 22,
+   "peak_device_bytes": 5445478400,
+   "memory": {
+    "resident_bytes": 15789367296,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954745856
+   },
+   "host_cache": {
+    "lookups": 152,
+    "hits": 130,
+    "waits": 0,
+    "misses": 22,
+    "hit_bytes": 758784000,
+    "wait_bytes": 0,
+    "miss_bytes": 128409600,
+    "evictions": 26,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 128409600,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 40.7024,
+    "read_ms": 234.564,
+    "cache_copied_bytes": 758784000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 128409600,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.5849,
+    "submit_cache_ms": 0.1633,
+    "submit_plan_ms": 0.1559,
+    "submit_start_ms": 0.2284
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 0,
+   "phase": "prefill",
+   "wall_ms": 2400.002999929711,
+   "regions_ms": {
+    "route": 10.414099786430597,
+    "cache": 1.654298510402441,
+    "plan": 8.002099581062794,
+    "io": 975.5373024381697,
+    "h2d": 128.4298012033105,
+    "decode": 81.6738991998136,
+    "assemble": 434.7741005476564,
+    "chunks": 598.6374986823648
+   },
+   "store_io_ms": 884.916,
+   "h2d_device_ms": 1395.1294709518552,
+   "physical_bytes": 2883379200,
+   "h2d_bytes": 8638464000,
+   "read_calls": 2930,
+   "pieces": 408,
+   "h2d_copies": 880,
+   "requests": 138,
+   "chunked_calls": 26,
+   "cache_hits": 142,
+   "traced": false,
+   "cache": {
+    "lookups": 1622,
+    "hits": 142,
+    "misses": 1480,
+    "hit_bytes": 828825600,
+    "miss_bytes": 8638464000,
+    "inserts": 0,
+    "evictions": 0,
+    "bypassed": 1480,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 1437.5,
+   "requested_bytes": 14031519744,
+   "fetched_bytes": 8638464000,
+   "extents": 404,
+   "peak_device_bytes": 5720410624,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 1480,
+    "hits": 987,
+    "waits": 0,
+    "misses": 493,
+    "hit_bytes": 5755084800,
+    "wait_bytes": 0,
+    "miss_bytes": 2883379200,
+    "evictions": 0,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 0,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 884.916,
+    "read_ms": 5858.3936,
+    "cache_copied_bytes": 5755084800,
+    "gathered_bytes": 0,
+    "admitted_bytes": 0,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 138,
+    "submit_ms": 3.7491,
+    "submit_cache_ms": 1.0132,
+    "submit_plan_ms": 1.1469,
+    "submit_start_ms": 1.4498
+   },
+   "decoder": {
+    "launches": 138,
+    "rows": 1622,
+    "chunks": 13787,
+    "stored_bytes": 9467289600,
+    "decoded_bytes": 14031519744
+   },
+   "stored_bytes": 9467289600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 1,
+   "phase": "decode",
+   "wall_ms": 512.446700129658,
+   "regions_ms": {
+    "route": 13.344199629500508,
+    "cache": 0.375998904928565,
+    "plan": 1.8801998812705278,
+    "io": 182.3202008381486,
+    "h2d": 27.797298738732934,
+    "decode": 17.704200465232134,
+    "admit": 17.630298621952534,
+    "assemble": 98.3828017488122
+   },
+   "store_io_ms": 147.6778,
+   "h2d_device_ms": 269.2425918877125,
+   "physical_bytes": 486400000,
+   "h2d_bytes": 1669324800,
+   "read_calls": 498,
+   "pieces": 93,
+   "h2d_copies": 187,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 26,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 26,
+    "misses": 286,
+    "hit_bytes": 151756800,
+    "miss_bytes": 1669324800,
+    "inserts": 286,
+    "evictions": 286,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 328.125,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1669324800,
+   "extents": 79,
+   "peak_device_bytes": 5381916160,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 286,
+    "hits": 203,
+    "waits": 0,
+    "misses": 83,
+    "hit_bytes": 1182924800,
+    "wait_bytes": 0,
+    "miss_bytes": 486400000,
+    "evictions": 81,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 486400000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 147.6778,
+    "read_ms": 909.2044,
+    "cache_copied_bytes": 1182924800,
+    "gathered_bytes": 0,
+    "admitted_bytes": 486400000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.8992,
+    "submit_cache_ms": 0.3234,
+    "submit_plan_ms": 0.2645,
+    "submit_start_ms": 0.2727
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 2,
+   "phase": "decode",
+   "wall_ms": 486.3521000370383,
+   "regions_ms": {
+    "route": 13.26629938557744,
+    "cache": 0.38890051655471325,
+    "plan": 1.7603994347155094,
+    "io": 195.6484995316714,
+    "h2d": 23.498601280152798,
+    "decode": 17.2432002145797,
+    "admit": 13.679101830348372,
+    "assemble": 46.3023972697556
+   },
+   "store_io_ms": 157.8885,
+   "h2d_device_ms": 223.35097585618496,
+   "physical_bytes": 525312000,
+   "h2d_bytes": 1377484800,
+   "read_calls": 539,
+   "pieces": 72,
+   "h2d_copies": 165,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 76,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 76,
+    "misses": 236,
+    "hit_bytes": 443596800,
+    "miss_bytes": 1377484800,
+    "inserts": 236,
+    "evictions": 236,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 234.375,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1377484800,
+   "extents": 88,
+   "peak_device_bytes": 5381949952,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 236,
+    "hits": 146,
+    "waits": 0,
+    "misses": 90,
+    "hit_bytes": 852172800,
+    "wait_bytes": 0,
+    "miss_bytes": 525312000,
+    "evictions": 91,
+    "resident_bytes": 11992678400,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 525312000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 157.8885,
+    "read_ms": 1034.0551,
+    "cache_copied_bytes": 852172800,
+    "gathered_bytes": 0,
+    "admitted_bytes": 525312000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7779,
+    "submit_cache_ms": 0.2772,
+    "submit_plan_ms": 0.2121,
+    "submit_start_ms": 0.2506
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 3,
+   "phase": "decode",
+   "wall_ms": 445.32679999247193,
+   "regions_ms": {
+    "route": 13.087799306958914,
+    "cache": 0.40580006316304207,
+    "plan": 5.307000130414963,
+    "io": 118.11049934476614,
+    "h2d": 20.681500667706132,
+    "decode": 16.60090032964945,
+    "admit": 14.071002136915922,
+    "assemble": 84.80339706875384
+   },
+   "store_io_ms": 79.1353,
+   "h2d_device_ms": 225.07324799895287,
+   "physical_bytes": 252928000,
+   "h2d_bytes": 1400832000,
+   "read_calls": 260,
+   "pieces": 80,
+   "h2d_copies": 137,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 72,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 72,
+    "misses": 240,
+    "hit_bytes": 420249600,
+    "miss_bytes": 1400832000,
+    "inserts": 240,
+    "evictions": 240,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 296.875,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1400832000,
+   "extents": 43,
+   "peak_device_bytes": 5381991936,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 240,
+    "hits": 197,
+    "waits": 0,
+    "misses": 43,
+    "hit_bytes": 1147904000,
+    "wait_bytes": 0,
+    "miss_bytes": 252928000,
+    "evictions": 43,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 252928000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 79.1353,
+    "read_ms": 474.599,
+    "cache_copied_bytes": 1147904000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 252928000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 4.3475,
+    "submit_cache_ms": 0.2439,
+    "submit_plan_ms": 0.1918,
+    "submit_start_ms": 3.874
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 4,
+   "phase": "decode",
+   "wall_ms": 436.8074000813067,
+   "regions_ms": {
+    "route": 13.365999097004533,
+    "cache": 0.350800110027194,
+    "plan": 1.4963997527956963,
+    "io": 91.54819999821484,
+    "h2d": 16.423200955614448,
+    "decode": 16.578500159084797,
+    "admit": 13.470997801050544,
+    "assemble": 54.17880113236606
+   },
+   "store_io_ms": 26.3841,
+   "h2d_device_ms": 212.62032021582127,
+   "physical_bytes": 81715200,
+   "h2d_bytes": 1330790400,
+   "read_calls": 84,
+   "pieces": 62,
+   "h2d_copies": 98,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 84,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 84,
+    "misses": 228,
+    "hit_bytes": 490291200,
+    "miss_bytes": 1330790400,
+    "inserts": 228,
+    "evictions": 228,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 250.0,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1330790400,
+   "extents": 14,
+   "peak_device_bytes": 5382031872,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 228,
+    "hits": 214,
+    "waits": 0,
+    "misses": 14,
+    "hit_bytes": 1249075200,
+    "wait_bytes": 0,
+    "miss_bytes": 81715200,
+    "evictions": 16,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 81715200,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 26.3841,
+    "read_ms": 147.4958,
+    "cache_copied_bytes": 1249075200,
+    "gathered_bytes": 0,
+    "admitted_bytes": 81715200,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6224,
+    "submit_cache_ms": 0.1917,
+    "submit_plan_ms": 0.1453,
+    "submit_start_ms": 0.2481
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 5,
+   "phase": "decode",
+   "wall_ms": 434.29260002449155,
+   "regions_ms": {
+    "route": 13.746400829404593,
+    "cache": 0.3806985914707184,
+    "plan": 1.6442998312413692,
+    "io": 113.01840096712112,
+    "h2d": 18.129499396309257,
+    "decode": 16.58180053345859,
+    "admit": 13.456100597977638,
+    "assemble": 60.00940012745559
+   },
+   "store_io_ms": 60.5482,
+   "h2d_device_ms": 213.20281697809696,
+   "physical_bytes": 186777600,
+   "h2d_bytes": 1330790400,
+   "read_calls": 192,
+   "pieces": 72,
+   "h2d_copies": 122,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 84,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 84,
+    "misses": 228,
+    "hit_bytes": 490291200,
+    "miss_bytes": 1330790400,
+    "inserts": 228,
+    "evictions": 228,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 296.875,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1330790400,
+   "extents": 32,
+   "peak_device_bytes": 5382084096,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 228,
+    "hits": 196,
+    "waits": 0,
+    "misses": 32,
+    "hit_bytes": 1144012800,
+    "wait_bytes": 0,
+    "miss_bytes": 186777600,
+    "evictions": 29,
+    "resident_bytes": 11992678400,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 186777600,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 60.5482,
+    "read_ms": 360.7829,
+    "cache_copied_bytes": 1144012800,
+    "gathered_bytes": 0,
+    "admitted_bytes": 186777600,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6801,
+    "submit_cache_ms": 0.2143,
+    "submit_plan_ms": 0.1815,
+    "submit_start_ms": 0.2417
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 6,
+   "phase": "decode",
+   "wall_ms": 367.70519986748695,
+   "regions_ms": {
+    "route": 13.779700268059969,
+    "cache": 0.4204004071652889,
+    "plan": 1.584699610248208,
+    "io": 84.57380183972418,
+    "h2d": 15.841999324038625,
+    "decode": 17.50359940342605,
+    "admit": 10.772101813927293,
+    "assemble": 36.80429724045098
+   },
+   "store_io_ms": 44.0706,
+   "h2d_device_ms": 162.97369588911533,
+   "physical_bytes": 140083200,
+   "h2d_bytes": 1015603200,
+   "read_calls": 144,
+   "pieces": 63,
+   "h2d_copies": 101,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 138,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 138,
+    "misses": 174,
+    "hit_bytes": 805478400,
+    "miss_bytes": 1015603200,
+    "inserts": 174,
+    "evictions": 174,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 328.125,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1015603200,
+   "extents": 24,
+   "peak_device_bytes": 5370465280,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 174,
+    "hits": 150,
+    "waits": 0,
+    "misses": 24,
+    "hit_bytes": 875520000,
+    "wait_bytes": 0,
+    "miss_bytes": 140083200,
+    "evictions": 26,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 140083200,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 44.0706,
+    "read_ms": 253.0069,
+    "cache_copied_bytes": 875520000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 140083200,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6481,
+    "submit_cache_ms": 0.2059,
+    "submit_plan_ms": 0.1604,
+    "submit_start_ms": 0.2434
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 7,
+   "phase": "decode",
+   "wall_ms": 381.36080000549555,
+   "regions_ms": {
+    "route": 13.686799444258213,
+    "cache": 0.44430047273635864,
+    "plan": 1.5334005001932383,
+    "io": 86.90969925373793,
+    "h2d": 14.809000538662076,
+    "decode": 16.04890078306198,
+    "admit": 11.184701696038246,
+    "assemble": 51.46689573302865
+   },
+   "store_io_ms": 47.1528,
+   "h2d_device_ms": 176.26406344771385,
+   "physical_bytes": 147865600,
+   "h2d_bytes": 1108992000,
+   "read_calls": 152,
+   "pieces": 71,
+   "h2d_copies": 105,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 122,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 122,
+    "misses": 190,
+    "hit_bytes": 712089600,
+    "miss_bytes": 1108992000,
+    "inserts": 190,
+    "evictions": 190,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 328.125,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1108992000,
+   "extents": 25,
+   "peak_device_bytes": 5370511360,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 190,
+    "hits": 165,
+    "waits": 0,
+    "misses": 25,
+    "hit_bytes": 961126400,
+    "wait_bytes": 0,
+    "miss_bytes": 147865600,
+    "evictions": 26,
+    "resident_bytes": 11992678400,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 147865600,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 47.1528,
+    "read_ms": 256.465,
+    "cache_copied_bytes": 961126400,
+    "gathered_bytes": 0,
+    "admitted_bytes": 147865600,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 25,
+    "submit_ms": 0.6777,
+    "submit_cache_ms": 0.2146,
+    "submit_plan_ms": 0.1813,
+    "submit_start_ms": 0.2485
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 0,
+   "length": 16,
+   "step": 8,
+   "phase": "decode",
+   "wall_ms": 399.9071998987347,
+   "regions_ms": {
+    "route": 13.741600792855024,
+    "cache": 0.39510009810328484,
+    "plan": 1.5477996785193682,
+    "io": 90.01079946756363,
+    "h2d": 15.091100009158254,
+    "decode": 16.471599461510777,
+    "admit": 12.07599719054997,
+    "assemble": 46.22270539402962
+   },
+   "store_io_ms": 36.9791,
+   "h2d_device_ms": 186.5128961354494,
+   "physical_bytes": 116736000,
+   "h2d_bytes": 1167360000,
+   "read_calls": 120,
+   "pieces": 62,
+   "h2d_copies": 102,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 112,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 112,
+    "misses": 200,
+    "hit_bytes": 653721600,
+    "miss_bytes": 1167360000,
+    "inserts": 200,
+    "evictions": 200,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 312.5,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1167360000,
+   "extents": 20,
+   "peak_device_bytes": 5382226944,
+   "memory": {
+    "resident_bytes": 15789379584,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954754048
+   },
+   "host_cache": {
+    "lookups": 200,
+    "hits": 180,
+    "waits": 0,
+    "misses": 20,
+    "hit_bytes": 1050624000,
+    "wait_bytes": 0,
+    "miss_bytes": 116736000,
+    "evictions": 19,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 116736000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 36.9791,
+    "read_ms": 214.4054,
+    "cache_copied_bytes": 1050624000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 116736000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6308,
+    "submit_cache_ms": 0.1884,
+    "submit_plan_ms": 0.1718,
+    "submit_start_ms": 0.2358
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 0,
+   "phase": "prefill",
+   "wall_ms": 3585.9528998844326,
+   "regions_ms": {
+    "route": 11.007799301296473,
+    "cache": 2.583699533715844,
+    "plan": 12.052899925038218,
+    "io": 1523.9505991339684,
+    "h2d": 197.433996014297,
+    "decode": 118.7273992691189,
+    "assemble": 591.3714063353837,
+    "chunks": 960.2575998287648
+   },
+   "store_io_ms": 1410.1412,
+   "h2d_device_ms": 2214.643521979451,
+   "physical_bytes": 4568268800,
+   "h2d_bytes": 13693132800,
+   "read_calls": 4627,
+   "pieces": 620,
+   "h2d_copies": 1422,
+   "requests": 206,
+   "chunked_calls": 26,
+   "cache_hits": 232,
+   "traced": false,
+   "cache": {
+    "lookups": 2578,
+    "hits": 232,
+    "misses": 2346,
+    "hit_bytes": 1354137600,
+    "miss_bytes": 13693132800,
+    "inserts": 0,
+    "evictions": 0,
+    "bypassed": 2346,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 1906.25,
+   "requested_bytes": 22301638656,
+   "fetched_bytes": 13693132800,
+   "extents": 624,
+   "peak_device_bytes": 5686573056,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 2346,
+    "hits": 1565,
+    "waits": 0,
+    "misses": 781,
+    "hit_bytes": 9124864000,
+    "wait_bytes": 0,
+    "miss_bytes": 4568268800,
+    "evictions": 0,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 0,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 1410.1412,
+    "read_ms": 9291.2458,
+    "cache_copied_bytes": 9124864000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 0,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 206,
+    "submit_ms": 5.5937,
+    "submit_cache_ms": 1.6263,
+    "submit_plan_ms": 1.7316,
+    "submit_start_ms": 2.0175
+   },
+   "decoder": {
+    "launches": 206,
+    "rows": 2578,
+    "chunks": 21913,
+    "stored_bytes": 15047270400,
+    "decoded_bytes": 22301638656
+   },
+   "stored_bytes": 15047270400
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 1,
+   "phase": "decode",
+   "wall_ms": 490.2866999618709,
+   "regions_ms": {
+    "route": 12.95509934425354,
+    "cache": 0.3455986734479666,
+    "plan": 1.7474000342190266,
+    "io": 160.17140075564384,
+    "h2d": 25.86360089480877,
+    "decode": 17.29650003835559,
+    "admit": 16.198100056499243,
+    "assemble": 78.33060040138662
+   },
+   "store_io_ms": 120.2908,
+   "h2d_device_ms": 258.34195061028004,
+   "physical_bytes": 396902400,
+   "h2d_bytes": 1610956800,
+   "read_calls": 408,
+   "pieces": 90,
+   "h2d_copies": 182,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 36,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 36,
+    "misses": 276,
+    "hit_bytes": 210124800,
+    "miss_bytes": 1610956800,
+    "inserts": 276,
+    "evictions": 276,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 375.0,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1610956800,
+   "extents": 68,
+   "peak_device_bytes": 5387262464,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 276,
+    "hits": 208,
+    "waits": 0,
+    "misses": 68,
+    "hit_bytes": 1214054400,
+    "wait_bytes": 0,
+    "miss_bytes": 396902400,
+    "evictions": 68,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 396902400,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 120.2908,
+    "read_ms": 750.3507,
+    "cache_copied_bytes": 1214054400,
+    "gathered_bytes": 0,
+    "admitted_bytes": 396902400,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7904,
+    "submit_cache_ms": 0.2787,
+    "submit_plan_ms": 0.2196,
+    "submit_start_ms": 0.2561
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 2,
+   "phase": "decode",
+   "wall_ms": 479.21900008805096,
+   "regions_ms": {
+    "route": 14.228500192984939,
+    "cache": 0.3595005255192518,
+    "plan": 1.6872996930032969,
+    "io": 129.18219971470535,
+    "h2d": 22.83140132203698,
+    "decode": 17.06649991683662,
+    "admit": 15.12769958935678,
+    "assemble": 84.47849936783314
+   },
+   "store_io_ms": 86.756,
+   "h2d_device_ms": 250.90281599760056,
+   "physical_bytes": 280166400,
+   "h2d_bytes": 1564262400,
+   "read_calls": 288,
+   "pieces": 84,
+   "h2d_copies": 146,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 44,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 44,
+    "misses": 268,
+    "hit_bytes": 256819200,
+    "miss_bytes": 1564262400,
+    "inserts": 268,
+    "evictions": 268,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 359.375,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1564262400,
+   "extents": 48,
+   "peak_device_bytes": 5387290112,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 268,
+    "hits": 220,
+    "waits": 0,
+    "misses": 48,
+    "hit_bytes": 1284096000,
+    "wait_bytes": 0,
+    "miss_bytes": 280166400,
+    "evictions": 48,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 280166400,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 86.756,
+    "read_ms": 514.5643,
+    "cache_copied_bytes": 1284096000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 280166400,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7483,
+    "submit_cache_ms": 0.2629,
+    "submit_plan_ms": 0.1985,
+    "submit_start_ms": 0.2507
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 3,
+   "phase": "decode",
+   "wall_ms": 503.3549000509083,
+   "regions_ms": {
+    "route": 13.36050033569336,
+    "cache": 0.31560007482767105,
+    "plan": 1.6345006879419088,
+    "io": 113.65999816916883,
+    "h2d": 20.937899826094508,
+    "decode": 17.116499599069357,
+    "admit": 16.038002213463187,
+    "assemble": 99.23169878311455
+   },
+   "store_io_ms": 40.2515,
+   "h2d_device_ms": 262.680127620697,
+   "physical_bytes": 128409600,
+   "h2d_bytes": 1645977600,
+   "read_calls": 132,
+   "pieces": 77,
+   "h2d_copies": 121,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 30,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 30,
+    "misses": 282,
+    "hit_bytes": 175104000,
+    "miss_bytes": 1645977600,
+    "inserts": 282,
+    "evictions": 282,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 343.75,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1645977600,
+   "extents": 22,
+   "peak_device_bytes": 5387330048,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 282,
+    "hits": 260,
+    "waits": 0,
+    "misses": 22,
+    "hit_bytes": 1517568000,
+    "wait_bytes": 0,
+    "miss_bytes": 128409600,
+    "evictions": 22,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 128409600,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 40.2515,
+    "read_ms": 229.3854,
+    "cache_copied_bytes": 1517568000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 128409600,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7019,
+    "submit_cache_ms": 0.2427,
+    "submit_plan_ms": 0.1617,
+    "submit_start_ms": 0.259
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 4,
+   "phase": "decode",
+   "wall_ms": 295.3510999213904,
+   "regions_ms": {
+    "route": 13.589999871328473,
+    "cache": 0.4513007588684559,
+    "plan": 1.4587000478059053,
+    "io": 73.2092997059226,
+    "h2d": 11.631399393081665,
+    "decode": 16.261699609458447,
+    "admit": 7.50150135718286,
+    "assemble": 27.121299179270864
+   },
+   "store_io_ms": 47.0419,
+   "h2d_device_ms": 110.89196892082691,
+   "physical_bytes": 151756800,
+   "h2d_bytes": 688742400,
+   "read_calls": 156,
+   "pieces": 52,
+   "h2d_copies": 78,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 194,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 194,
+    "misses": 118,
+    "hit_bytes": 1132339200,
+    "miss_bytes": 688742400,
+    "inserts": 118,
+    "evictions": 118,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 234.375,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 688742400,
+   "extents": 26,
+   "peak_device_bytes": 5364332032,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 118,
+    "hits": 92,
+    "waits": 0,
+    "misses": 26,
+    "hit_bytes": 536985600,
+    "wait_bytes": 0,
+    "miss_bytes": 151756800,
+    "evictions": 26,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 151756800,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 47.0419,
+    "read_ms": 270.4332,
+    "cache_copied_bytes": 536985600,
+    "gathered_bytes": 0,
+    "admitted_bytes": 151756800,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 25,
+    "submit_ms": 0.6002,
+    "submit_cache_ms": 0.1666,
+    "submit_plan_ms": 0.1497,
+    "submit_start_ms": 0.2501
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 5,
+   "phase": "decode",
+   "wall_ms": 390.6906999181956,
+   "regions_ms": {
+    "route": 13.848299626260996,
+    "cache": 0.4015006124973297,
+    "plan": 1.637900248169899,
+    "io": 104.31989864446223,
+    "h2d": 17.464398639276624,
+    "decode": 16.423399792984128,
+    "admit": 11.877899523824453,
+    "assemble": 52.39700269885361
+   },
+   "store_io_ms": 69.3143,
+   "h2d_device_ms": 182.07481649518013,
+   "physical_bytes": 221798400,
+   "h2d_bytes": 1132339200,
+   "read_calls": 228,
+   "pieces": 75,
+   "h2d_copies": 122,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 118,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 118,
+    "misses": 194,
+    "hit_bytes": 688742400,
+    "miss_bytes": 1132339200,
+    "inserts": 194,
+    "evictions": 194,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 296.875,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1132339200,
+   "extents": 38,
+   "peak_device_bytes": 5387411456,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 194,
+    "hits": 156,
+    "waits": 0,
+    "misses": 38,
+    "hit_bytes": 910540800,
+    "wait_bytes": 0,
+    "miss_bytes": 221798400,
+    "evictions": 38,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 221798400,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 69.3143,
+    "read_ms": 393.8289,
+    "cache_copied_bytes": 910540800,
+    "gathered_bytes": 0,
+    "admitted_bytes": 221798400,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6841,
+    "submit_cache_ms": 0.2206,
+    "submit_plan_ms": 0.1851,
+    "submit_start_ms": 0.2419
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 6,
+   "phase": "decode",
+   "wall_ms": 399.03789991512895,
+   "regions_ms": {
+    "route": 13.104100478813052,
+    "cache": 0.3980009350925684,
+    "plan": 1.6985998954623938,
+    "io": 100.17290012910962,
+    "h2d": 16.628599958494306,
+    "decode": 16.94730040617287,
+    "admit": 11.875199852511287,
+    "assemble": 46.84919840656221
+   },
+   "store_io_ms": 53.3248,
+   "h2d_device_ms": 188.09596760571003,
+   "physical_bytes": 175104000,
+   "h2d_bytes": 1179033600,
+   "read_calls": 180,
+   "pieces": 69,
+   "h2d_copies": 111,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 110,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 110,
+    "misses": 202,
+    "hit_bytes": 642048000,
+    "miss_bytes": 1179033600,
+    "inserts": 202,
+    "evictions": 202,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 296.875,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1179033600,
+   "extents": 30,
+   "peak_device_bytes": 5387445248,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 202,
+    "hits": 172,
+    "waits": 0,
+    "misses": 30,
+    "hit_bytes": 1003929600,
+    "wait_bytes": 0,
+    "miss_bytes": 175104000,
+    "evictions": 30,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 175104000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 53.3248,
+    "read_ms": 309.5797,
+    "cache_copied_bytes": 1003929600,
+    "gathered_bytes": 0,
+    "admitted_bytes": 175104000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7516,
+    "submit_cache_ms": 0.2362,
+    "submit_plan_ms": 0.1982,
+    "submit_start_ms": 0.2765
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 7,
+   "phase": "decode",
+   "wall_ms": 440.51959994249046,
+   "regions_ms": {
+    "route": 13.361900113523006,
+    "cache": 0.3929995000362396,
+    "plan": 1.5771002508699894,
+    "io": 93.01860118284822,
+    "h2d": 16.500300029292703,
+    "decode": 16.827299958094954,
+    "admit": 14.124101027846336,
+    "assemble": 70.83129743114114
+   },
+   "store_io_ms": 37.5545,
+   "h2d_device_ms": 216.07180854678154,
+   "physical_bytes": 116736000,
+   "h2d_bytes": 1354137600,
+   "read_calls": 120,
+   "pieces": 72,
+   "h2d_copies": 106,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 80,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 80,
+    "misses": 232,
+    "hit_bytes": 466944000,
+    "miss_bytes": 1354137600,
+    "inserts": 232,
+    "evictions": 232,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 265.625,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1354137600,
+   "extents": 20,
+   "peak_device_bytes": 5387479040,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 232,
+    "hits": 212,
+    "waits": 0,
+    "misses": 20,
+    "hit_bytes": 1237401600,
+    "wait_bytes": 0,
+    "miss_bytes": 116736000,
+    "evictions": 20,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 116736000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 37.5545,
+    "read_ms": 193.4545,
+    "cache_copied_bytes": 1237401600,
+    "gathered_bytes": 0,
+    "admitted_bytes": 116736000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6697,
+    "submit_cache_ms": 0.2209,
+    "submit_plan_ms": 0.1636,
+    "submit_start_ms": 0.2468
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 3,
+   "length": 128,
+   "step": 8,
+   "phase": "decode",
+   "wall_ms": 454.1833000257611,
+   "regions_ms": {
+    "route": 13.254000106826425,
+    "cache": 0.3712994512170553,
+    "plan": 1.6717002727091312,
+    "io": 122.44910071603954,
+    "h2d": 19.350299844518304,
+    "decode": 16.611999599263072,
+    "admit": 13.844501692801714,
+    "assemble": 51.014298340305686
+   },
+   "store_io_ms": 64.0088,
+   "h2d_device_ms": 223.18864005804062,
+   "physical_bytes": 210124800,
+   "h2d_bytes": 1400832000,
+   "read_calls": 215,
+   "pieces": 70,
+   "h2d_copies": 128,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 72,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 72,
+    "misses": 240,
+    "hit_bytes": 420249600,
+    "miss_bytes": 1400832000,
+    "inserts": 240,
+    "evictions": 240,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 343.75,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1400832000,
+   "extents": 34,
+   "peak_device_bytes": 5387512832,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 240,
+    "hits": 204,
+    "waits": 0,
+    "misses": 36,
+    "hit_bytes": 1190707200,
+    "wait_bytes": 0,
+    "miss_bytes": 210124800,
+    "evictions": 36,
+    "resident_bytes": 11992678400,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 210124800,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 64.0088,
+    "read_ms": 397.638,
+    "cache_copied_bytes": 1190707200,
+    "gathered_bytes": 0,
+    "admitted_bytes": 210124800,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.712,
+    "submit_cache_ms": 0.2432,
+    "submit_plan_ms": 0.1852,
+    "submit_start_ms": 0.2468
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 0,
+   "phase": "prefill",
+   "wall_ms": 4175.117299892008,
+   "regions_ms": {
+    "route": 17.472199629992247,
+    "cache": 3.0620002653449774,
+    "plan": 15.595500124618411,
+    "io": 1999.931295402348,
+    "h2d": 240.0998987723142,
+    "decode": 130.04269963130355,
+    "assemble": 530.6873037479818,
+    "chunks": 1071.8071016017348
+   },
+   "store_io_ms": 1885.2695,
+   "h2d_device_ms": 2600.940480366349,
+   "physical_bytes": 6136422400,
+   "h2d_bytes": 16062873600,
+   "read_calls": 6177,
+   "pieces": 697,
+   "h2d_copies": 1686,
+   "requests": 218,
+   "chunked_calls": 26,
+   "cache_hits": 322,
+   "traced": false,
+   "cache": {
+    "lookups": 3074,
+    "hits": 322,
+    "misses": 2752,
+    "hit_bytes": 1879449600,
+    "miss_bytes": 16062873600,
+    "inserts": 0,
+    "evictions": 0,
+    "bypassed": 2752,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 2125.0,
+   "requested_bytes": 26592411648,
+   "fetched_bytes": 16062873600,
+   "extents": 751,
+   "peak_device_bytes": 5728273408,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 2752,
+    "hits": 1703,
+    "waits": 0,
+    "misses": 1049,
+    "hit_bytes": 9926451200,
+    "wait_bytes": 0,
+    "miss_bytes": 6136422400,
+    "evictions": 0,
+    "resident_bytes": 11992678400,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 0,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 1885.2695,
+    "read_ms": 12815.5462,
+    "cache_copied_bytes": 9926451200,
+    "gathered_bytes": 0,
+    "admitted_bytes": 0,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 216,
+    "submit_ms": 8.8554,
+    "submit_cache_ms": 1.8057,
+    "submit_plan_ms": 1.9995,
+    "submit_start_ms": 4.8355
+   },
+   "decoder": {
+    "launches": 218,
+    "rows": 3074,
+    "chunks": 26129,
+    "stored_bytes": 17942323200,
+    "decoded_bytes": 26592411648
+   },
+   "stored_bytes": 17942323200
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 1,
+   "phase": "decode",
+   "wall_ms": 497.86830018274486,
+   "regions_ms": {
+    "route": 13.879300560802221,
+    "cache": 0.33770129084587097,
+    "plan": 1.8096999265253544,
+    "io": 157.92920207604766,
+    "h2d": 26.23549895361066,
+    "decode": 17.018700018525124,
+    "admit": 16.28619898110628,
+    "assemble": 102.19529899768531
+   },
+   "store_io_ms": 132.8019,
+   "h2d_device_ms": 259.1055671721697,
+   "physical_bytes": 431923200,
+   "h2d_bytes": 1610956800,
+   "read_calls": 444,
+   "pieces": 96,
+   "h2d_copies": 192,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 36,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 36,
+    "misses": 276,
+    "hit_bytes": 210124800,
+    "miss_bytes": 1610956800,
+    "inserts": 276,
+    "evictions": 276,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 296.875,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1610956800,
+   "extents": 74,
+   "peak_device_bytes": 5404969472,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 276,
+    "hits": 202,
+    "waits": 0,
+    "misses": 74,
+    "hit_bytes": 1179033600,
+    "wait_bytes": 0,
+    "miss_bytes": 431923200,
+    "evictions": 73,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 431923200,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 132.8019,
+    "read_ms": 802.3377,
+    "cache_copied_bytes": 1179033600,
+    "gathered_bytes": 0,
+    "admitted_bytes": 431923200,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.853,
+    "submit_cache_ms": 0.3238,
+    "submit_plan_ms": 0.2307,
+    "submit_start_ms": 0.2617
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 2,
+   "phase": "decode",
+   "wall_ms": 395.16630000434816,
+   "regions_ms": {
+    "route": 14.192100614309311,
+    "cache": 0.41719921864569187,
+    "plan": 2.9881002847105265,
+    "io": 126.81559938937426,
+    "h2d": 17.791399732232094,
+    "decode": 16.45609992556274,
+    "admit": 11.07059745118022,
+    "assemble": 43.39650413021445
+   },
+   "store_io_ms": 102.8807,
+   "h2d_device_ms": 175.04182396829128,
+   "physical_bytes": 338534400,
+   "h2d_bytes": 1085644800,
+   "read_calls": 346,
+   "pieces": 69,
+   "h2d_copies": 126,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 126,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 126,
+    "misses": 186,
+    "hit_bytes": 735436800,
+    "miss_bytes": 1085644800,
+    "inserts": 186,
+    "evictions": 186,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 265.625,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1085644800,
+   "extents": 54,
+   "peak_device_bytes": 5404981760,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 186,
+    "hits": 128,
+    "waits": 0,
+    "misses": 58,
+    "hit_bytes": 747110400,
+    "wait_bytes": 0,
+    "miss_bytes": 338534400,
+    "evictions": 58,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 338534400,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 102.8807,
+    "read_ms": 627.8983,
+    "cache_copied_bytes": 747110400,
+    "gathered_bytes": 0,
+    "admitted_bytes": 338534400,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 2.0632,
+    "submit_cache_ms": 0.2393,
+    "submit_plan_ms": 0.2198,
+    "submit_start_ms": 1.5704
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 3,
+   "phase": "decode",
+   "wall_ms": 374.5426000095904,
+   "regions_ms": {
+    "route": 14.059300301596522,
+    "cache": 0.4320000298321247,
+    "plan": 1.6777999699115753,
+    "io": 89.7006019949913,
+    "h2d": 15.210302313789725,
+    "decode": 17.486500088125467,
+    "admit": 11.120498878881335,
+    "assemble": 39.347496116533875
+   },
+   "store_io_ms": 46.8967,
+   "h2d_device_ms": 165.02963256835938,
+   "physical_bytes": 151756800,
+   "h2d_bytes": 1027276800,
+   "read_calls": 156,
+   "pieces": 63,
+   "h2d_copies": 103,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 136,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 136,
+    "misses": 176,
+    "hit_bytes": 793804800,
+    "miss_bytes": 1027276800,
+    "inserts": 176,
+    "evictions": 176,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 218.75,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1027276800,
+   "extents": 26,
+   "peak_device_bytes": 5405035008,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 176,
+    "hits": 150,
+    "waits": 0,
+    "misses": 26,
+    "hit_bytes": 875520000,
+    "wait_bytes": 0,
+    "miss_bytes": 151756800,
+    "evictions": 26,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 151756800,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 46.8967,
+    "read_ms": 276.1503,
+    "cache_copied_bytes": 875520000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 151756800,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6831,
+    "submit_cache_ms": 0.2055,
+    "submit_plan_ms": 0.1656,
+    "submit_start_ms": 0.258
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 4,
+   "phase": "decode",
+   "wall_ms": 494.53320004977286,
+   "regions_ms": {
+    "route": 13.16389930434525,
+    "cache": 0.34249969758093357,
+    "plan": 1.7105999868363142,
+    "io": 129.80760098434985,
+    "h2d": 23.27309944666922,
+    "decode": 17.071299720555544,
+    "admit": 15.50509943626821,
+    "assemble": 105.12530012056231
+   },
+   "store_io_ms": 82.2337,
+   "h2d_device_ms": 254.84847885370255,
+   "physical_bytes": 260710400,
+   "h2d_bytes": 1587609600,
+   "read_calls": 267,
+   "pieces": 86,
+   "h2d_copies": 144,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 40,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 40,
+    "misses": 272,
+    "hit_bytes": 233472000,
+    "miss_bytes": 1587609600,
+    "inserts": 272,
+    "evictions": 272,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 375.0,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1587609600,
+   "extents": 43,
+   "peak_device_bytes": 5405083136,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 272,
+    "hits": 228,
+    "waits": 0,
+    "misses": 44,
+    "hit_bytes": 1326899200,
+    "wait_bytes": 0,
+    "miss_bytes": 260710400,
+    "evictions": 44,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 260710400,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 82.2337,
+    "read_ms": 467.4029,
+    "cache_copied_bytes": 1326899200,
+    "gathered_bytes": 0,
+    "admitted_bytes": 260710400,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.8313,
+    "submit_cache_ms": 0.2683,
+    "submit_plan_ms": 0.2453,
+    "submit_start_ms": 0.2804
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 5,
+   "phase": "decode",
+   "wall_ms": 372.4199999123812,
+   "regions_ms": {
+    "route": 14.453500043600798,
+    "cache": 0.40849880315363407,
+    "plan": 1.5493000391870737,
+    "io": 75.90700010769069,
+    "h2d": 12.963601620867848,
+    "decode": 16.35379996150732,
+    "admit": 10.581600246950984,
+    "assemble": 32.271499279886484
+   },
+   "store_io_ms": 26.0868,
+   "h2d_device_ms": 159.69635282456875,
+   "physical_bytes": 81715200,
+   "h2d_bytes": 1003929600,
+   "read_calls": 84,
+   "pieces": 59,
+   "h2d_copies": 90,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 140,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 140,
+    "misses": 172,
+    "hit_bytes": 817152000,
+    "miss_bytes": 1003929600,
+    "inserts": 172,
+    "evictions": 172,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 296.875,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1003929600,
+   "extents": 14,
+   "peak_device_bytes": 5393459200,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 172,
+    "hits": 158,
+    "waits": 0,
+    "misses": 14,
+    "hit_bytes": 922214400,
+    "wait_bytes": 0,
+    "miss_bytes": 81715200,
+    "evictions": 14,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 81715200,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 26.0868,
+    "read_ms": 141.2546,
+    "cache_copied_bytes": 922214400,
+    "gathered_bytes": 0,
+    "admitted_bytes": 81715200,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.5847,
+    "submit_cache_ms": 0.175,
+    "submit_plan_ms": 0.1409,
+    "submit_start_ms": 0.2322
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 6,
+   "phase": "decode",
+   "wall_ms": 389.6139001008123,
+   "regions_ms": {
+    "route": 14.117100043222308,
+    "cache": 0.3912996035069227,
+    "plan": 1.5626996755599976,
+    "io": 104.6222010627389,
+    "h2d": 17.059599747881293,
+    "decode": 16.470099100843072,
+    "admit": 11.181100737303495,
+    "assemble": 41.82579996995628
+   },
+   "store_io_ms": 67.6632,
+   "h2d_device_ms": 178.0108156055212,
+   "physical_bytes": 214016000,
+   "h2d_bytes": 1108992000,
+   "read_calls": 220,
+   "pieces": 70,
+   "h2d_copies": 118,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 122,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 122,
+    "misses": 190,
+    "hit_bytes": 712089600,
+    "miss_bytes": 1108992000,
+    "inserts": 190,
+    "evictions": 190,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 328.125,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1108992000,
+   "extents": 36,
+   "peak_device_bytes": 5393495040,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 190,
+    "hits": 154,
+    "waits": 0,
+    "misses": 36,
+    "hit_bytes": 894976000,
+    "wait_bytes": 0,
+    "miss_bytes": 214016000,
+    "evictions": 37,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 214016000,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 67.6632,
+    "read_ms": 392.0459,
+    "cache_copied_bytes": 894976000,
+    "gathered_bytes": 0,
+    "admitted_bytes": 214016000,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.6839,
+    "submit_cache_ms": 0.2412,
+    "submit_plan_ms": 0.1764,
+    "submit_start_ms": 0.2339
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 7,
+   "phase": "decode",
+   "wall_ms": 410.5517999269068,
+   "regions_ms": {
+    "route": 13.903300277888775,
+    "cache": 0.38989982567727566,
+    "plan": 1.6895006410777569,
+    "io": 147.3462979774922,
+    "h2d": 20.130700198933482,
+    "decode": 16.76890067756176,
+    "admit": 12.388698756694794,
+    "assemble": 42.5361015368253
+   },
+   "store_io_ms": 118.1403,
+   "h2d_device_ms": 197.68873532116413,
+   "physical_bytes": 385228800,
+   "h2d_bytes": 1225728000,
+   "read_calls": 394,
+   "pieces": 79,
+   "h2d_copies": 149,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 102,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 102,
+    "misses": 210,
+    "hit_bytes": 595353600,
+    "miss_bytes": 1225728000,
+    "inserts": 210,
+    "evictions": 210,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 265.625,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1225728000,
+   "extents": 62,
+   "peak_device_bytes": 5405204480,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 210,
+    "hits": 144,
+    "waits": 0,
+    "misses": 66,
+    "hit_bytes": 840499200,
+    "wait_bytes": 0,
+    "miss_bytes": 385228800,
+    "evictions": 66,
+    "resident_bytes": 11996569600,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 385228800,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 118.1403,
+    "read_ms": 732.1115,
+    "cache_copied_bytes": 840499200,
+    "gathered_bytes": 0,
+    "admitted_bytes": 385228800,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7609,
+    "submit_cache_ms": 0.2727,
+    "submit_plan_ms": 0.2076,
+    "submit_start_ms": 0.2445
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  },
+  {
+   "prompt": 5,
+   "length": 512,
+   "step": 8,
+   "phase": "decode",
+   "wall_ms": 409.29219988174736,
+   "regions_ms": {
+    "route": 14.457899145781994,
+    "cache": 0.5721990019083023,
+    "plan": 1.6442998312413692,
+    "io": 127.75059835985303,
+    "h2d": 19.30079865269363,
+    "decode": 17.275500344112515,
+    "admit": 12.627401389181614,
+    "assemble": 55.36600272171199
+   },
+   "store_io_ms": 100.5223,
+   "h2d_device_ms": 191.01487985253334,
+   "physical_bytes": 326860800,
+   "h2d_bytes": 1179033600,
+   "read_calls": 335,
+   "pieces": 81,
+   "h2d_copies": 138,
+   "requests": 52,
+   "chunked_calls": 0,
+   "cache_hits": 110,
+   "traced": false,
+   "cache": {
+    "lookups": 312,
+    "hits": 110,
+    "misses": 202,
+    "hit_bytes": 642048000,
+    "miss_bytes": 1179033600,
+    "inserts": 202,
+    "evictions": 202,
+    "bypassed": 0,
+    "resident_bytes": 1891123200
+   },
+   "peak_reserved_bytes": 5903482880,
+   "main_thread_cpu_ms": 218.75,
+   "requested_bytes": 2699034624,
+   "fetched_bytes": 1179033600,
+   "extents": 54,
+   "peak_device_bytes": 5405233152,
+   "memory": {
+    "resident_bytes": 15789383680,
+    "peak_resident_bytes": 16274259968,
+    "private_bytes": 22954758144
+   },
+   "host_cache": {
+    "lookups": 202,
+    "hits": 146,
+    "waits": 0,
+    "misses": 56,
+    "hit_bytes": 852172800,
+    "wait_bytes": 0,
+    "miss_bytes": 326860800,
+    "evictions": 55,
+    "resident_bytes": 11992678400,
+    "prefetch_fills": 0,
+    "prefetch_used": 0,
+    "prefetch_wasted": 0,
+    "held_bytes": 11996569600,
+    "peak_held_bytes": 11996569600,
+    "recycled_bytes": 326860800,
+    "allocated_bytes": 0,
+    "released_bytes": 0
+   },
+   "native": {
+    "busy_ms": 100.5223,
+    "read_ms": 609.4231,
+    "cache_copied_bytes": 852172800,
+    "gathered_bytes": 0,
+    "admitted_bytes": 326860800,
+    "fallback_rows": 0,
+    "prefetches": 0,
+    "prefetch_rows": 0,
+    "prefetch_bytes": 0,
+    "prefetch_blocks_4k": 0,
+    "submits": 26,
+    "submit_ms": 0.7575,
+    "submit_cache_ms": 0.2364,
+    "submit_plan_ms": 0.2054,
+    "submit_start_ms": 0.2799
+   },
+   "decoder": {
+    "launches": 26,
+    "rows": 312,
+    "chunks": 2652,
+    "stored_bytes": 1821081600,
+    "decoded_bytes": 2699034624
+   },
+   "stored_bytes": 1821081600
+  }
+ ]
+}

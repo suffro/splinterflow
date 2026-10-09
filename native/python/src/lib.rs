@@ -97,6 +97,11 @@ fn io_stats<'py>(py: Python<'py>, stats: &IoStats) -> PyResult<Bound<'py, PyDict
     dict.set_item("prefetch_rows", stats.prefetch_rows)?;
     dict.set_item("prefetch_bytes", stats.prefetch_bytes)?;
     dict.set_item("prefetch_blocks_4k", stats.prefetch_blocks_4k)?;
+    dict.set_item("submits", stats.submits)?;
+    dict.set_item("submit_ms", stats.submit_ns as f64 / 1e6)?;
+    dict.set_item("submit_cache_ms", stats.submit_cache_ns as f64 / 1e6)?;
+    dict.set_item("submit_plan_ms", stats.submit_plan_ns as f64 / 1e6)?;
+    dict.set_item("submit_start_ms", stats.submit_start_ns as f64 / 1e6)?;
     let by_segment = PyDict::new(py);
     for (segment, entry) in &stats.by_segment {
         let item = PyDict::new(py);
@@ -129,6 +134,9 @@ fn cache_stats<'py>(py: Python<'py>, stats: &CacheStats) -> PyResult<Bound<'py, 
         ("bypassed_bytes", stats.bypassed_bytes),
         ("aborted_fills", stats.aborted_fills),
         ("recycled", stats.recycled),
+        ("recycled_bytes", stats.recycled_bytes),
+        ("allocated_bytes", stats.allocated_bytes),
+        ("released_bytes", stats.released_bytes),
         ("prefetch_fills", stats.prefetch_fills),
         ("prefetch_fill_bytes", stats.prefetch_fill_bytes),
         ("prefetch_skipped", stats.prefetch_skipped),
@@ -159,8 +167,8 @@ struct Engine {
 impl Engine {
     #[new]
     #[pyo3(signature = (files, segments, *, direct=true, alignment=4096, max_gap=0, max_read_bytes=1<<20,
-                        max_extent_bytes=8<<20, workers=8, host_cache_bytes=0, direct_copy_bytes=256<<10,
-                        copy_chunk_bytes=4<<20))]
+                        max_extent_bytes=8<<20, workers=8, host_cache_bytes=0, cache_block_bytes=0,
+                        direct_copy_bytes=256<<10, copy_chunk_bytes=4<<20))]
     #[allow(clippy::too_many_arguments)]
     fn new(
         py: Python<'_>,
@@ -173,6 +181,7 @@ impl Engine {
         max_extent_bytes: u64,
         workers: usize,
         host_cache_bytes: u64,
+        cache_block_bytes: u64,
         direct_copy_bytes: u64,
         copy_chunk_bytes: u64,
     ) -> PyResult<Self> {
@@ -191,6 +200,7 @@ impl Engine {
             max_read_bytes,
             workers,
             host_cache_bytes,
+            cache_block_bytes,
             direct_copy_bytes,
             copy_chunk_bytes,
         };
@@ -338,15 +348,20 @@ impl Engine {
         io_stats(py, &self.inner.stats())
     }
 
-    /// The host cache's counters, budget and contents (None without a cache).
+    /// The host cache's counters, budget and contents (None without a cache): resident bytes are its rows' (ready and
+    /// loading), held bytes everything it holds (its rows and its pool of evicted rows' blocks).
     fn cache_stats<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyDict>>> {
         let Some(cache) = self.inner.cache() else {
             return Ok(None);
         };
         let dict = cache_stats(py, &cache.stats())?;
         dict.set_item("capacity_bytes", cache.capacity())?;
+        dict.set_item("block_bytes", cache.block_bytes())?;
         dict.set_item("resident_bytes", cache.resident_bytes())?;
         dict.set_item("peak_resident_bytes", cache.peak_resident_bytes())?;
+        dict.set_item("pool_bytes", cache.pool_bytes())?;
+        dict.set_item("held_bytes", cache.held_bytes())?;
+        dict.set_item("peak_held_bytes", cache.peak_held_bytes())?;
         dict.set_item("entries", cache.len())?;
         dict.set_item("admit", cache.admit())?;
         Ok(Some(dict))

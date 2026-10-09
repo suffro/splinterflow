@@ -1,0 +1,136 @@
+# Weightsift Phase 6B: native GPU execution and compressed expert streaming (decision 0013). Moonlight-16B-A3B as in
+# Phases 4B and 6A, its routed experts served by the native core (6B1: block-held host cache, chained wakes) as BF16 rows
+# or as encoded rows (6B2: nvCOMP rANS chunks, decoded on the GPU). Model, tokenizer, prompts, index, device cap and call
+# budget are Phase 4B's (configs/phase4b-moonlight.yaml); the reference is Phase 6A's baseline-run1's.
+
+model:
+  repository: moonshotai/Moonlight-16B-A3B
+  revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  dtype: bfloat16
+  adapter: moonlight
+  tokenizer_revision: 476b36a473d4467f94469414bef6cee75c9c8172
+  trust_remote_code_tokenizer: true
+
+prompts:
+  dataset:
+    repository: Salesforce/wikitext
+    revision: b08601e04326c79dfdd32d625aee71d232d685c3
+    file: wikitext-2-raw-v1/test-00000-of-00001.parquet
+    text_column: text
+  seed: 4
+  lengths: [16, 32, 64, 128, 256, 512, 768, 1024, 16, 32, 64, 128, 256, 512, 768, 1024]
+  decode_steps: 8
+
+index:
+  directory: packs/moonlight-16b-a3b-expert-index
+
+# The encoded pack (`weightsift pack encoded-experts`): every index row in independent chunks of chunk_bytes, each
+# compressed by nvCOMP's rANS in its float16 mode (the probe of stage 6B2-A, experiments/phase6b/codec: Phase 5C's zstd
+# frames decode exactly on this GPU but too slowly; rANS float16 over 1 MiB chunks stores 0.674 of the bytes and restores
+# a decode call in 0.69 ms). Rows padded to their segment's slot (a multiple of the pack's block).
+encoded:
+  directory: packs/moonlight-16b-a3b-experts-ans
+  codec: ans
+  options: {data_type: float16}
+  chunk_bytes: 1048576
+
+storage:
+  alignment: 4096
+  max_gap: 0
+  workers: 8
+  max_read_bytes: 1048576
+  max_extent_bytes: 8388608
+  slot_bytes: 33554432
+  slots: 2
+  native_slots: 4
+
+gpu_budget_bytes: 6000000000
+call_budget_bytes: 268435456
+
+reference:
+  residency_check_layers: [1]
+  residency_check_prompts: 2
+
+hotness_half_life: 1024
+poison_prompts: 3
+record_ranges_prompts: 3
+per_assignment_prompts: 2
+
+timing:
+  settle_seconds: 3
+  warmup_prompts: 1
+
+# Every configuration serves the routed experts through its backend (python: Phase 4B's store; native: the Rust core with
+# 6B1's block-held host cache and chained wakes); `experts: encoded` reads the encoded pack's rows instead of the index's
+# BF16 rows and decodes them on the GPU (6B2). A cache persists across a configuration's prompts and starts empty;
+# host_cache_bytes is the native host cache's budget (its rows: BF16 or encoded), freeze_prefill freezes its admission
+# during prefills (Phase 6A's best configuration).
+configurations:
+  # Phase 6A's I/O parity pair, on the 6B1 engine.
+  - {name: python-stream, backend: python, cache_experts: 0, per_assignment_prompts: all, poison_prompts: 3}
+  - {name: native-stream, backend: native, cache_experts: 0, per_assignment_prompts: all, poison_prompts: 3}
+  # Phase 6A's best configuration, on the 6B1 engine (BF16 rows).
+  - {name: native-host-12g-freeze, backend: native, host_cache_bytes: 12000000000, freeze_prefill: true}
+  # 6B2: encoded rows, decoded on the GPU: without a host cache (every row from the drive, poisoned first prompts), every
+  # call chunked (one expert per chunk: chunked calls through decoded rows), a host cache smaller than one call (bypasses),
+  # and the 12 GB host cache with the prefill freeze (6A's best, on encoded rows: 1.5 times as many experts).
+  - {name: encoded-stream, backend: native, experts: encoded, cache_experts: 0, per_assignment_prompts: all, poison_prompts: 3}
+  - {name: encoded-chunk-1, backend: native, experts: encoded, cache_experts: 0, call_budget_experts: 1, num_prompts: 4, per_assignment_prompts: all}
+  - {name: encoded-host-tiny, backend: native, experts: encoded, host_cache_experts: 2, num_prompts: 4}
+  - {name: encoded-host-12g-freeze, backend: native, experts: encoded, host_cache_bytes: 12000000000, freeze_prefill: true}
+  # 6B3-A: a device cache of encoded rows (stored bytes, decoded from their entries on a hit) in fixed slots of each stored
+  # row size: a tiny one (4 slots each, admitting during prefills: evictions in every call, slots reused within a call),
+  # and 1.9 GB (162 slots each, 1.89 GB allocated up front) over the 12 GB host cache, admission frozen during prefills
+  # like the host cache's. LRU keeps the previous token's experts from 1.83 GB on (experiments/phase6b/gpucache: the
+  # replay's plateau, 0.38-0.41 of decode bytes).
+  - {name: encoded-dev-tiny, backend: native, experts: encoded, cache_experts: 0, device_cache_bytes: 50000000, policy: lru, num_prompts: 4}
+  - {name: encoded-host-12g-freeze-dev1.9g, backend: native, experts: encoded, host_cache_bytes: 12000000000, freeze_prefill: true, device_cache_bytes: 1900000000, policy: lru}
+  # 6B4 and the fills: the same, with its decode steps' static pieces replayed from CUDA Graphs and PyTorch's NaN fill of
+  # uninitialized memory off (the combined configuration).
+  - {name: encoded-host-12g-freeze-dev1.9g-fast, backend: native, experts: encoded, host_cache_bytes: 12000000000, freeze_prefill: true, device_cache_bytes: 1900000000, policy: lru, decode_graphs: true, fill_uninitialized_memory: false}
+
+# Gates (benchmarks/gpu_report.py), frozen on 2026-10-09 after the exploratory profiles (experiments/phase6b/stage*,
+# variants) and before the final runs. Every decode figure is the mean of a configuration's un-traced warm profiles in
+# the run directory (PYTHONHASHSEED 1 and 2); the Phase 6A tree's own profiles are experiments/phase6b/baseline and
+# baseline-repeat (taken before any change). Correctness, the encoded pack's audit, I/O parity and the caches' replays
+# are gates too (every step equal to the reference; replays equal to the measured hits and misses; budgets held).
+gates:
+  max_working_set_above_cache_bytes: 5e9  # the process's host memory: its host cache's budget plus at most this (6A's)
+  # 6B1: the engine's own time in submit per decode token (Phase 6A: 56-105 ms), and decode with BF16 host caches
+  # faster than on the Phase 6A tree (the mean over both configurations: their evictions are what changed).
+  submit_ms_per_decode_token_max: 10
+  engine_configurations: [native-host-4g, native-host-12g-freeze]
+  engine_decode_ratio_max: 0.99
+  # 6B2: encoded rows decoded on the GPU against BF16 rows, on the same engine with the same host budget: the decoder
+  # must cost less than the bytes it saves, by a margin worth a codec.
+  encoded_pair: [encoded-host-12g-freeze, native-host-12g-freeze]
+  encoded_decode_ratio_max: 0.90
+  # 6B3-A: the device cache against the same host budget without it, within the GPU cap (peak reserved memory).
+  device_cache_pair: [encoded-host-12g-freeze-dev1.9g, encoded-host-12g-freeze]
+  device_cache_decode_ratio_max: 0.95
+  # 6B4 with PyTorch's NaN fills off: the combined configuration against the same one without them.
+  fast_pair: [encoded-host-12g-freeze-dev1.9g-fast, encoded-host-12g-freeze-dev1.9g]
+  fast_decode_ratio_max: 0.97
+  # The phase: the best configuration's warm decode against Phase 6A's best (807.0 ms, decision 0012); the brief's 20%
+  # is reported, not gated.
+  phase6a_decode_ms: 807.0
+  best_decode_ratio_to_phase6a_max: 0.90
+  aspirational_decode_ratio_to_phase6a: 0.80
+
+# Performance (benchmarks/moonlight_profile.py, un-instrumented, one configuration per process): Phase 4B's prompts 7, 0,
+# 3 and 5 (1,024, 16, 128 and 512 tokens) with 8 decode steps each. "warm": the prompts 8..15 run first in the same
+# process (not measured), so caches start as a serving process's would; "cold": caches start empty.
+profile:
+  prompts: [7, 0, 3, 5]
+  warm_prompts: [8, 9, 10, 11, 12, 13, 14, 15]
+  configurations:
+    - {name: native-host-4g, backend: native, host_cache_bytes: 4000000000}
+    - {name: encoded-host-4g, backend: native, experts: encoded, host_cache_bytes: 4000000000}
+    # Each change of the combined configuration alone: the NaN fills off, or the decode graphs.
+    - {name: encoded-host-12g-freeze-dev1.9g-nofill, backend: native, experts: encoded, host_cache_bytes: 12000000000, freeze_prefill: true, device_cache_bytes: 1900000000, policy: lru, fill_uninitialized_memory: false}
+    - {name: encoded-host-12g-freeze-dev1.9g-graphs, backend: native, experts: encoded, host_cache_bytes: 12000000000, freeze_prefill: true, device_cache_bytes: 1900000000, policy: lru, decode_graphs: true}
+    # Exploratory, with the GPU cap raised to 7 GB (a run directory whose config.yaml says so): copies of encoded rows in a
+    # page cache's allocator pool, LRU or hotness, 2 GB. Under the 6 GB cap they ran out of memory (the pool's blocks
+    # fragment); they measure the device cache's value before the slots were built.
+    - {name: encoded-host-12g-freeze-dev2g, backend: native, experts: encoded, host_cache_bytes: 12000000000, freeze_prefill: true, device_cache_bytes: 2000000000, policy: lru, device_cache: pages}
+    - {name: encoded-host-12g-freeze-dev2g-hot, backend: native, experts: encoded, host_cache_bytes: 12000000000, freeze_prefill: true, device_cache_bytes: 2000000000, policy: hotness, device_cache: pages}

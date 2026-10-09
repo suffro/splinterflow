@@ -1,0 +1,102 @@
+{
+ "model": "moonshotai/Moonlight-16B-A3B",
+ "prompt_tokens": 16,
+ "fills": [],
+ "by_operation": {
+  "aten::fill_ [[6, 2816, 2048], []] @ ?": {
+   "launches": 26,
+   "device_us": 4708.887999999806
+  },
+  "aten::fill_ [[6, 2048, 1408], []] @ ?": {
+   "launches": 26,
+   "device_us": 3236.2829999998285
+  },
+  "aten::fill_ [[6], []] @ ?": {
+   "launches": 442,
+   "device_us": 358.5700000021898
+  },
+  "aten::fill_ [[], []] @ ?": {
+   "launches": 292,
+   "device_us": 237.50300000013704
+  },
+  "cudaStreamIsCapturing [] @ ?": {
+   "launches": 18,
+   "device_us": 139.7110000004177
+  },
+  "aten::fill_ [[1, 1, 2048], []] @ ?": {
+   "launches": 110,
+   "device_us": 90.59100000064245
+  },
+  "aten::fill_ [[1, 6], []] @ ?": {
+   "launches": 78,
+   "device_us": 64.19099999927494
+  },
+  "aten::fill_ [[1, 1, 512], []] @ ?": {
+   "launches": 54,
+   "device_us": 48.15699999983008
+  },
+  "aten::fill_ [[1, 1, 16, 128], []] @ ?": {
+   "launches": 54,
+   "device_us": 43.904000000911765
+  },
+  "aten::fill_ [[1, 64], []] @ ?": {
+   "launches": 52,
+   "device_us": 43.8720000004796
+  },
+  "aten::fill_ [[1, 2048], []] @ ?": {
+   "launches": 52,
+   "device_us": 42.814999998983694
+  },
+  "aten::fill_ [[1, 1], []] @ ?": {
+   "launches": 52,
+   "device_us": 42.5940000001101
+  },
+  "aten::fill_ [[64], []] @ ?": {
+   "launches": 52,
+   "device_us": 42.20600000024206
+  },
+  "aten::fill_ [[64, 2048], []] @ ?": {
+   "launches": 26,
+   "device_us": 30.910999999705382
+  },
+  "aten::fill_ [[1, 16, 18, 192], []] @ ?": {
+   "launches": 27,
+   "device_us": 23.55200000046716
+  },
+  "aten::fill_ [[6, 2816], []] @ ?": {
+   "launches": 26,
+   "device_us": 22.6540000005989
+  },
+  "aten::fill_ [[1], []] @ ?": {
+   "launches": 27,
+   "device_us": 21.792999999895983
+  },
+  "aten::fill_ [[6, 2048], []] @ ?": {
+   "launches": 26,
+   "device_us": 20.66999999948166
+  },
+  "cudaEventRecordWithFlags [] @ ?": {
+   "launches": 18,
+   "device_us": 15.295000000303844
+  },
+  "aten::fill_ [[1, 1, 64], []] @ ?": {
+   "launches": 2,
+   "device_us": 1.6959999999999127
+  },
+  "aten::fill_ [[2048], []] @ ?": {
+   "launches": 1,
+   "device_us": 0.9600000000009459
+  },
+  "cudaEventSynchronize [] @ ?": {
+   "launches": 1,
+   "device_us": 0.9280000000144355
+  },
+  "aten::fill_ [[1, 1, 1], []] @ ?": {
+   "launches": 1,
+   "device_us": 0.8320000000003347
+  }
+ },
+ "fill_types": {
+  "_ZN2at6native29vectorized_elem": 1463
+ }
+}
